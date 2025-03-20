@@ -5,6 +5,7 @@ import (
 	"scaffold/pkg/config"
 	"scaffold/pkg/engine"
 	"scaffold/pkg/logger"
+	"scaffold/pkg/repository/db"
 	"scaffold/pkg/repository/redis"
 
 	"github.com/pkg/errors"
@@ -22,6 +23,10 @@ func setting() error {
 
 	if err = redis.Init(&config.Cfg.Redis); err != nil {
 		return errors.WithMessage(err, "redis模块初始化失败")
+	}
+
+	if err = db.Init(&config.Cfg.DB); err != nil {
+		return errors.WithMessage(err, "db模块初始化失败")
 	}
 
 	return nil

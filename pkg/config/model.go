@@ -3,7 +3,7 @@ package config
 type Config struct {
 	App   AppConfig   `mapstructure:"app"`
 	Log   LogConfig   `mapstructure:"log"`
-	MySQL MySQLConfig `mapstructure:"mysql"`
+	DB    DBConfig    `mapstructure:"db"`
 	Redis RedisConfig `mapstructure:"redis"`
 	Auth  AuthConfig  `mapstructure:"auth"`
 }
@@ -26,8 +26,9 @@ type LogConfig struct {
 	MaxBackups int    `mapstructure:"max_backups"`
 }
 
-// MySQLConfig MySQL数据库配置
-type MySQLConfig struct {
+// DBConfig 数据库配置(通用)
+type DBConfig struct {
+	Driver     string `mapstructure:"driver"` // 数据库驱动类型
 	Host       string `mapstructure:"host"`
 	Username   string `mapstructure:"username"`
 	Password   string `mapstructure:"password"`
@@ -35,6 +36,9 @@ type MySQLConfig struct {
 	DBName     string `mapstructure:"dbname"`
 	MaxOpenCon int    `mapstructure:"max_open_con"`
 	MaxIdleCon int    `mapstructure:"max_idle_con"`
+	// GORM特有配置
+	LogLevel      string `mapstructure:"log_level"`
+	SlowThreshold int    `mapstructure:"slow_threshold"`
 }
 
 // RedisConfig Redis配置

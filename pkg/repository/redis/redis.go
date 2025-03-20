@@ -29,17 +29,18 @@ func Init(cfg *config.RedisConfig) error {
 	defer cancel()
 
 	if _, err := client.Ping(ctx).Result(); err != nil {
-	    return errors.Wrap(err, "Redis连接失败")
+		return errors.Wrap(err, "Redis连接失败")
 	}
 
-	zap.L().Info("Redis连接成功")
+	zap.L().Info("Redis连接成功",
+		zap.String("host", cfg.Host))
 
 	return nil
 }
 
 func Close() {
 	if err := client.Close(); err != nil {
-		zap.L().Error("redis close() failed", zap.Error(err))
+		zap.L().Error("redis 关闭连接失败", zap.Error(err))
 	}
 }
 

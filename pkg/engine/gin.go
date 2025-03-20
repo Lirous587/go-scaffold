@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"scaffold/pkg/config"
 	"scaffold/pkg/logger"
+	"scaffold/pkg/repository/db"
 	"scaffold/pkg/repository/redis"
 	"syscall"
 	"time"
@@ -115,7 +116,7 @@ func cleanup() {
 	redis.Close()
 
 	// 关闭数据库连接
-	// db.Close()
+	db.Close()
 
 	zap.L().Info("所有资源已成功关闭")
 }
