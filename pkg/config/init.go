@@ -2,9 +2,11 @@ package config
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"reflect"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 )
 
 var Cfg Config
@@ -12,16 +14,16 @@ var Cfg Config
 func Init() error {
 	// 初始化viper
 	if err := initViper(); err != nil {
-		return err
+		return errors.WithMessage(err, "initViper failed")
 	}
 
 	// 解析配置到结构体
 	if err := loadConfig(); err != nil {
-		return err
+		return errors.WithMessage(err, "loadConfig failed")
 	}
 
 	if err := validationConfig(); err != nil {
-		return err
+		return errors.WithMessage(err, "validationConfig failed")
 	}
 
 	return nil
@@ -30,9 +32,8 @@ func Init() error {
 // 加载配置到结构体
 func loadConfig() error {
 	if err := viper.Unmarshal(&Cfg); err != nil {
-		return fmt.Errorf("无法解析配置到结构体: %w", err)
+		return errors.Wrap(err, "无法解析配置到结构体")
 	}
-
 	return nil
 }
 
@@ -49,7 +50,7 @@ func validateStruct(prefix string, s interface{}) error {
 	// 如果是指针，获取其指向的实际值
 	if val.Kind() == reflect.Ptr {
 		if val.IsNil() {
-			return fmt.Errorf("配置项 %s 不能为 nil", prefix)
+			return errors.New(fmt.Sprintf("配置项 %s 不能为 nil", prefix))
 		}
 		val = val.Elem()
 		typ = val.Type()
@@ -82,27 +83,27 @@ func validateStruct(prefix string, s interface{}) error {
 		case reflect.Struct:
 			// 递归验证嵌套结构体
 			if err := validateStruct(fieldPath, field.Interface()); err != nil {
-				return err
+				return errors.WithMessage(err, fmt.Sprintf("验证子配置 %s 失败", fieldPath))
 			}
 
 		case reflect.Ptr:
 			// 递归验证指针类型
 			if !field.IsNil() {
 				if err := validateStruct(fieldPath, field.Interface()); err != nil {
-					return err
+					return errors.WithMessage(err, fmt.Sprintf("验证子配置 %s 失败", fieldPath))
 				}
 			}
 
 		case reflect.String:
 			// 验证必要的字符串字段不为空
 			if !isPermitEmpty(fieldPath) && field.String() == "" {
-				return fmt.Errorf("缺少配置: %s", fieldPath)
+				return errors.New(fmt.Sprintf("缺少配置: %s", fieldPath))
 			}
 
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			// 验证必要的数字字段大于0
 			if !isPermitEmpty(fieldPath) && field.Int() <= 0 {
-				return fmt.Errorf("无效配置: %s 必须大于0", fieldPath)
+				return errors.New(fmt.Sprintf("无效配置: %s 必须大于0", fieldPath))
 			}
 		}
 	}

@@ -1,46 +1,39 @@
 package cmd
 
 import (
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
-	"log"
+	"fmt"
 	"scaffold/pkg/config"
 	"scaffold/pkg/engine"
 	"scaffold/pkg/logger"
+	"scaffold/pkg/repository/redis"
+
+	"github.com/pkg/errors"
 )
 
-func Main() {
-	if err := config.Init(); err != nil {
-		log.Fatalf("配置初始化失败: %v", err)
+func setting() error {
+	var err error
+	if err = config.Init(); err != nil {
+		return errors.WithMessage(err, "config模块初始化失败")
 	}
 
-	if err := logger.InitZap(&config.Cfg.Log); err != nil {
-		log.Fatalf("zap日志初始化失败: %v", err)
+	if err = logger.Init(&config.Cfg.Log); err != nil {
+		return errors.WithMessage(err, "config模块初始化失败")
+	}
+
+	if err = redis.Init(&config.Cfg.Redis); err != nil {
+		return errors.WithMessage(err, "redis模块初始化失败")
+	}
+
+	return nil
+}
+
+func Main() {
+	if err := setting(); err != nil {
+		fmt.Printf("%+v", err)
 		return
 	}
 
-	defer func() {
-		logger.FinishLog()
-	}()
-
 	router := engine.Init(&config.Cfg.App)
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"msg": "hello",
-		})
-	})
-
-	router.GET("/warning", func(c *gin.Context) {
-		c.JSON(404, gin.H{
-			"msg": "warning",
-		})
-	})
-	router.GET("/error", func(c *gin.Context) {
-		c.JSON(500, gin.H{
-			"msg": "error",
-		})
-	})
-
-	router.Run(":8080")
+	engine.Run(router, config.Cfg.App.Port)
 }

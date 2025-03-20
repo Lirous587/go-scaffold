@@ -2,10 +2,7 @@ package logger
 
 import (
 	"errors"
-	"fmt"
-	"io"
 	"os"
-	"runtime"
 	"scaffold/pkg/config"
 	"time"
 
@@ -14,7 +11,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func InitZap(cfg *config.LogConfig) (err error) {
+func Init(cfg *config.LogConfig) (err error) {
 	writeSyncer := getLogWriter(cfg.Filename, cfg.MaxSize, cfg.MaxBackups, cfg.MaxAge)
 
 	// 创建编码器
@@ -77,33 +74,7 @@ func getLogWriter(filename string, maxSize, maxBackup, maxAge int) zapcore.Write
 	// 添加文件写入器
 	writers := []zapcore.WriteSyncer{zapcore.AddSync(lumberJackLogger)}
 
-	// 处理Windows平台控制台输出问题
-	if runtime.GOOS == "windows" {
-		// Windows平台使用安全写入器包装stdout
-		writers = append(writers, zapcore.AddSync(&winSafeWriter{os.Stdout}))
-	} else {
-		writers = append(writers, zapcore.AddSync(os.Stdout))
-	}
+	writers = append(writers, zapcore.AddSync(os.Stdout))
 
 	return zapcore.NewMultiWriteSyncer(writers...)
-}
-
-// Windows平台安全写入器
-type winSafeWriter struct {
-	w io.Writer
-}
-
-func (wsw *winSafeWriter) Write(p []byte) (n int, err error) {
-	return wsw.w.Write(p)
-}
-
-func (wsw *winSafeWriter) Sync() error {
-	// Windows平台上忽略同步错误
-	return nil
-}
-
-func FinishLog() {
-	if err := zap.L().Sync(); err != nil {
-		fmt.Printf("zap.L().Sync() failed, err:%v", err)
-	}
 }
