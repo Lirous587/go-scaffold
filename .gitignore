@@ -1,0 +1,7 @@
+.idea/
+.vscode/
+bin/
+output/
+bin
+**/config/config.yaml
+*.exe
