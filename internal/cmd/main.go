@@ -37,7 +37,7 @@ type mock struct {
 	Role string `json:"role" binding:"required,oneof=admin user guest"`
 
 	// 数组/切片验证
-	Tags []string `json:"tags" binding:"dive,min=2,max=10"`
+	Tags []string `json:"tags" binding:"required,dive,min=2,max=10"`
 
 	// 嵌套结构体验证
 	Address Address `json:"address" binding:"required"`

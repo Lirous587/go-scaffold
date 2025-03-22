@@ -5,3 +5,4 @@ output/
 bin
 **/config/config.yaml
 *.exe
+/tmp/*

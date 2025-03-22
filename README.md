@@ -94,7 +94,7 @@ app:
 log:
   mode: "dev"            # 日志模式
   level: "info"          # 日志级别: debug, info, warn, error
-  filename: "log/log.log"
+  filename: "logs/scaffold.log"
   max_size: 1            # 单个日志文件大小(MB)
   max_age: 30            # 日志保留天数
   max_backups: 7         # 保留的旧日志文件数量

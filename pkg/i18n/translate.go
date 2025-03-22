@@ -5,7 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// Translate 翻译验证错误
+// TranslateError 翻译验证错误
 func TranslateError(err error, lang string) map[string]string {
 	var validationErrors validator.ValidationErrors
 	if !errors.As(err, &validationErrors) {
