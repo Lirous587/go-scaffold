@@ -3,10 +3,19 @@ package v1
 import "scaffold/pkg/apigen"
 
 type CreateReq struct {
-	apigen.Meta `method:"post" path:"v1/user" sm:"创建用户" dc:"通过提供的用户信息创建新用户" tags:"user"`
-	Username    string `json:"username" binding:"required"`
-	Email       string `json:"email" binding:"required,email"`
-	Password    string `json:"password" binding:"required"`
+	apigen.Meta `method:"post" path:"v1/user" sm:"创建用户" dc:"通过提供的用户信息创建新用户" 
+	tags:"user,account" 
+	produces:"application/json" 
+	consumes:"application/json" 
+	operationId:"createUser" 
+	security:"JWT,OAuth2" 
+	version:"v1" 
+	deprecated:"false"`
+	Username    string `json:"username" binding:"required" dc:"用户名" example:"johndoe" minLength:"3" maxLength:"50"`
+	Email       string `json:"email" binding:"required,email" dc:"电子邮箱地址" example:"john@example.com" format:"email"`
+	Password    string `json:"password" binding:"required" dc:"用户密码" example:"P@ssw0rd" format:"password" minLength:"8" maxLength:"64"`
+	Role        string `json:"role" dc:"用户角色" enum:"admin,user,guest" default:"user"`
+	Age         int    `json:"age" dc:"用户年龄" min:"18" max:"120" example:"30"`
 }
 
 type CreateRes struct {
