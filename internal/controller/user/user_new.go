@@ -18,8 +18,7 @@ func NewV1(r *gin.Engine) user.IUserV1 {
 	}
 
 	group := r.Group("/v1")
-	group.POST("/user", middleware.AutoBind(ControllerV1.Create))
-	
+	group.POST("/user/:label", middleware.AutoBind(ControllerV1.Create))
 	
 	return ControllerV1
 }

@@ -17,13 +17,14 @@ func New() *User {
 type CreateIn struct {
 	Username string
 	Email    string
+	Password string
 }
 
 func (u *User) Create(ctx context.Context, req *CreateIn) (uint, error) {
 	user := &entity.User{
 		Username: req.Username,
 		Email:    req.Email,
-		
+		Password: req.Password,
 	}
 	return u.dao.Insert(ctx, user)
 }

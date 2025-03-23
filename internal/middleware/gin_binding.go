@@ -6,7 +6,11 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
+
+// 创建验证器
+var validate = validator.New()
 
 // AutoBind 自动将请求绑定到处理函数的参数，并返回处理结果
 func AutoBind(handler interface{}) gin.HandlerFunc {
@@ -44,42 +48,19 @@ func AutoBind(handler interface{}) gin.HandlerFunc {
 		reqValue := reflect.New(reqType.Elem())
 		req := reqValue.Interface()
 
-		// 尝试绑定适合的参数来源
-		var bindErr error
+		// 绑定所有来源的参数，忽略错误
+		c.ShouldBindUri(req)
 
-		// 根据请求方法和Content-Type选择绑定方式
 		if c.Request.Method == "GET" {
-			// GET请求优先绑定查询参数
-			bindErr = c.ShouldBindQuery(req)
-			if bindErr == nil {
-				// 再尝试绑定URI参数
-				bindErr = c.ShouldBindUri(req)
-			}
-		} else if c.Request.Method == "POST" || c.Request.Method == "PUT" || c.Request.Method == "PATCH" {
-			// POST/PUT/PATCH请求优先绑定JSON
-			contentType := c.ContentType()
-			if contentType == "application/json" {
-				bindErr = c.ShouldBindJSON(req)
-			} else if contentType == "application/x-www-form-urlencoded" || contentType == "multipart/form-data" {
-				bindErr = c.ShouldBind(req)
-			} else {
-				// 默认尝试JSON绑定
-				bindErr = c.ShouldBindJSON(req)
-			}
+			c.ShouldBindQuery(req)
+		} else if c.ContentType() == "application/json" {
+			c.ShouldBindJSON(req)
 		} else {
-			// 其他方法使用通用绑定
-			bindErr = c.ShouldBind(req)
+			c.ShouldBind(req)
 		}
-
-		// 无论哪种绑定方式，始终绑定URL参数
-		if uriErr := c.ShouldBindUri(req); uriErr != nil && bindErr == nil {
-			// 只有在主要绑定成功，但URI参数绑定失败时才报告URI错误
-			bindErr = uriErr
-		}
-
-		// 处理绑定错误
-		if bindErr != nil {
-			c.Error(bindErr)
+		// 最后再进行一次完整验证
+		if err := validate.Struct(req); err != nil {
+			c.Error(err)
 			return
 		}
 

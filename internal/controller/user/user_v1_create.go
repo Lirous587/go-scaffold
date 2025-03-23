@@ -10,6 +10,7 @@ func (c *ControllerV1) Create(ctx context.Context, req *v1.CreateReq) (*v1.Creat
 	in := &userLogic.CreateIn{
 		Username: req.Username,
 		Email:    req.Email,
+		Password: req.Password,
 	}
 	userId, err := c.userLogic.Create(ctx, in)
 	if err != nil {
