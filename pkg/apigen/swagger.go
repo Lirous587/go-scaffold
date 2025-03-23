@@ -1,13 +1,11 @@
-package swagger
+package apigen
 
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
-	"scaffold/api"
 	"strings"
 )
 
@@ -67,13 +65,13 @@ type Response struct {
 }
 
 type Schema struct {
-    Type        string            `json:"type,omitempty"`
-    Format      string            `json:"format,omitempty"`
-    Description string            `json:"description,omitempty"`  // 添加这行
-    Properties  map[string]Schema `json:"properties,omitempty"`
-    Items       *Schema           `json:"items,omitempty"`
-    Required    []string          `json:"required,omitempty"`
-    Ref         string            `json:"$ref,omitempty"`
+	Type        string            `json:"type,omitempty"`
+	Format      string            `json:"format,omitempty"`
+	Description string            `json:"description,omitempty"` // 添加这行
+	Properties  map[string]Schema `json:"properties,omitempty"`
+	Items       *Schema           `json:"items,omitempty"`
+	Required    []string          `json:"required,omitempty"`
+	Ref         string            `json:"$ref,omitempty"`
 }
 
 type Components struct {
@@ -120,7 +118,7 @@ func GenerateSwaggerDocs(controllers ...interface{}) error {
 	}
 
 	swaggerFile := filepath.Join(docsDir, "swagger.json")
-	if err := ioutil.WriteFile(swaggerFile, jsonData, 0644); err != nil {
+	if err := os.WriteFile(swaggerFile, jsonData, 0644); err != nil {
 		return err
 	}
 
@@ -137,37 +135,21 @@ func generateControllerDocs(doc *OpenAPIDoc, controller interface{}) error {
 	for i := 0; i < controllerType.NumMethod(); i++ {
 		methodInfo := controllerType.Method(i)
 
-		// 跳过不符合API处理函数签名的方法
-		if !isAPIHandler(methodInfo.Type) {
+		// 验证并获取API信息
+		apiInfo := ValidateMethod(controller, methodInfo)
+		if !apiInfo.Valid {
 			continue
 		}
-
-		// 获取请求和响应类型
-		reqType := methodInfo.Type.In(2).Elem()
-		resType := methodInfo.Type.Out(0).Elem()
-
-		// 检查是否有Meta字段
-		_, found := reqType.FieldByName("Meta")
-		if !found {
-			continue
-		}
-
-		// 创建请求结构体实例
-		reqInstance := reflect.New(reqType).Interface()
-
-		// 获取Meta信息
-		metaVal := reflect.ValueOf(reqInstance).Elem().FieldByName("Meta").Interface().(api.Meta)
-		routeInfo := metaVal.GetRouteInfo(reqInstance)
 
 		// 提取参数信息
-		params := api.ExtractParameters(reqType)
+		params := ExtractParameters(apiInfo.ReqType)
 
 		// 添加路由到Swagger
 		operation := Operation{
-			Tags:        routeInfo.Tags,
-			Summary:     routeInfo.Summary,
-			Description: routeInfo.Description,
-			OperationID: fmt.Sprintf("%s_%s", strings.ToLower(routeInfo.Method), strings.Replace(routeInfo.Path, "/", "_", -1)),
+			Tags:        apiInfo.RouteInfo.Tags,
+			Summary:     apiInfo.RouteInfo.Summary,
+			Description: apiInfo.RouteInfo.Description,
+			OperationID: fmt.Sprintf("%s_%s", strings.ToLower(apiInfo.RouteInfo.Method), strings.Replace(apiInfo.RouteInfo.Path, "/", "_", -1)),
 			Responses:   make(map[string]Response),
 		}
 
@@ -198,8 +180,8 @@ func generateControllerDocs(doc *OpenAPIDoc, controller interface{}) error {
 		// 如果有请求体参数，添加请求体
 		if hasBodyParams {
 			// 将请求类型添加到组件schemas
-			reqSchema := generateModelSchema(reqType)
-			schemaName := reqType.Name()
+			reqSchema := generateModelSchema(apiInfo.ReqType)
+			schemaName := apiInfo.ReqType.Name()
 			doc.Components.Schemas[schemaName] = reqSchema
 
 			// 添加请求体引用
@@ -218,8 +200,8 @@ func generateControllerDocs(doc *OpenAPIDoc, controller interface{}) error {
 
 		// 添加响应
 		// 将响应类型添加到组件schemas
-		resSchema := generateModelSchema(resType)
-		resSchemaName := resType.Name()
+		resSchema := generateModelSchema(apiInfo.ResType)
+		resSchemaName := apiInfo.ResType.Name()
 		doc.Components.Schemas[resSchemaName] = resSchema
 
 		// 成功响应
@@ -268,17 +250,17 @@ func generateControllerDocs(doc *OpenAPIDoc, controller interface{}) error {
 		}
 
 		// 规范化路径格式
-		path := routeInfo.Path
+		path := apiInfo.RouteInfo.Path
 		if !strings.HasPrefix(path, "/") {
 			path = "/" + path
 		}
 
 		// 添加操作到路径
-		httpMethod := strings.ToLower(routeInfo.Method) 
+		httpMethod := strings.ToLower(apiInfo.RouteInfo.Method)
 		if doc.Paths[path] == nil {
 			doc.Paths[path] = make(PathItem)
 		}
-		doc.Paths[path][httpMethod] = operation 
+		doc.Paths[path][httpMethod] = operation
 	}
 
 	return nil
@@ -348,21 +330,4 @@ func convertGoTypeToSwagger(goType string) string {
 	default:
 		return "object"
 	}
-}
-
-// 检查函数是否符合API处理函数签名
-func isAPIHandler(funcType reflect.Type) bool {
-	// 检查参数数量
-	if funcType.NumIn() != 3 || funcType.NumOut() != 2 {
-		return false
-	}
-
-	// 检查第一个返回值是否为指针
-	if funcType.Out(0).Kind() != reflect.Ptr {
-		return false
-	}
-
-	// 检查第二个返回值是否为error
-	errorInterface := reflect.TypeOf((*error)(nil)).Elem()
-	return funcType.Out(1).Implements(errorInterface)
 }

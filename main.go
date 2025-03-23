@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"scaffold/internal/cmd"
 	"scaffold/pkg/config"
-	"scaffold/pkg/engine"
+	"scaffold/pkg/httpserver"
 	"scaffold/pkg/logger"
 	"scaffold/pkg/repository/db"
 	"scaffold/pkg/repository/redis"
@@ -39,9 +39,9 @@ func main() {
 		return
 	}
 
-	router := engine.Init(&config.Cfg.App)
+	router := httpserver.Init(&config.Cfg.App)
 
 	cmd.RegisterRouter(router)
 
-	engine.Run(router, config.Cfg.App.Port)
+	httpserver.Run(router, config.Cfg.App.Port)
 }
