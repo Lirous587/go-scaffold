@@ -19,10 +19,11 @@ type CreateIn struct {
 	Email    string
 }
 
-func (l *User) Create(ctx context.Context, req *CreateIn) (uint, error) {
+func (u *User) Create(ctx context.Context, req *CreateIn) (uint, error) {
 	user := &entity.User{
 		Username: req.Username,
 		Email:    req.Email,
+		
 	}
-	return l.dao.Insert(ctx, user)
+	return u.dao.Insert(ctx, user)
 }

@@ -1,3 +1,0 @@
-{"level":"INFO","time":"2025/03/22 - 17:02:30","caller":"redis/redis.go:35","msg":"Redis连接成功","host":"127.0.0.1"}
-{"level":"INFO","time":"2025/03/22 - 17:02:30","caller":"db/gorm.go:68","msg":"数据库连接成功","driver":"mysql","host":"127.0.0.1","database":"test"}
-{"level":"INFO","time":"2025/03/22 - 17:02:30","caller":"engine/gin.go:92","msg":"服务器启动","地址":"8080"}

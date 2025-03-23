@@ -55,7 +55,7 @@ func GinLogger() gin.HandlerFunc {
 
 		// 构造类似 Gin 默认日志格式的消息
 		// [GIN] | 200 | 5.7823ms | 127.0.0.1 | GET "/"  | 127.0.0.1 | xx.com
-		msg := fmt.Sprintf("[GIN] | %3d | %4dms |  %-15s | %-4s %-10q",
+		msg := fmt.Sprintf("[GIN] | %3d | %4dms |  %-15s | %-4s | %-10s",
 			statusCode, cost.Milliseconds(), c.ClientIP(), c.Request.Method, raw)
 
 		// msg := fmt.Sprintf("[GIN] | %3d | %4dms |  %-15s | %-4s %-10q  | %-20s | %s",

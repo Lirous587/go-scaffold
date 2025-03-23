@@ -1,8 +1,8 @@
 .idea/
 .vscode/
-bin/
-output/
 bin
+output/
 **/config/config.yaml
 *.exe
-/tmp/*
+/tmp
+logs

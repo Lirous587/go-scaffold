@@ -13,7 +13,7 @@ func New() *User {
 	return &User{}
 }
 
-func (d *User) Insert(ctx context.Context, user *entity.User) (uint, error) {
+func (u *User) Insert(ctx context.Context, user *entity.User) (uint, error) {
 	orm := db.DB()
 	result := orm.WithContext(ctx).Create(user)
 	return user.ID, result.Error

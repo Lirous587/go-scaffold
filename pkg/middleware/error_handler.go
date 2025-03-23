@@ -34,6 +34,7 @@ func ErrorHandler() gin.HandlerFunc {
 					return
 				}
 
+				// 处理空请求体错误
 				if errors.Is(e.Err, io.EOF) {
 					c.JSON(400, gin.H{
 						"code":    400,
@@ -42,17 +43,23 @@ func ErrorHandler() gin.HandlerFunc {
 					return
 				}
 
+				// 处理JSON解析错误
 				var jsonError *json.SyntaxError
 				var unmarshalTypeError *json.UnmarshalTypeError
 				if errors.As(e.Err, &jsonError) || errors.As(e.Err, &unmarshalTypeError) {
+					// 使用i18n包翻译JSON错误
+					lang := i18n.GetLanguageFromHeader(c.GetHeader("Accept-Language"))
+					errorMsg, errorDetail := i18n.TranslateJSONError(e.Err, lang)
+					
 					c.JSON(400, gin.H{
 						"code":    400,
-						"message": "JSON 格式错误",
-						"error":   e.Err.Error(),
+						"message": errorMsg,
+						"error":   errorDetail,
 					})
 					return
 				}
 
+				// 处理其他类型的错误
 				c.JSON(500, gin.H{
 					"code":    500,
 					"message": "服务器内部错误",
