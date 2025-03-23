@@ -6,3 +6,4 @@ output/
 *.exe
 /tmp
 logs
+docs

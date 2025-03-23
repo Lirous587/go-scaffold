@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -46,7 +47,18 @@ func AutoBind(handler interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 创建请求参数实例
 		reqValue := reflect.New(reqType.Elem())
+
 		req := reqValue.Interface()
+
+		// 打印字段和标签
+		fmt.Println("结构体字段列表及标签:")
+		val := reflect.ValueOf(req).Elem()
+		typ := val.Type()
+		for i := 0; i < val.NumField(); i++ {
+			field := typ.Field(i)
+			// 打印原始标签字符串
+			fmt.Printf("    原始标签: %s\n", field.Tag)
+		}
 
 		// 绑定所有来源的参数，忽略错误
 		c.ShouldBindUri(req)

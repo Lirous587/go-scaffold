@@ -1,24 +1,24 @@
 package user
 
 import (
-	user "scaffold/api/user"
-	userLogic "scaffold/internal/logic/user"
-	"scaffold/internal/middleware"
+    user "scaffold/api/user"
+    userLogic "scaffold/internal/logic/user"
+    "scaffold/internal/pkg/autoapi"
 
-	"github.com/gin-gonic/gin"
+    "github.com/gin-gonic/gin"
 )
 
 type ControllerV1 struct {
-	userLogic *userLogic.User
+    userLogic *userLogic.User
 }
 
 func NewV1(r *gin.Engine) user.IUserV1 {
-	ControllerV1 := &ControllerV1{
-		userLogic: userLogic.New(),
-	}
+    controller := &ControllerV1{
+        userLogic: userLogic.New(),
+    }
 
-	group := r.Group("/v1")
-	group.POST("/user/:label", middleware.AutoBind(ControllerV1.Create))
-	
-	return ControllerV1
+    // 使用自动API注册
+    autoapi.RegisterAPI(r, controller)
+
+    return controller
 }

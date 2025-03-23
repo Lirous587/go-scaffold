@@ -28,3 +28,7 @@ func (u *User) Create(ctx context.Context, req *CreateIn) (uint, error) {
 	}
 	return u.dao.Insert(ctx, user)
 }
+
+func (u *User) Delete(ctx context.Context, id int) error {
+	return u.dao.Delete(ctx, id)
+}
