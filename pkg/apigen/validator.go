@@ -5,8 +5,7 @@ import (
 	"reflect"
 )
 
-// APIMethodInfo 保存API方法的所有验证结果
-type APIMethodInfo struct {
+type ApiInfo struct {
 	RouteInfo   RouteInfo    // 路由信息
 	ReqType     reflect.Type // 请求类型
 	ResType     reflect.Type // 响应类型
@@ -14,9 +13,8 @@ type APIMethodInfo struct {
 	Valid       bool         // 是否有效
 }
 
-// ValidateMethod 验证方法并提取所有需要的信息
-func ValidateMethod(controller interface{}, methodInfo reflect.Method) APIMethodInfo {
-	result := APIMethodInfo{
+func BindApiInfo(methodInfo reflect.Method) ApiInfo {
+	result := ApiInfo{
 		Valid: false,
 	}
 

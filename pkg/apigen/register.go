@@ -6,29 +6,19 @@ import (
 	"scaffold/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// RegisterAPI 自动注册API
-func RegisterAPI(router *gin.Engine, controller interface{}) {
-	// 1. 为控制器注册路由
-	registerControllerRoutes(router, controller)
-
-	// 2. 生成Swagger文档
-	err := GenerateSwaggerDocs(controller)
-	if err != nil {
-		fmt.Printf("生成Swagger文档失败: %v\n", err)
-	}
-
-	// 3. 添加Swagger UI路由
-	router.StaticFile("/swagger-docs/swagger.json", "./docs/swagger.json")
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler,
-		ginSwagger.URL("/swagger-docs/swagger.json")))
+// IRoutes 接口同时被gin.Engine和gin.RouterGroup实现
+type IRoutes interface {
+	GET(string, ...gin.HandlerFunc) gin.IRoutes
+	POST(string, ...gin.HandlerFunc) gin.IRoutes
+	PUT(string, ...gin.HandlerFunc) gin.IRoutes
+	DELETE(string, ...gin.HandlerFunc) gin.IRoutes
+	// 可以根据需要添加其他HTTP方法
 }
 
-// 注册控制器的路由
-func registerControllerRoutes(router *gin.Engine, controller interface{}) {
+// RegisterAPI 自动注册API
+func RegisterAPI(router IRoutes, controller interface{}) {
 	// 获取控制器的反射值和类型
 	controllerValue := reflect.ValueOf(controller)
 	controllerType := controllerValue.Type()
@@ -38,7 +28,7 @@ func registerControllerRoutes(router *gin.Engine, controller interface{}) {
 		methodInfo := controllerType.Method(i)
 
 		// 验证并获取API信息
-		apiInfo := ValidateMethod(controller, methodInfo)
+		apiInfo := BindApiInfo(methodInfo)
 		if !apiInfo.Valid {
 			continue
 		}
