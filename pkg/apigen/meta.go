@@ -9,6 +9,22 @@ import (
 // Meta API元数据，用于自动注册路由和生成文档
 type Meta struct{}
 
+// RouteInfo 路由信息
+type RouteInfo struct {
+	Method      string   // HTTP方法
+	Path        string   // 路径
+	Summary     string   // 摘要
+	Description string   // 描述
+	Tags        []string // 标签
+	OperationID string   // 操作ID
+	Produces    []string // 响应内容类型，如 application/json
+	Consumes    []string // 请求内容类型，如 application/json
+	Security    []string // 安全要求，如 JWT, OAuth2
+	Headers     []string // 请求头参数名称
+	Deprecated  bool     // 是否已弃用
+	Version     string   // API版本
+}
+
 // GetRouteInfo 从标签中提取路由信息
 func (m Meta) GetRouteInfo(parentStruct interface{}) RouteInfo {
 	val := reflect.ValueOf(parentStruct)
@@ -30,6 +46,10 @@ func (m Meta) GetRouteInfo(parentStruct interface{}) RouteInfo {
 		Version:     metaField.Tag.Get("version"),
 	}
 
+	// 提取请求头参数
+	if headers := metaField.Tag.Get("header"); headers != "" {
+		info.Headers = splitAndTrim(headers, ",")
+	}
 	// 提取消费和生产内容类型
 	if produces := metaField.Tag.Get("produces"); produces != "" {
 		info.Produces = splitAndTrim(produces, ",")
@@ -56,21 +76,6 @@ func (m Meta) GetRouteInfo(parentStruct interface{}) RouteInfo {
 	}
 
 	return info
-}
-
-// RouteInfo 路由信息
-type RouteInfo struct {
-	Method      string   // HTTP方法
-	Path        string   // 路径
-	Summary     string   // 摘要
-	Description string   // 描述
-	Tags        []string // 标签
-	OperationID string   // 操作ID
-	Produces    []string // 响应内容类型，如 application/json
-	Consumes    []string // 请求内容类型，如 application/json
-	Security    []string // 安全要求，如 JWT, OAuth2
-	Deprecated  bool     // 是否已弃用
-	Version     string   // API版本
 }
 
 // GetGinPath 将{param}格式转换为:param格式

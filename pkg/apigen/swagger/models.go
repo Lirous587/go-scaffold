@@ -6,12 +6,13 @@ package swagger
 type OpenAPIDoc struct {
 	OpenAPI    string                `json:"openapi"`
 	Info       Info                  `json:"info"`
-	Servers    []Server              `json:"servers"`
+	Servers    []Server              `json:"servers,omitempty"`
 	Paths      map[string]PathItem   `json:"paths"`
 	Components Components            `json:"components"`
 	Security   []map[string][]string `json:"security,omitempty"`
 }
 
+// Info API文档基本信息
 type Info struct {
 	Title          string      `json:"title"`
 	Description    string      `json:"description"`
@@ -21,13 +22,16 @@ type Info struct {
 	License        interface{} `json:"license,omitempty"`
 }
 
+// Server API服务器信息
 type Server struct {
 	URL         string `json:"url"`
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 }
 
+// PathItem API路径项，包含不同HTTP方法的操作
 type PathItem map[string]Operation
 
+// Operation API操作定义
 type Operation struct {
 	Tags        []string              `json:"tags,omitempty"`
 	Summary     string                `json:"summary,omitempty"`
@@ -37,11 +41,10 @@ type Operation struct {
 	Parameters  []Parameter           `json:"parameters,omitempty"`
 	RequestBody *RequestBody          `json:"requestBody,omitempty"`
 	Responses   map[string]Response   `json:"responses"`
-	Consumes    []string              `json:"consumes,omitempty"`
-	Produces    []string              `json:"produces,omitempty"`
 	Security    []map[string][]string `json:"security,omitempty"`
 }
 
+// Parameter API参数定义
 type Parameter struct {
 	Name        string      `json:"name"`
 	In          string      `json:"in"`
@@ -49,24 +52,27 @@ type Parameter struct {
 	Required    bool        `json:"required"`
 	Schema      Schema      `json:"schema"`
 	Example     interface{} `json:"example,omitempty"`
-	Enum        []string    `json:"enum,omitempty"`
 }
 
+// RequestBody 请求体定义
 type RequestBody struct {
 	Description string               `json:"description,omitempty"`
 	Required    bool                 `json:"required"`
 	Content     map[string]MediaType `json:"content"`
 }
 
+// MediaType 描述请求或响应的媒体类型
 type MediaType struct {
 	Schema Schema `json:"schema"`
 }
 
+// Response API响应定义
 type Response struct {
 	Description string               `json:"description"`
 	Content     map[string]MediaType `json:"content,omitempty"`
 }
 
+// Schema 描述数据结构
 type Schema struct {
 	Type        string            `json:"type,omitempty"`
 	Format      string            `json:"format,omitempty"`
@@ -85,6 +91,7 @@ type Schema struct {
 	Pattern     string            `json:"pattern,omitempty"`
 }
 
+// Components OpenAPI组件，包含可重用的定义
 type Components struct {
 	Schemas         map[string]Schema      `json:"schemas"`
 	SecuritySchemes map[string]interface{} `json:"securitySchemes,omitempty"`

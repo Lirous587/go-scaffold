@@ -19,9 +19,8 @@ func Main() {
 		// 创建v1版本路由组
 		group.Group("/v1", func(group *httpserver.ServerGroup) {
 			group.Middleware(func(ctx *gin.Context) {
-				fmt.Println("fuck you ")
+				fmt.Println("fuck you")
 			})
-			// 绑定不需要认证的控制器
 			group.Bind(
 				user.NewV1(),
 			)
