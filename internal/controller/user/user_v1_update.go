@@ -5,12 +5,8 @@ import (
 	v1 "scaffold/api/user/v1"
 )
 
-
 func (c *ControllerV1) Update(ctx context.Context, req *v1.UpdateReq) (*v1.UpdateRes, error) {
-	// err := c.userLogic.Delete(ctx, req.Id)
-	// if err != nil {
-		// return nil, err
-	// }
+	//  some logic
 
-	return &v1.UpdateRes{Msg: "删除成功"}, nil
+	return &v1.UpdateRes{Msg: "更新成功"}, nil
 }

@@ -1,33 +1,38 @@
 package httpserver
 
 import (
-	"context"
 	"fmt"
 	"net/http"
-	"os"
-	"os/exec"
-	"os/signal"
+	"path"
+	"scaffold/pkg/apigen"
 	"syscall"
-	"time"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
+	"scaffold/pkg/apigen/swagger"
 	"scaffold/pkg/config"
 	"scaffold/pkg/i18n"
 	"scaffold/pkg/logger"
 	"scaffold/pkg/middleware"
-	"scaffold/pkg/repository/db"
-	"scaffold/pkg/repository/redis"
 	"scaffold/pkg/validator"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// Init 初始化并配置Gin引擎
-func Init(cfg *config.AppConfig) *gin.Engine {
+type Server struct {
+	engine  *gin.Engine
+	swagger *swagger.Swagger
+}
+
+func New() *Server {
+	cfg := config.Cfg.App
 	// 设置运行模式
 	if cfg.Mode == gin.ReleaseMode {
 		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
 	}
 
 	// 初始化依赖模块
@@ -49,24 +54,30 @@ func Init(cfg *config.AppConfig) *gin.Engine {
 	// 配置错误处理中间件
 	r.Use(middleware.ErrorHandler())
 
-	return r
+	// 2. 初始化swagger
+	swg := swagger.New()
+
+	// 3. 添加Swagger UI路由
+	r.StaticFile("/swagger-docs/swagger.json", "./docs/swagger.json")
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler,
+		ginSwagger.URL("/swagger-docs/swagger.json")))
+
+	return &Server{
+		engine:  r,
+		swagger: swg,
+	}
 }
 
-// 配置CORS中间件
-func setupCORS(r *gin.Engine) {
-	corsCfg := cors.DefaultConfig()
-	corsCfg.AllowOrigins = []string{"https://Lirous.com", "http://localhost:3000"}
-	corsCfg.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
-	corsCfg.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Refresh-Token"}
-	r.Use(cors.New(corsCfg))
-}
-
-// Run 启动HTTP服务器并处理优雅关闭
-func Run(router *gin.Engine, addr string) {
+func (s *Server) Run(addr string) {
 	// 创建HTTP服务器
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", addr),
-		Handler: router,
+		Handler: s.engine,
+	}
+
+	// 将注册的路由保存到swagger
+	if err := s.swagger.Save(); err != nil {
+		zap.L().Fatal("swagger生成失败", zap.Error(err))
 	}
 
 	// 启动服务器
@@ -84,61 +95,57 @@ func Run(router *gin.Engine, addr string) {
 
 	// 优雅关闭服务
 	shutdownServer(srv)
+
 }
 
-// 启动HTTP服务器
-func startServer(srv *http.Server, addr string) {
-	go func() {
-		zap.L().Info("服务器启动", zap.String("地址", addr))
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			zap.L().Fatal("服务器启动失败", zap.Error(err))
-		}
-	}()
+func (s *Server) Bind(controller interface{}) {
+	apigen.RegisterAPI(s.engine, controller)
+	s.swagger.Bind("", controller)
 }
 
-// 等待终止信号
-func waitForSignal() os.Signal {
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-	return <-quit
-}
-
-// 优雅关闭服务器
-func shutdownServer(srv *http.Server) {
-	zap.L().Info("正在关闭服务器...")
-	cleanup()
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		zap.L().Fatal("服务器关闭错误", zap.Error(err))
+func (s *Server) Group(relativePath string, handle func(group *ServerGroup)) {
+	group := s.engine.Group(relativePath)
+	sg := &ServerGroup{
+		server: Server{
+			engine:  s.engine,
+			swagger: s.swagger,
+		},
+		group:    group,
+		basePath: relativePath,
 	}
-	zap.L().Info("服务器已退出")
+	handle(sg)
 }
 
-// restartServer 重启服务器
-func restartServer() {
-	execPath, err := os.Executable()
-	if err != nil {
-		zap.L().Error("获取可执行文件路径失败", zap.Error(err))
-		return
+type ServerGroup struct {
+	server   Server
+	group    *gin.RouterGroup
+	basePath string
+}
+
+func (sg *ServerGroup) Bind(controllers ...interface{}) {
+	// 获取当前路由组的路径前缀
+	pathPrefix := sg.basePath
+
+	for _, controller := range controllers {
+		apigen.RegisterAPI(sg.group, controller)
+		sg.server.swagger.Bind(pathPrefix, controller)
 	}
+}
 
-	cmd := exec.Command(execPath, os.Args[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+func (sg *ServerGroup) Group(relativePath string, handle func(group *ServerGroup)) {
+	subGroup := sg.group.Group(relativePath)
+	// 合并路径，确保路径格式正确（处理斜杠）
+	newBasePath := path.Join(sg.basePath, relativePath, "/")
 
-	if err := cmd.Start(); err != nil {
-		zap.L().Error("启动新进程失败", zap.Error(err))
-		return
+	subSg := &ServerGroup{
+		server:   sg.server,
+		group:    subGroup,
+		basePath: newBasePath,
 	}
-	zap.L().Info("新进程已启动", zap.Int("PID", cmd.Process.Pid))
+	handle(subSg)
 }
 
-// cleanup 清理资源
-func cleanup() {
-	redis.Close() // 关闭Redis连接
-	db.Close()    // 关闭数据库连接
-	zap.L().Info("所有资源已成功关闭")
+func (sg *ServerGroup) Middleware(middlewares ...gin.HandlerFunc) {
+	sg.group.Use(middlewares...)
 }
+
