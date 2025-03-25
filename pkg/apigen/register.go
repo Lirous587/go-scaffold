@@ -3,7 +3,7 @@ package apigen
 import (
 	"fmt"
 	"reflect"
-	"scaffold/pkg/middleware"
+	"scaffold/pkg/httpserver/middleware/bind"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,13 +40,13 @@ func RegisterAPI(router IRoutes, controller interface{}) {
 		method := controllerValue.Method(i).Interface()
 		switch apiInfo.RouteInfo.Method {
 		case "get", "GET":
-			router.GET(ginPath, middleware.AutoBind(method))
+			router.GET(ginPath, bind.AutoBind(method))
 		case "post", "POST":
-			router.POST(ginPath, middleware.AutoBind(method))
+			router.POST(ginPath, bind.AutoBind(method))
 		case "put", "PUT":
-			router.PUT(ginPath, middleware.AutoBind(method))
+			router.PUT(ginPath, bind.AutoBind(method))
 		case "delete", "DELETE":
-			router.DELETE(ginPath, middleware.AutoBind(method))
+			router.DELETE(ginPath, bind.AutoBind(method))
 		default:
 			fmt.Printf("不支持的HTTP方法: %s\n", apiInfo.RouteInfo.Method)
 			continue

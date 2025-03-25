@@ -1,44 +1,44 @@
 package i18n
 
 import (
+	"scaffold/pkg/i18n/validatortrans"
 	"strings"
 
-	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	en_translations "github.com/go-playground/validator/v10/translations/en"
-	zh_translations "github.com/go-playground/validator/v10/translations/zh"
 )
 
 var (
+	// 全局翻译器映射
 	trans map[string]ut.Translator
 	uni   *ut.UniversalTranslator
 )
 
-// Setup 初始化翻译器
-func Setup() {
+// 初始化翻译器
+func Init() {
 	enLocale := en.New()
 	zhLocale := zh.New()
 	uni = ut.New(enLocale, zhLocale)
 
 	trans = make(map[string]ut.Translator)
-
-	// 注册英语翻译器
 	trans["en"], _ = uni.GetTranslator("en")
-
-	// 注册中文翻译器
 	trans["zh"], _ = uni.GetTranslator("zh")
 
-	// 获取验证器并注册翻译
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		en_translations.RegisterDefaultTranslations(v, trans["en"])
-		zh_translations.RegisterDefaultTranslations(v, trans["zh"])
+	// 设置验证翻译器
+	validatortrans.Setup(trans)
+}
 
-		// 注册自定义翻译
-		registerCustomTranslations(v)
-	}
+// SetupValidator 为指定的验证器设置翻译
+func SetupValidator(v *validator.Validate) {
+	validatortrans.SetupValidator(v)
+}
+
+// TranslateValidatorError 翻译验证错误
+func TranslateValidatorError(err error, lang string) map[string]string {
+	// 转发到子包的验证错误翻译函数
+	return validatortrans.TranslateError(err, lang)
 }
 
 // GetLanguageFromHeader 从请求头获取语言代码
@@ -48,4 +48,3 @@ func GetLanguageFromHeader(acceptLanguage string) string {
 	}
 	return "zh"
 }
-

@@ -12,10 +12,7 @@ import (
 
 	"scaffold/pkg/apigen/swagger"
 	"scaffold/pkg/config"
-	"scaffold/pkg/i18n"
 	"scaffold/pkg/logger"
-	"scaffold/pkg/middleware"
-	"scaffold/pkg/validator"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -35,10 +32,6 @@ func New() *Server {
 		gin.SetMode(gin.DebugMode)
 	}
 
-	// 初始化依赖模块
-	validator.Setup() // 设置自定义验证器
-	i18n.Setup()      // 设置国际化
-
 	// 创建Gin引擎并配置基础中间件
 	r := gin.New()
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
@@ -50,9 +43,6 @@ func New() *Server {
 	r.NoRoute(func(c *gin.Context) {
 		c.JSONP(404, gin.H{"msg": "404"})
 	})
-
-	// 配置错误处理中间件
-	r.Use(middleware.ErrorHandler())
 
 	// 2. 初始化swagger
 	swg := swagger.New()
@@ -148,4 +138,3 @@ func (sg *ServerGroup) Group(relativePath string, handle func(group *ServerGroup
 func (sg *ServerGroup) Middleware(middlewares ...gin.HandlerFunc) {
 	sg.group.Use(middlewares...)
 }
-

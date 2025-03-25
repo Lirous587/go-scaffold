@@ -1,12 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"scaffold/internal/controller/user"
 	"scaffold/pkg/config"
 	"scaffold/pkg/httpserver"
-
-	"github.com/gin-gonic/gin"
 )
 
 func Main() {
@@ -18,9 +15,9 @@ func Main() {
 
 		// 创建v1版本路由组
 		group.Group("/v1", func(group *httpserver.ServerGroup) {
-			group.Middleware(func(ctx *gin.Context) {
-				fmt.Println("fuck you")
-			})
+			//group.Middleware(func(ctx *gin.Context) {
+			//	fmt.Println("fuck you")
+			//})
 			group.Bind(
 				user.NewV1(),
 			)
