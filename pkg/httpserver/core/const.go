@@ -1,4 +1,4 @@
-package middleware
+package core
 
 // 响应状态码常量
 const (
@@ -10,7 +10,7 @@ const (
 	CodeJSONError       = 4002 // JSON解析错误
 	CodeEmptyBodyError  = 4003 // 空请求体错误
 
-	// 服务端错误 (5xxx)
+	//服务端错误 (5xxx)
 	CodeServerError = 5000 // 服务器内部错误
 )
 

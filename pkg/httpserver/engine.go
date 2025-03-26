@@ -4,18 +4,16 @@ import (
 	"fmt"
 	"net/http"
 	"path"
-	"scaffold/pkg/apigen"
 	"syscall"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
-
-	"scaffold/pkg/apigen/swagger"
-	"scaffold/pkg/config"
-	"scaffold/pkg/logger"
-
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
+	"scaffold/pkg/config"
+	"scaffold/pkg/httpserver/core/apigen"
+	"scaffold/pkg/httpserver/core/apigen/swagger"
+	"scaffold/pkg/logger"
 )
 
 type Server struct {
@@ -107,6 +105,10 @@ func (s *Server) Group(relativePath string, handle func(group *ServerGroup)) {
 		basePath: relativePath,
 	}
 	handle(sg)
+}
+
+func (s *Server) Middleware(middlewares ...gin.HandlerFunc) {
+	s.engine.Use(middlewares...)
 }
 
 type ServerGroup struct {

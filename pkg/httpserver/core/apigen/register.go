@@ -2,7 +2,7 @@ package apigen
 
 import (
 	"fmt"
-	"scaffold/pkg/httpserver/middleware/bind"
+	"scaffold/pkg/httpserver/core/bind"
 
 	"github.com/gin-gonic/gin"
 )

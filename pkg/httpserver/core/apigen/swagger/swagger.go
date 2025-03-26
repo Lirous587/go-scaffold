@@ -6,8 +6,9 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"scaffold/pkg/apigen"
+	"reflect"
 	"scaffold/pkg/config"
+	"scaffold/pkg/httpserver/core/apigen"
 	"strings"
 )
 
@@ -177,4 +178,22 @@ func (s *Swagger) Save() error {
 
 	fmt.Println("生成Swagger文档完成")
 	return nil
+}
+
+// getUniqueSchemaName 根据类型生成唯一的Schema名称
+func getUniqueSchemaName(typ reflect.Type) string {
+	// 获取包路径和类型名称
+	pkgPath := typ.PkgPath()
+	typeName := typ.Name()
+
+	// 处理包路径，去掉项目根路径，替换/为_
+	pkgPath = strings.ReplaceAll(pkgPath, "/", "_")
+	pkgPath = strings.ReplaceAll(pkgPath, ".", "_")
+
+	// 如果没有包路径（如基础类型），直接返回类型名称
+	if pkgPath == "" {
+		return typeName
+	}
+
+	return pkgPath + "_" + typeName
 }

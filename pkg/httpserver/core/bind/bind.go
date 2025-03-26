@@ -3,7 +3,7 @@ package bind
 import (
 	"net/http"
 	"reflect"
-	"scaffold/pkg/httpserver/middleware"
+	"scaffold/pkg/httpserver/core"
 	"scaffold/pkg/i18n"
 	"scaffold/pkg/validator"
 	"strings"
@@ -12,9 +12,8 @@ import (
 )
 
 type bind struct {
-	ctx     *gin.Context
-	lang    string //响应语言
-	logLang string //日志语言
+	ctx  *gin.Context
+	lang string //响应语言
 }
 
 func (b *bind) smartBind(req interface{}) {
@@ -42,22 +41,23 @@ func (b *bind) smartBind(req interface{}) {
 }
 
 // AutoBind 自动将请求绑定到处理函数的参数，并返回处理结果
-func AutoBind(handler interface{}) gin.HandlerFunc {
-	handlerValue := reflect.ValueOf(handler)
-	handlerType := handlerValue.Type()
+func AutoBind(apiMethod interface{}) gin.HandlerFunc {
+	apiMethodValue := reflect.ValueOf(apiMethod)
+	apiMethodType := apiMethodValue.Type()
+
+	reqType := apiMethodType.In(1)
+	reqElemType := reqType.Elem()
 
 	return func(c *gin.Context) {
 		// 创建请求参数实例
-		reqType := handlerType.In(1)
-		reqValue := reflect.New(reqType.Elem())
+		reqValue := reflect.New(reqElemType)
 		req := reqValue.Interface()
 
 		lang := i18n.GetLanguageFromHeader(c.GetHeader("Accept-Language"))
 		// 自动绑定
 		b := &bind{
-			ctx:     c,
-			lang:    lang,
-			logLang: "zh",
+			ctx:  c,
+			lang: lang,
 		}
 
 		b.smartBind(req)
@@ -65,26 +65,21 @@ func AutoBind(handler interface{}) gin.HandlerFunc {
 		//验证参数
 		if err := validator.V.Struct(req); err != nil {
 			errMsg := i18n.TranslateValidatorError(err, lang)
-			c.AbortWithStatusJSON(400, middleware.Response{
-				Code:    middleware.CodeValidationError,
+			c.AbortWithStatusJSON(http.StatusBadRequest, core.Response{
+				Code:    core.CodeValidationError,
 				Message: errMsg,
 				Data:    nil,
 			})
 			return
 		}
 
-		//// 调用处理函数
-		//response := callHandler(c, handlerValue, reqValue)
-		//
-		//// 默认返回成功响应
-		//c.JSON(http.StatusOK, gin.H{
-		//	"data": response,
-		//})
+		// 调用处理函数
+		callHandler(c, apiMethodValue, reqValue)
 	}
 }
 
 // 调用处理函数并处理返回值
-func callHandler(c *gin.Context, handlerValue reflect.Value, reqValue reflect.Value) interface{} {
+func callHandler(c *gin.Context, handlerValue reflect.Value, reqValue reflect.Value) {
 	// 准备参数并调用
 	args := []reflect.Value{
 		reflect.ValueOf(c),
@@ -99,10 +94,17 @@ func callHandler(c *gin.Context, handlerValue reflect.Value, reqValue reflect.Va
 	// 处理错误
 	if !errValue.IsNil() {
 		err := errValue.Interface().(error)
-		c.Error(err)
-		c.Abort()
-		return nil
+		c.AbortWithStatusJSON(500, core.Response{
+			Code:    core.CodeServerError,
+			Message: err.Error(),
+			Data:    nil,
+		})
+		return
 	}
-
-	return resValue.Interface()
+	// 默认返回成功响应
+	c.JSON(http.StatusOK, core.Response{
+		Code:    core.CodeSuccess,
+		Data:    resValue.Interface(),
+		Message: "success",
+	})
 }

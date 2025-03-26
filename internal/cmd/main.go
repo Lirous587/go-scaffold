@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"scaffold/internal/controller/mock1"
 	mock2 "scaffold/internal/controller/mock2"
 	"scaffold/pkg/config"
@@ -19,7 +21,17 @@ func Main() {
 				mock2.NewV1(),
 			)
 		})
+		group.Middleware()
 	})
+	s.Middleware(
+		func(context *gin.Context) {
+			context.Next()
+			fmt.Println(1)
+		},
+		func(context *gin.Context) {
+			fmt.Println(2)
+		},
+	)
 	s.Bind(
 		mock1.NewV1(),
 		mock2.NewV1(),

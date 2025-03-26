@@ -9,6 +9,10 @@ import (
 // Meta API元数据，用于自动注册路由和生成文档
 type Meta struct{}
 
+type RouteInfoProvider interface {
+	GetRouteInfo(instance interface{}) RouteInfo
+}
+
 // RouteInfo 路由信息
 type RouteInfo struct {
 	Method      string   // HTTP方法

@@ -13,6 +13,7 @@ type ApiInfo struct {
 	Method    interface{}  // 方法
 }
 
+// GetApiInfo 从定义的api接口中提取数据
 func GetApiInfo(apiInterface interface{}) []ApiInfo {
 	// 获取控制器的反射值和类型
 	apiInterfaceValue := reflect.ValueOf(apiInterface)
