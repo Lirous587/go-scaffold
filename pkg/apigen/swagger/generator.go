@@ -8,6 +8,24 @@ import (
 	"strings"
 )
 
+// 辅助函数，用于生成唯一的Schema名称
+func getUniqueSchemaName(typ reflect.Type) string {
+	// 获取包路径和类型名称
+	pkgPath := typ.PkgPath()
+	typeName := typ.Name()
+
+	// 处理包路径，去掉项目根路径，替换/为_
+	pkgPath = strings.ReplaceAll(pkgPath, "/", "_")
+	pkgPath = strings.ReplaceAll(pkgPath, ".", "_")
+
+	// 如果没有包路径（如基础类型），直接返回类型名称
+	if pkgPath == "" {
+		return typeName
+	}
+
+	return pkgPath + "_" + typeName
+}
+
 // generateOperation 从API信息生成操作对象
 func (s *Swagger) generateOperation(apiInfo *apigen.ApiInfo) Operation {
 	// 提取参数信息
@@ -104,7 +122,7 @@ func (s *Swagger) generateOperation(apiInfo *apigen.ApiInfo) Operation {
 	if hasBodyParams {
 		// 将请求类型添加到组件schemas
 		reqSchema := s.generateModelSchema(apiInfo.ReqType)
-		schemaName := apiInfo.ReqType.Name()
+		schemaName := getUniqueSchemaName(apiInfo.ReqType)
 		s.doc.Components.Schemas[schemaName] = reqSchema
 
 		// 添加请求体引用
@@ -171,7 +189,7 @@ func (s *Swagger) generateOperation(apiInfo *apigen.ApiInfo) Operation {
 func (s *Swagger) addResponsesToOperation(operation *Operation, apiInfo *apigen.ApiInfo) {
 	// 将响应类型添加到组件schemas
 	resSchema := s.generateModelSchema(apiInfo.ResType)
-	resSchemaName := apiInfo.ResType.Name()
+	resSchemaName := getUniqueSchemaName(apiInfo.ResType)
 	s.doc.Components.Schemas[resSchemaName] = resSchema
 
 	// 成功响应

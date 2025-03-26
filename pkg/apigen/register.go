@@ -13,6 +13,7 @@ type IRoutes interface {
 	POST(string, ...gin.HandlerFunc) gin.IRoutes
 	PUT(string, ...gin.HandlerFunc) gin.IRoutes
 	DELETE(string, ...gin.HandlerFunc) gin.IRoutes
+	PATCH(string, ...gin.HandlerFunc) gin.IRoutes
 	// 可以根据需要添加其他HTTP方法
 }
 
@@ -23,7 +24,6 @@ func RegisterAPI(router IRoutes, apiInfos []ApiInfo) {
 		ginPath := apiInfo.RouteInfo.GetGinPath()
 
 		// 注册路由
-
 		switch apiInfo.RouteInfo.Method {
 		case "get", "GET":
 			router.GET(ginPath, bind.AutoBind(apiInfo.Method))
@@ -33,6 +33,8 @@ func RegisterAPI(router IRoutes, apiInfos []ApiInfo) {
 			router.PUT(ginPath, bind.AutoBind(apiInfo.Method))
 		case "delete", "DELETE":
 			router.DELETE(ginPath, bind.AutoBind(apiInfo.Method))
+		case "patch", "PATCH":
+			router.PATCH(ginPath, bind.AutoBind(apiInfo.Method))
 		default:
 			fmt.Printf("不支持的HTTP方法: %s\n", apiInfo.RouteInfo.Method)
 			continue
