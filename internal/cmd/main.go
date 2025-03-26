@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"scaffold/internal/controller/user"
+	"scaffold/internal/controller/mock1"
+	mock2 "scaffold/internal/controller/mock2"
 	"scaffold/pkg/config"
 	"scaffold/pkg/httpserver"
 )
@@ -12,17 +13,17 @@ func Main() {
 
 	// 创建根路由组
 	s.Group("/", func(group *httpserver.ServerGroup) {
-
-		// 创建v1版本路由组
-		group.Group("/v1", func(group *httpserver.ServerGroup) {
-			//group.Middleware(func(ctx *gin.Context) {
-			//	fmt.Println("fuck you")
-			//})
+		group.Group("/mock", func(group *httpserver.ServerGroup) {
 			group.Bind(
-				user.NewV1(),
+				mock1.NewV1(),
+				mock2.NewV1(),
 			)
 		})
 	})
+	s.Bind(
+		mock1.NewV1(),
+		mock2.NewV1(),
+	)
 
 	// 启动服务器
 	s.Run(config.Cfg.App.Port)

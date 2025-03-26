@@ -5,8 +5,6 @@ import (
 	"strconv"
 )
 
-
-
 // 设置字段值，根据字段类型转换数据
 func setFieldValue(fieldValue reflect.Value, strValue string) {
 	if !fieldValue.CanSet() || strValue == "" {
@@ -34,5 +32,3 @@ func setFieldValue(fieldValue reflect.Value, strValue string) {
 		}
 	}
 }
-
-

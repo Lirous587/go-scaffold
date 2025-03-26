@@ -88,9 +88,12 @@ func (s *Server) Run(addr string) {
 
 }
 
-func (s *Server) Bind(controller interface{}) {
-	apigen.RegisterAPI(s.engine, controller)
-	s.swagger.Bind("", controller)
+func (s *Server) Bind(apiInterfaces ...interface{}) {
+	for _, apiInterface := range apiInterfaces {
+		apiInfos := apigen.GetApiInfo(apiInterface)
+		apigen.RegisterAPI(s.engine, apiInfos)
+		s.swagger.GenerateDocs("", apiInfos)
+	}
 }
 
 func (s *Server) Group(relativePath string, handle func(group *ServerGroup)) {
@@ -112,13 +115,13 @@ type ServerGroup struct {
 	basePath string
 }
 
-func (sg *ServerGroup) Bind(controllers ...interface{}) {
+func (sg *ServerGroup) Bind(apiInterfaces ...interface{}) {
 	// 获取当前路由组的路径前缀
 	pathPrefix := sg.basePath
-
-	for _, controller := range controllers {
-		apigen.RegisterAPI(sg.group, controller)
-		sg.server.swagger.Bind(pathPrefix, controller)
+	for _, apiInterface := range apiInterfaces {
+		apiInfos := apigen.GetApiInfo(apiInterface)
+		apigen.RegisterAPI(sg.group, apiInfos)
+		sg.server.swagger.GenerateDocs(pathPrefix, apiInfos)
 	}
 }
 

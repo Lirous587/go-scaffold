@@ -20,7 +20,6 @@ func (b *bind) bindJson(req interface{}) {
 	bodyBytes, err := io.ReadAll(b.ctx.Request.Body)
 	if err != nil {
 		errorMsg, errorDetail := i18n.TranslateJSONError(err, b.lang)
-
 		b.ctx.Error(errors.New(errorMsg + ":" + errorDetail))
 		b.ctx.Abort()
 		return

@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
+	"scaffold/pkg/apigen"
 	"scaffold/pkg/config"
+	"strings"
 )
 
 // Swagger Swagger文档生成器
@@ -130,14 +133,21 @@ func New() *Swagger {
 	return &swagger
 }
 
-// Bind 为API控制器生成Swagger文档
-func (s *Swagger) Bind(pathPrefix string, controllers ...interface{}) {
-	if s == nil {
-		return
-	}
+// GenerateDocs 为API控制器生成Swagger文档
+func (s *Swagger) GenerateDocs(pathPrefix string, apiInfos []apigen.ApiInfo) {
+	for _, apiInfo := range apiInfos {
+		// 生成操作对象
+		operation := s.generateOperation(&apiInfo)
 
-	for _, controller := range controllers {
-		s.generateControllerDocs(pathPrefix, controller)
+		// 规范化路径
+		normPath := path.Join("/", pathPrefix, apiInfo.RouteInfo.Path)
+
+		// 添加操作到路径
+		httpMethod := strings.ToLower(apiInfo.RouteInfo.Method)
+		if s.doc.Paths[normPath] == nil {
+			s.doc.Paths[normPath] = make(PathItem)
+		}
+		s.doc.Paths[normPath][httpMethod] = operation
 	}
 }
 

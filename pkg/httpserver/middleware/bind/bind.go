@@ -1,9 +1,9 @@
 package bind
 
 import (
-	"context"
 	"net/http"
 	"reflect"
+	"scaffold/pkg/httpserver/middleware"
 	"scaffold/pkg/i18n"
 	"scaffold/pkg/validator"
 	"strings"
@@ -46,8 +46,6 @@ func AutoBind(handler interface{}) gin.HandlerFunc {
 	handlerValue := reflect.ValueOf(handler)
 	handlerType := handlerValue.Type()
 
-	validateHandlerSignature(handlerType)
-
 	return func(c *gin.Context) {
 		// 创建请求参数实例
 		reqType := handlerType.In(1)
@@ -67,50 +65,21 @@ func AutoBind(handler interface{}) gin.HandlerFunc {
 		//验证参数
 		if err := validator.V.Struct(req); err != nil {
 			errMsg := i18n.TranslateValidatorError(err, lang)
-			c.JSON(400, gin.H{
-				"message": errMsg,
+			c.AbortWithStatusJSON(400, middleware.Response{
+				Code:    middleware.CodeValidationError,
+				Message: errMsg,
+				Data:    nil,
 			})
-			//c.Error(errMsg)
-			c.Abort()
 			return
 		}
 
-		// 调用处理函数
-		response := callHandler(c, handlerValue, reqValue)
-
-		// 默认返回成功响应
-		c.JSON(http.StatusOK, gin.H{
-			"data": response,
-		})
-	}
-}
-
-// 验证处理函数签名
-func validateHandlerSignature(handlerType reflect.Type) {
-	// 验证handler是函数
-	if handlerType.Kind() != reflect.Func {
-		panic("handler must be a function")
-	}
-
-	// 验证函数参数格式：func(ctx context.Context, req *SomeReq) (res *SomeRes, err error)
-	if handlerType.NumIn() != 2 || handlerType.NumOut() != 2 {
-		panic("handler must have signature: func(ctx context.Context, req *SomeReq) (*SomeRes, error)")
-	}
-
-	// 检查第一个参数是否为context.Context
-	if !handlerType.In(0).Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
-		panic("first parameter must be context.Context")
-	}
-
-	// 检查第二个参数是否为指针类型
-	reqType := handlerType.In(1)
-	if reqType.Kind() != reflect.Ptr {
-		panic("second parameter must be a pointer")
-	}
-
-	// 检查第二个返回值是否为error
-	if !handlerType.Out(1).Implements(reflect.TypeOf((*error)(nil)).Elem()) {
-		panic("second return value must be error")
+		//// 调用处理函数
+		//response := callHandler(c, handlerValue, reqValue)
+		//
+		//// 默认返回成功响应
+		//c.JSON(http.StatusOK, gin.H{
+		//	"data": response,
+		//})
 	}
 }
 
