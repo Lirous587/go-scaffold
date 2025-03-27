@@ -16,7 +16,7 @@ var (
 	uni   *ut.UniversalTranslator
 )
 
-// 初始化翻译器
+// Init 初始化翻译器
 func Init() {
 	enLocale := en.New()
 	zhLocale := zh.New()
@@ -35,8 +35,31 @@ func SetupValidator(v *validator.Validate) {
 	validatortrans.SetupValidator(v)
 }
 
+type ValidatorError map[string]string
+
+// ValidatorError 实现 error 接口
+func (v ValidatorError) Error() string {
+	if len(v) == 0 {
+		return "validation failed"
+	}
+
+	// 构建包含所有错误的格式化字符串
+	var sb strings.Builder
+	first := true
+	for field, msg := range v {
+		if !first {
+			sb.WriteString("; ")
+		}
+		sb.WriteString(field)
+		sb.WriteString(": ")
+		sb.WriteString(msg)
+		first = false
+	}
+	return sb.String()
+}
+
 // TranslateValidatorError 翻译验证错误
-func TranslateValidatorError(err error, lang string) map[string]string {
+func TranslateValidatorError(err error, lang string) ValidatorError {
 	// 转发到子包的验证错误翻译函数
 	return validatortrans.TranslateError(err, lang)
 }
