@@ -1,22 +1,13 @@
 package config
 
 type Config struct {
-	App     AppConfig     `mapstructure:"app"`
-	Log     LogConfig     `mapstructure:"log"`
-	DB      DBConfig      `mapstructure:"db"`
-	Redis   RedisConfig   `mapstructure:"redis"`
-	Swagger SwaggerConfig `mapstructure:"swagger"`
-	Auth    AuthConfig    `mapstructure:"auth"`
+	Server []ServerConfig `mapstructure:"server"`
+	Log    LogConfig      `mapstructure:"log"`
+	DB     DBConfig       `mapstructure:"db"`
+	Redis  RedisConfig    `mapstructure:"redis"`
+	//Auth    AuthConfig    `mapstructure:"auth"`
 }
 
-// AppConfig 应用配置
-type AppConfig struct {
-	Mode      string `mapstructure:"mode"`
-	Port      string `mapstructure:"port"`
-	StartTime string `mapstructure:"start_time"`
-}
-
-// LogConfig 日志配置
 type LogConfig struct {
 	Mode       string `mapstructure:"mode"`
 	Level      string `mapstructure:"level"`
@@ -41,7 +32,6 @@ type DBConfig struct {
 	SlowThreshold int    `mapstructure:"slow_threshold"`
 }
 
-// RedisConfig Redis配置
 type RedisConfig struct {
 	Host     string `mapstructure:"host"`
 	Port     string `mapstructure:"port"`
@@ -50,15 +40,19 @@ type RedisConfig struct {
 	PoolSize int    `mapstructure:"pool_size"`
 }
 
-// SwaggerConfig swagger配置
+type ServerConfig struct {
+	Port    int           `mapstructure:"port"`
+	Mode    string        `mapstructure:"mode"`
+	Swagger SwaggerConfig `mapstructure:"swagger"`
+}
+
 type SwaggerConfig struct {
 	// 基本配置
 	Enabled  bool   `mapstructure:"enabled"`   // 是否启用Swagger
 	BasePath string `mapstructure:"base_path"` // API基础路径
 
 	// 文档位置配置
-	JSONPath string `mapstructure:"json_path"` // swagger.json文件保存位置
-	UIPath   string `mapstructure:"ui_path"`   // Swagger UI访问路径
+	JSONFilePath string `mapstructure:"json_file_path"` // swagger.json文件保存位置
 
 	// 文档信息
 	Info struct {
@@ -97,18 +91,18 @@ type SwaggerConfig struct {
 	Security []string `mapstructure:"security"`
 }
 
-// AuthConfig 认证配置
-type AuthConfig struct {
-	Admin AdminAuth `mapstructure:"admin"`
-	User  UserAuth  `mapstructure:"user"`
-}
-
-type AdminAuth struct {
-	JwtSecret       string `mapstructure:"jwt_secret"`
-	JwtExpireMinute int    `mapstructure:"jwt_expire_minute"`
-}
-
-type UserAuth struct {
-	JwtSecret       string `mapstructure:"jwt_secret"`
-	JwtExpireMinute int    `mapstructure:"jwt_expire_minute"`
-}
+//// AuthConfig 认证配置
+//type AuthConfig struct {
+//	Admin AdminAuth `mapstructure:"admin"`
+//	User  UserAuth  `mapstructure:"user"`
+//}
+//
+//type AdminAuth struct {
+//	JwtSecret       string `mapstructure:"jwt_secret"`
+//	JwtExpireMinute int    `mapstructure:"jwt_expire_minute"`
+//}
+//
+//type UserAuth struct {
+//	JwtSecret       string `mapstructure:"jwt_secret"`
+//	JwtExpireMinute int    `mapstructure:"jwt_expire_minute"`
+//}

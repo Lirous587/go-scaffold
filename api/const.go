@@ -1,5 +1,10 @@
 package api
 
-import "scaffold/pkg/httpserver/core/apigen"
+import (
+	"scaffold/pkg/httpserver/core/apigen"
+	"scaffold/response"
+)
 
-type Meta = apigen.Meta 
+type Meta = apigen.Meta
+
+type Code = response.Code

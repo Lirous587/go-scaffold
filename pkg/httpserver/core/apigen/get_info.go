@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"scaffold/response"
 )
 
 type ApiInfo struct {
@@ -60,10 +61,10 @@ func GetApiInfo(apiInterface interface{}) []ApiInfo {
 				methodInfo.Name, resType.Kind()))
 		}
 
-		// 5. 检查第二个返回值是否为error
-		errorInterface := reflect.TypeOf((*error)(nil)).Elem()
-		if !funcType.Out(1).Implements(errorInterface) {
-			panic(fmt.Sprintf("方法 %s 的第二个返回值必须是 error 类型，实际为 %s 类型",
+		// 5. 检查第二个返回值是否为response.Code
+		codeType := reflect.TypeOf(response.Code(0))
+		if funcType.Out(1) != codeType {
+			panic(fmt.Sprintf("方法 %s 的第二个返回值必须是 response.Code 类型，实际为 %s 类型",
 				methodInfo.Name, funcType.Out(1)))
 		}
 

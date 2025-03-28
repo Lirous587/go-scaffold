@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"path/filepath"
 	"reflect"
 	"scaffold/pkg/config"
 	"scaffold/pkg/httpserver/core/apigen"
@@ -18,8 +17,7 @@ type Swagger struct {
 }
 
 // New 创建新的Swagger文档生成器
-func New() *Swagger {
-	cfg := config.Cfg.Swagger
+func New(cfg config.SwaggerConfig) *Swagger {
 	if !cfg.Enabled {
 		return nil
 	}
@@ -153,15 +151,10 @@ func (s *Swagger) GenerateDocs(pathPrefix string, apiInfos []apigen.ApiInfo) {
 }
 
 // Save 保存Swagger文档到文件
-func (s *Swagger) Save() error {
-	if s == nil {
-		return nil
-	}
-
+func (s *Swagger) Save(filePath string) error {
 	fmt.Println("开始生成Swagger文档...")
-
-	// 保存文档到文件
-	docsDir := "./docs"
+	//// 保存文档到文件
+	docsDir := path.Dir(filePath)
 	if err := os.MkdirAll(docsDir, 0755); err != nil {
 		return err
 	}
@@ -171,8 +164,7 @@ func (s *Swagger) Save() error {
 		return err
 	}
 
-	swaggerFile := filepath.Join(docsDir, "swagger.json")
-	if err := os.WriteFile(swaggerFile, jsonData, 0644); err != nil {
+	if err := os.WriteFile(filePath, jsonData, 0644); err != nil {
 		return err
 	}
 

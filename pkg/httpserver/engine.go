@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"path"
+	"scaffold/pkg/config"
 	"syscall"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
-	"scaffold/pkg/config"
 	"scaffold/pkg/httpserver/core/apigen"
 	"scaffold/pkg/httpserver/core/apigen/swagger"
 	"scaffold/pkg/logger"
@@ -19,12 +19,16 @@ import (
 type Server struct {
 	engine  *gin.Engine
 	swagger *swagger.Swagger
+	config  *config.ServerConfig
 }
 
-func New() *Server {
-	cfg := config.Cfg.App
+func New(port int) *Server {
+	serverConfig, ok := validateConfig(port)
+	if !ok {
+		zap.L().Panic("此服务端口没有配置成功", zap.Int("port", port))
+	}
 	// 设置运行模式
-	if cfg.Mode == gin.ReleaseMode {
+	if serverConfig.Mode == gin.ReleaseMode {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
 		gin.SetMode(gin.DebugMode)
@@ -43,33 +47,46 @@ func New() *Server {
 	})
 
 	// 2. 初始化swagger
-	swg := swagger.New()
+	swgCfg := serverConfig.Swagger
+	swg := swagger.New(swgCfg)
 
 	// 3. 添加Swagger UI路由
-	r.StaticFile("/swagger-docs/swagger.json", "./docs/swagger.json")
+	// 对应的json文件
+	r.StaticFile("/swagger-docs/swagger.json", swgCfg.JSONFilePath)
+	// swagger-ui
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler,
 		ginSwagger.URL("/swagger-docs/swagger.json")))
 
 	return &Server{
 		engine:  r,
 		swagger: swg,
+		config:  serverConfig,
 	}
 }
 
-func (s *Server) Run(addr string) {
+func validateConfig(port int) (*config.ServerConfig, bool) {
+	for _, server := range config.Cfg.Server {
+		if port == server.Port {
+			return &server, true
+		}
+	}
+	return nil, false
+}
+
+func (s *Server) Run() {
 	// 创建HTTP服务器
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", addr),
+		Addr:    fmt.Sprintf(":%d", s.config.Port),
 		Handler: s.engine,
 	}
 
 	// 将注册的路由保存到swagger
-	if err := s.swagger.Save(); err != nil {
+	if err := s.swagger.Save(s.config.Swagger.JSONFilePath); err != nil {
 		zap.L().Fatal("swagger生成失败", zap.Error(err))
 	}
 
 	// 启动服务器
-	startServer(srv, addr)
+	startServer(srv, s.config.Port)
 
 	// 等待终止信号
 	sig := waitForSignal()
@@ -83,7 +100,6 @@ func (s *Server) Run(addr string) {
 
 	// 优雅关闭服务
 	shutdownServer(srv)
-
 }
 
 func (s *Server) Bind(apiInterfaces ...interface{}) {
@@ -142,4 +158,20 @@ func (sg *ServerGroup) Group(relativePath string, handle func(group *ServerGroup
 
 func (sg *ServerGroup) Middleware(middlewares ...gin.HandlerFunc) {
 	sg.group.Use(middlewares...)
+}
+
+func (s *Server) GET(path string, handlers ...gin.HandlerFunc) {
+	s.engine.GET(path, handlers...)
+}
+
+func (s *Server) POST(path string, handlers ...gin.HandlerFunc) {
+	s.engine.GET(path, handlers...)
+}
+
+func (s *Server) DELETE(path string, handlers ...gin.HandlerFunc) {
+	s.engine.GET(path, handlers...)
+}
+
+func (s *Server) PATCH(path string, handlers ...gin.HandlerFunc) {
+	s.engine.GET(path, handlers...)
 }

@@ -34,6 +34,15 @@ func loadConfig() error {
 	if err := viper.Unmarshal(&Cfg); err != nil {
 		return errors.Wrap(err, "无法解析配置到结构体")
 	}
+
+	// 解析占位符
+	for i := range Cfg.Server {
+		port := Cfg.Server[i].Port
+		Cfg.Server[i].Swagger.JSONFilePath = strings.Replace(Cfg.Server[i].Swagger.JSONFilePath, "{port}", fmt.Sprintf("%d", port), -1)
+		for j := range Cfg.Server[i].Swagger.Servers {
+			Cfg.Server[i].Swagger.Servers[j].URL = strings.Replace(Cfg.Server[i].Swagger.Servers[j].URL, "{port}", fmt.Sprintf("%d", port), -1)
+		}
+	}
 	return nil
 }
 

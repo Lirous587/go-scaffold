@@ -1,8 +1,8 @@
 package swagger
 
 import (
-	"scaffold/pkg/httpserver/core"
 	"scaffold/pkg/httpserver/core/apigen"
+	"scaffold/response"
 	"strings"
 )
 
@@ -174,7 +174,7 @@ func (s *Swagger) generateOperation(apiInfo *apigen.ApiInfo) Operation {
 					Properties: map[string]Schema{
 						"code": {
 							Type:    "integer",
-							Example: core.CodeSuccess,
+							Example: response.CodeSuccess,
 						},
 						"message": {
 							Type:    "string",

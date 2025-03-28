@@ -26,9 +26,9 @@ func setupCORS(r *gin.Engine) {
 }
 
 // 启动HTTP服务器
-func startServer(srv *http.Server, addr string) {
+func startServer(srv *http.Server, port int) {
 	go func() {
-		zap.L().Info("服务器启动", zap.String("地址", addr))
+		zap.L().Info("服务器启动", zap.Int("端口", port))
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			zap.L().Fatal("服务器启动失败", zap.Error(err))
 		}
