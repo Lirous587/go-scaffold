@@ -2,7 +2,6 @@
 .vscode/
 bin
 output/
-**/config/config.yaml
 *.exe
 /tmp
 logs

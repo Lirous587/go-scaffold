@@ -1,0 +1,82 @@
+server:
+  - port: "8080"
+    mode: "dev"
+    swagger:
+      enabled: true
+      base_path: /api
+      json_file_path: ./docs/{port}.swagger.json
+
+      info:
+        title: API服务框架
+        description: 自动生成的API文档
+        version: 1.0
+        terms: https://lirous.com/
+        contact:
+          name: Lirous
+          email: lirous@lirous.com
+          url: https://lirous.com/
+        license:
+          name: MIT
+          url: https://opensource.org/licenses/MIT
+
+      servers:
+        - url: http://localhost:{port}
+          description: 开发服务器
+        - url: https://api.example.com
+          description: 生产服务器
+
+      security_definitions:
+        JWT:
+          type: http
+          scheme: bearer
+          bearer_format: JWT
+          description: 使用JWT Bearer Token认证
+        ApiKey:
+          type: apiKey
+          name: X-API-Key
+          in: header
+          description: API密钥认证
+
+      security:
+        - JWT
+        -
+
+
+
+
+
+log:
+  mode: "dev"
+  level: "info"
+  filename: "logs/scaffold.log"
+  max_size: 1
+  max_age: 30
+  max_backups: 7
+
+db:
+  driver: "mysql"  # 增加驱动类型字段，方便将来切换数据库
+  host: "127.0.0.1"
+  username: "root"
+  password: "123"
+  port: "3306"
+  dbname: "test"
+  max_open_con: 100
+  max_idle_con: 50
+  # 可以增加GORM特有配置
+  log_level: "info"
+  slow_threshold: 200  # 慢SQL阈值(ms)
+
+redis:
+  host: "127.0.0.1"
+  port: "6379"
+  db: 0
+  #  password:
+  pool_size: 200
+
+#auth:
+#  admin:
+#    jwt_secret: "https://lirous.com"
+#    jwt_expire_minute: 120
+#  user:
+#    jwt_secret: "https://lirous.com"
+#    jwt_expire_minute: 120
