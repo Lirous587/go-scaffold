@@ -31,13 +31,11 @@ func NewBinder(ctx *gin.Context, lang string) *Binder {
 	}
 }
 
-type ErrorMsg any
-
 // Bind 将请求数据智能绑定到提供的结构体指针
-func (b *Binder) Bind(req interface{}) ErrorMsg {
+func (b *Binder) Bind(req interface{}) error {
 	reqValue := reflect.ValueOf(req)
 	if reqValue.Kind() != reflect.Ptr || reqValue.IsNil() {
-		return "Invalid request object" + "Request must be a non-nil pointer"
+		return errors.New("Invalid request object" + "Request must be a non-nil pointer")
 	}
 
 	reqElem := reqValue.Elem()

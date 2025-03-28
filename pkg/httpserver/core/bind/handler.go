@@ -3,7 +3,6 @@ package bind
 import (
 	"net/http"
 	"reflect"
-	"scaffold/pkg/httpserver/core"
 	"scaffold/response"
 
 	"github.com/gin-gonic/gin"
@@ -27,10 +26,9 @@ func AutoBind(apiMethod interface{}) gin.HandlerFunc {
 		binder := NewBinder(c, lang)
 		if err := binder.Bind(req); err != nil {
 			// 处理绑定错误
-			c.AbortWithStatusJSON(http.StatusBadRequest, core.Response{
+			c.AbortWithStatusJSON(http.StatusBadRequest, response.Meta{
 				Code:    response.CodeValidationError,
-				Message: err,
-				Data:    nil,
+				Message: err.Error(),
 			})
 			return
 		}
@@ -51,11 +49,20 @@ func AutoBind(apiMethod interface{}) gin.HandlerFunc {
 
 		res := response.GetResponse(code)
 
-		// 发送响应
-		c.AbortWithStatusJSON(res.HttpStatus, core.Response{
-			Code:    code,
-			Message: res.Message,
-			Data:    resValue.Interface(),
-		})
+		if code != response.CodeSuccess {
+			if res.HttpStatus == 0 {
+				res.HttpStatus = 500
+			}
+			c.AbortWithStatusJSON(res.HttpStatus, response.Meta{
+				Code:    code,
+				Message: res.Message,
+			})
+		} else {
+			c.JSON(res.HttpStatus, response.Success{
+				Code:    code,
+				Message: res.Message,
+				Data:    resValue.Interface(),
+			})
+		}
 	}
 }

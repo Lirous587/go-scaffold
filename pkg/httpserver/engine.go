@@ -159,19 +159,3 @@ func (sg *ServerGroup) Group(relativePath string, handle func(group *ServerGroup
 func (sg *ServerGroup) Middleware(middlewares ...gin.HandlerFunc) {
 	sg.group.Use(middlewares...)
 }
-
-func (s *Server) GET(path string, handlers ...gin.HandlerFunc) {
-	s.engine.GET(path, handlers...)
-}
-
-func (s *Server) POST(path string, handlers ...gin.HandlerFunc) {
-	s.engine.GET(path, handlers...)
-}
-
-func (s *Server) DELETE(path string, handlers ...gin.HandlerFunc) {
-	s.engine.GET(path, handlers...)
-}
-
-func (s *Server) PATCH(path string, handlers ...gin.HandlerFunc) {
-	s.engine.GET(path, handlers...)
-}
