@@ -1,4 +1,4 @@
-package i18n
+package bind
 
 import (
 	"encoding/json"
@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// TranslateJSONError 翻译JSON解析错误
-func TranslateJSONError(err error, lang string) (string, string) {
+// translateJSONError 翻译JSON解析错误
+func translateJSONError(err error, lang string) (string, string) {
 	// 默认消息
 	errorMsg := "JSON 格式错误"
 	errorDetail := err.Error()
@@ -63,32 +63,6 @@ func TranslateJSONError(err error, lang string) (string, string) {
 		} else {
 			errorDetail = "JSON语法错误，请检查格式是否正确，如括号、引号、逗号等"
 		}
-	}
-
-	return errorMsg, errorDetail
-}
-
-// TranslateNullJSONError 翻译json是否为空错误
-func TranslateNullJSONError(err error, lang string) (string, string) {
-	// 默认消息
-	errorMsg := "请求体为空"
-	errorDetail := err.Error()
-
-	if lang == "en" {
-		errorMsg = "Request Body Is Null"
-	}
-
-	return errorMsg, errorDetail
-}
-
-// TranslateParseFormError 翻译表单解析错误
-func TranslateParseFormError(err error, lang string) (string, string) {
-	// 默认消息
-	errorMsg := "解析表单失败"
-	errorDetail := err.Error()
-
-	if lang == "en" {
-		errorMsg = "Parse Form failed"
 	}
 
 	return errorMsg, errorDetail

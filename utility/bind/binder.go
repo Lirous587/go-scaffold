@@ -4,15 +4,30 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"reflect"
 	"scaffold/pkg/i18n"
-	"scaffold/pkg/validator"
 	"strings"
 )
+
+// v 使用标准的validator
+var v *validator.Validate
+
+func init() {
+	// 默认提供一个标准验证器
+	v = validator.New()
+}
+
+func Init(validator *validator.Validate) {
+	if validator == nil {
+		panic("validator cannot be nil")
+	}
+	v = validator
+}
 
 // Binder 负责将请求数据绑定到结构体
 type Binder struct {
@@ -31,13 +46,8 @@ func NewBinder(ctx *gin.Context) *Binder {
 }
 
 func Bind(c *gin.Context, req any) error {
-	// 创建绑定器并执行绑定
 	binder := NewBinder(c)
-	if err := binder.Bind(req); err != nil {
-		return err
-	}
-
-	return nil
+	return binder.Bind(req)
 }
 
 // Bind 将请求数据智能绑定到提供的结构体指针
@@ -78,7 +88,7 @@ func (b *Binder) Bind(req interface{}) error {
 	}
 
 	// 验证参数
-	if err := validator.V.Struct(req); err != nil {
+	if err := v.Struct(req); err != nil {
 		errMsg := i18n.TranslateValidatorError(err, b.lang)
 		return errMsg
 	}
@@ -148,14 +158,12 @@ func (b *Binder) bindQuery(reqElem reflect.Value, reqType reflect.Type) {
 func (b *Binder) bindJSON(req interface{}) error {
 	// 检查请求体是否为空
 	if b.ctx.Request.Body == nil {
-		errorMsg, errorDetail := i18n.TranslateNullJSONError(b.ctx.Err(), b.lang)
-		return errors.New(errorMsg + ":" + errorDetail)
+		return errors.New("Request Body Is Null")
 	}
 
 	bodyBytes, err := io.ReadAll(b.ctx.Request.Body)
 	if err != nil {
-		errorMsg, errorDetail := i18n.TranslateJSONError(err, b.lang)
-		return errors.New(errorMsg + ":" + errorDetail)
+		return err
 	}
 
 	// 重置请求体供后续使用
@@ -163,13 +171,12 @@ func (b *Binder) bindJSON(req interface{}) error {
 
 	// 检查读取的内容是否为空
 	if len(bodyBytes) == 0 {
-		errorMsg, errorDetail := i18n.TranslateNullJSONError(io.EOF, b.lang)
-		return errors.New(errorMsg + ":" + errorDetail)
+		return errors.New("Request Body Is Null")
 	}
 
 	// 解析JSON
 	if err := json.Unmarshal(bodyBytes, req); err != nil {
-		errorMsg, errorDetail := i18n.TranslateJSONError(err, b.lang)
+		errorMsg, errorDetail := translateJSONError(err, b.lang)
 		return errors.New(errorMsg + ":" + errorDetail)
 	}
 	return nil
@@ -181,14 +188,12 @@ func (b *Binder) bindForm(reqElem reflect.Value, reqType reflect.Type) error {
 	if strings.Contains(contentType, "multipart/form-data") {
 		// 对于multipart/form-data类型
 		if err := b.ctx.Request.ParseMultipartForm(32 << 20); err != nil { // 32MB 最大尺寸
-			errorMsg, errorDetail := i18n.TranslateParseFormError(err, b.lang)
-			return errors.New(errorMsg + ":" + errorDetail)
+			return errors.WithMessage(err, "Parse Form failed")
 		}
 	} else {
 		// 对于x-www-form-urlencoded类型
 		if err := b.ctx.Request.ParseForm(); err != nil {
-			errorMsg, errorDetail := i18n.TranslateParseFormError(err, b.lang)
-			return errors.New(errorMsg + ":" + errorDetail)
+			return errors.WithMessage(err, "Parse Form failed")
 		}
 	}
 
