@@ -30,7 +30,5 @@ func setFieldValue(fieldValue reflect.Value, strValue string) {
 		if val, err := strconv.ParseFloat(strValue, 64); err == nil {
 			fieldValue.SetFloat(val)
 		}
-	default:
-		panic("unhandled default case")
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"scaffold/pkg/repository/db"
 	"scaffold/pkg/repository/redis"
 	"scaffold/pkg/validator"
+	"scaffold/utility/bind"
 
 	"github.com/pkg/errors"
 )
@@ -38,6 +39,8 @@ func setting() error {
 	if err = db.Init(&config.Cfg.DB); err != nil {
 		return errors.WithMessage(err, "db模块初始化失败")
 	}
+
+	bind.Init(validator.V)
 
 	return nil
 }

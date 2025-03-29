@@ -106,8 +106,6 @@ func validateStruct(prefix string, s interface{}) error {
 			if !isPermitEmpty(fieldPath) && field.Int() <= 0 {
 				return errors.New(fmt.Sprintf("无效配置: %s 必须大于0", fieldPath))
 			}
-		default:
-			panic("unhandled default case")
 		}
 	}
 	return nil
