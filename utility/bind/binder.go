@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"reflect"
 	"scaffold/pkg/i18n"
@@ -20,15 +21,23 @@ type Binder struct {
 }
 
 // NewBinder 创建新的绑定器
-func NewBinder(ctx *gin.Context, lang string) *Binder {
-	if lang == "" {
-		lang = i18n.GetLanguageFromHeader(ctx.GetHeader("Accept-Language"))
-	}
+func NewBinder(ctx *gin.Context) *Binder {
+	lang := ctx.GetHeader("accept-language")
 
 	return &Binder{
 		ctx:  ctx,
 		lang: lang,
 	}
+}
+
+func Bind(c *gin.Context, req any) error {
+	// 创建绑定器并执行绑定
+	binder := NewBinder(c)
+	if err := binder.Bind(req); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Bind 将请求数据智能绑定到提供的结构体指针
@@ -194,17 +203,30 @@ func (b *Binder) bindForm(reqElem reflect.Value, reqType reflect.Type) error {
 
 		formTag := field.Tag.Get("form")
 
-		if formTag != "" {
-			// FormValue可以同时处理普通表单和multipart表单
-			value := b.ctx.Request.FormValue(formTag)
-
-			if value == "" {
-				continue
-			}
-
-			// 设置字段值
-			setFieldValue(fieldVal, value)
+		if formTag == "" {
+			continue
 		}
+
+		// 先处理文件类型字段
+		if fieldVal.Type() == reflect.TypeOf((*multipart.FileHeader)(nil)) {
+			if strings.Contains(contentType, "multipart/form-data") {
+				file, err := b.ctx.FormFile(formTag)
+				if err == nil {
+					fieldVal.Set(reflect.ValueOf(file))
+				}
+			}
+			continue
+		}
+
+		// 处理其它普通字段
+		value := b.ctx.Request.FormValue(formTag)
+
+		if value == "" {
+			continue
+		}
+
+		// 设置字段值
+		setFieldValue(fieldVal, value)
 	}
 	return nil
 }
