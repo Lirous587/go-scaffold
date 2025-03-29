@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"github.com/pkg/errors"
 	"reflect"
 	"regexp"
 	"scaffold/pkg/i18n"
@@ -9,7 +10,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// 全局验证器实例
+// V 全局验证器实例
 var V = validator.New()
 
 // Init 初始化验证器
@@ -28,7 +29,10 @@ func Init() error {
 	})
 
 	// 为验证器设置翻译
-	i18n.SetupValidator(V)
+	err := i18n.SetupValidator(V)
+	if err != nil {
+		return errors.WithMessage(err, "i18n.SetupValidator failed")
+	}
 
 	return nil
 }

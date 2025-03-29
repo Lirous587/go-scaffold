@@ -1,49 +1,6 @@
 server:
   - port: "8080"
     mode: "dev"
-    swagger:
-      enabled: true
-      base_path: /api
-      json_file_path: ./docs/{port}.swagger.json
-
-      info:
-        title: API服务框架
-        description: 自动生成的API文档
-        version: 1.0
-        terms: https://lirous.com/
-        contact:
-          name: Lirous
-          email: lirous@lirous.com
-          url: https://lirous.com/
-        license:
-          name: MIT
-          url: https://opensource.org/licenses/MIT
-
-      servers:
-        - url: http://localhost:{port}
-          description: 开发服务器
-        - url: https://api.example.com
-          description: 生产服务器
-
-      security_definitions:
-        JWT:
-          type: http
-          scheme: bearer
-          bearer_format: JWT
-          description: 使用JWT Bearer Token认证
-        ApiKey:
-          type: apiKey
-          name: X-API-Key
-          in: header
-          description: API密钥认证
-
-      security:
-        - JWT
-        -
-
-
-
-
 
 log:
   mode: "dev"

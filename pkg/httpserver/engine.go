@@ -3,26 +3,20 @@ package httpserver
 import (
 	"fmt"
 	"net/http"
-	"path"
 	"scaffold/pkg/config"
 	"syscall"
 
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
-	"scaffold/pkg/httpserver/core/apigen"
-	"scaffold/pkg/httpserver/core/apigen/swagger"
 	"scaffold/pkg/logger"
 )
 
 type Server struct {
-	engine  *gin.Engine
-	swagger *swagger.Swagger
-	config  *config.ServerConfig
+	engine *gin.Engine
+	config *config.ServerConfig
 }
 
-func New(port int) *Server {
+func New(port int) *gin.Engine {
 	serverConfig, ok := validateConfig(port)
 	if !ok {
 		zap.L().Panic("此服务端口没有配置成功", zap.Int("port", port))
@@ -46,22 +40,7 @@ func New(port int) *Server {
 		c.JSONP(404, gin.H{"msg": "404"})
 	})
 
-	// 2. 初始化swagger
-	swgCfg := serverConfig.Swagger
-	swg := swagger.New(swgCfg)
-
-	// 3. 添加Swagger UI路由
-	// 对应的json文件
-	r.StaticFile("/swagger-docs/swagger.json", swgCfg.JSONFilePath)
-	// swagger-ui
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler,
-		ginSwagger.URL("/swagger-docs/swagger.json")))
-
-	return &Server{
-		engine:  r,
-		swagger: swg,
-		config:  serverConfig,
-	}
+	return r
 }
 
 func validateConfig(port int) (*config.ServerConfig, bool) {
@@ -80,11 +59,6 @@ func (s *Server) Run() {
 		Handler: s.engine,
 	}
 
-	// 将注册的路由保存到swagger
-	if err := s.swagger.Save(s.config.Swagger.JSONFilePath); err != nil {
-		zap.L().Fatal("swagger生成失败", zap.Error(err))
-	}
-
 	// 启动服务器
 	startServer(srv, s.config.Port)
 
@@ -100,62 +74,4 @@ func (s *Server) Run() {
 
 	// 优雅关闭服务
 	shutdownServer(srv)
-}
-
-func (s *Server) Bind(apiInterfaces ...interface{}) {
-	for _, apiInterface := range apiInterfaces {
-		apiInfos := apigen.GetApiInfo(apiInterface)
-		apigen.RegisterAPI(s.engine, apiInfos)
-		s.swagger.GenerateDocs("", apiInfos)
-	}
-}
-
-func (s *Server) Group(relativePath string, handle func(group *ServerGroup)) {
-	group := s.engine.Group(relativePath)
-	sg := &ServerGroup{
-		server: Server{
-			engine:  s.engine,
-			swagger: s.swagger,
-		},
-		group:    group,
-		basePath: relativePath,
-	}
-	handle(sg)
-}
-
-func (s *Server) Middleware(middlewares ...gin.HandlerFunc) {
-	s.engine.Use(middlewares...)
-}
-
-type ServerGroup struct {
-	server   Server
-	group    *gin.RouterGroup
-	basePath string
-}
-
-func (sg *ServerGroup) Bind(apiInterfaces ...interface{}) {
-	// 获取当前路由组的路径前缀
-	pathPrefix := sg.basePath
-	for _, apiInterface := range apiInterfaces {
-		apiInfos := apigen.GetApiInfo(apiInterface)
-		apigen.RegisterAPI(sg.group, apiInfos)
-		sg.server.swagger.GenerateDocs(pathPrefix, apiInfos)
-	}
-}
-
-func (sg *ServerGroup) Group(relativePath string, handle func(group *ServerGroup)) {
-	subGroup := sg.group.Group(relativePath)
-	// 合并路径，确保路径格式正确（处理斜杠）
-	newBasePath := path.Join(sg.basePath, relativePath, "/")
-
-	subSg := &ServerGroup{
-		server:   sg.server,
-		group:    subGroup,
-		basePath: newBasePath,
-	}
-	handle(subSg)
-}
-
-func (sg *ServerGroup) Middleware(middlewares ...gin.HandlerFunc) {
-	sg.group.Use(middlewares...)
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"scaffold/internal/cmd"
 	"scaffold/pkg/config"
 	"scaffold/pkg/i18n"
@@ -44,7 +44,7 @@ func setting() error {
 
 func main() {
 	if err := setting(); err != nil {
-		fmt.Printf("%+v", err)
+		log.Fatalf("%+v", err)
 		return
 	}
 

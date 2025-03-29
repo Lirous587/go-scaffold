@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -89,13 +90,22 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 				// condition that warrants a panic stack trace.
 				var brokenPipe bool
 
-				// 更健壮的错误类型检查
-				if ne, ok := err.(*net.OpError); ok {
-					if se, ok := ne.Err.(*os.SyscallError); ok {
-						errStr := strings.ToLower(se.Error())
-						if strings.Contains(errStr, "broken pipe") ||
-							strings.Contains(errStr, "connection reset by peer") {
-							brokenPipe = true
+				// 转换为字符串检查错误信息
+				errStr := fmt.Sprintf("%v", err)
+				if strings.Contains(strings.ToLower(errStr), "broken pipe") ||
+					strings.Contains(strings.ToLower(errStr), "connection reset by peer") {
+					brokenPipe = true
+				} else {
+					// 尝试使用 errors.As 进行类型断言
+					var opErr *net.OpError
+					if errors.As(err.(error), &opErr) {
+						var sysErr *os.SyscallError
+						if errors.As(opErr.Err, &sysErr) {
+							sysErrStr := strings.ToLower(sysErr.Error())
+							if strings.Contains(sysErrStr, "broken pipe") ||
+								strings.Contains(sysErrStr, "connection reset by peer") {
+								brokenPipe = true
+							}
 						}
 					}
 				}

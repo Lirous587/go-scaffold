@@ -94,19 +94,6 @@ func TranslateParseFormError(err error, lang string) (string, string) {
 	return errorMsg, errorDetail
 }
 
-// TranslateServerError 翻译服务端错误
-func TranslateServerError(err error, lang string) (string, string) {
-	// 默认消息
-	errorMsg := "服务器内部错误"
-	errorDetail := err.Error()
-
-	if lang == "en" {
-		errorMsg = "This Server Happen Error"
-	}
-
-	return errorMsg, errorDetail
-}
-
 // formatTypeNameI18n 根据语言将Go类型名转换为更友好的名称
 func formatTypeNameI18n(typeName string, lang string) string {
 	if lang == "en" {

@@ -167,7 +167,7 @@ user, err := service.GetUserByID(1)
 
 // 创建用户
 err := service.CreateUser(&model.User{
-    Username: "newuser",
+    Username: "newUser",
     Password: "password123",
 })
 ```

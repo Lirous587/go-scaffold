@@ -1,6 +1,7 @@
 package i18n
 
 import (
+	"github.com/pkg/errors"
 	"scaffold/pkg/i18n/validatortrans"
 	"strings"
 
@@ -31,8 +32,12 @@ func Init() {
 }
 
 // SetupValidator 为指定的验证器设置翻译
-func SetupValidator(v *validator.Validate) {
-	validatortrans.SetupValidator(v)
+func SetupValidator(v *validator.Validate) error {
+	err := validatortrans.SetupValidator(v)
+	if err != nil {
+		return errors.WithMessage(err, "validatortrans.SetupValidator(v) failed")
+	}
+	return nil
 }
 
 type ValidatorError map[string]string

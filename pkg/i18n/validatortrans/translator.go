@@ -5,6 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	entranslations "github.com/go-playground/validator/v10/translations/en"
 	zhtranslations "github.com/go-playground/validator/v10/translations/zh"
+	"github.com/pkg/errors"
 )
 
 // Trans 导出从父包访问的翻译器映射
@@ -16,18 +17,28 @@ func Setup(translators map[string]ut.Translator) {
 }
 
 // SetupValidator 为指定的验证器设置翻译
-func SetupValidator(v *validator.Validate) {
+func SetupValidator(v *validator.Validate) error {
 	// 注册标准翻译
 	if t, exists := Trans["en"]; exists {
-		entranslations.RegisterDefaultTranslations(v, t)
+		err := entranslations.RegisterDefaultTranslations(v, t)
+		if err != nil {
+			return errors.WithMessage(err, "entranslations.RegisterDefaultTranslations(v, t) failed")
+		}
 	}
 
 	if t, exists := Trans["zh"]; exists {
-		zhtranslations.RegisterDefaultTranslations(v, t)
+		err := zhtranslations.RegisterDefaultTranslations(v, t)
+		if err != nil {
+			return errors.WithMessage(err, "nil.RegisterDefaultTranslations(v, t) failed")
+		}
 	}
 
 	// 注册自定义翻译
-	registerCustomMessages(v)
+	err := registerCustomMessages(v)
+	if err != nil {
+		return errors.WithMessage(err, "registerCustomMessages failed")
+	}
+	return nil
 }
 
 // TranslateError 翻译验证错误

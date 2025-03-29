@@ -35,14 +35,6 @@ func loadConfig() error {
 		return errors.Wrap(err, "无法解析配置到结构体")
 	}
 
-	// 解析占位符
-	for i := range Cfg.Server {
-		port := Cfg.Server[i].Port
-		Cfg.Server[i].Swagger.JSONFilePath = strings.Replace(Cfg.Server[i].Swagger.JSONFilePath, "{port}", fmt.Sprintf("%d", port), -1)
-		for j := range Cfg.Server[i].Swagger.Servers {
-			Cfg.Server[i].Swagger.Servers[j].URL = strings.Replace(Cfg.Server[i].Swagger.Servers[j].URL, "{port}", fmt.Sprintf("%d", port), -1)
-		}
-	}
 	return nil
 }
 
@@ -114,6 +106,8 @@ func validateStruct(prefix string, s interface{}) error {
 			if !isPermitEmpty(fieldPath) && field.Int() <= 0 {
 				return errors.New(fmt.Sprintf("无效配置: %s 必须大于0", fieldPath))
 			}
+		default:
+			panic("unhandled default case")
 		}
 	}
 	return nil

@@ -1,22 +1,40 @@
 package cmd
 
 import (
-	"scaffold/internal/controller/mock1"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"scaffold/pkg/httpserver"
 )
+
+type TestUri interface {
+}
+
+type TestHeader interface {
+}
+
+type TestQuery interface {
+}
+
+type TestJSON struct {
+}
+
+type TestForm struct {
+}
 
 func Main() {
 	// 创建服务器
 	s := httpserver.New(8080)
 
-	// 创建根路由组
-	s.Group("/", func(group *httpserver.ServerGroup) {
-		group.Group("/mock", func(group *httpserver.ServerGroup) {
-			group.Bind(
-				mock1.NewV1(),
-			)
+	s.GET("/test", func(c *gin.Context) {
+		fmt.Println("simple is good")
+		c.JSON(200, gin.H{
+			"msg": "hello simple",
 		})
 	})
 
-	s.Run()
+	err := s.Run()
+
+	if err != nil {
+		panic(err)
+	}
 }
