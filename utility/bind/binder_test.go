@@ -50,8 +50,8 @@ func TestBindJSON(t *testing.T) {
 		var req TestJSON
 		err := Bind(c, &req)
 		assert.NoError(t, err)
-		assert.Equal(t, "张三", req.Name)
-		assert.Equal(t, 25, req.Age)
+		assert.Equal(t, "lirous", req.Name)
+		assert.Equal(t, 19, req.Age)
 		c.String(200, "ok")
 	})
 
@@ -80,7 +80,7 @@ func TestBindJSON1(t *testing.T) {
 
 	// 创建测试请求
 	w := httptest.NewRecorder()
-	jsonData := `{"name":"张三"}`
+	jsonData := `{"name":"lirous"}`
 	req, _ := http.NewRequest("POST", "/users", bytes.NewBufferString(jsonData))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
@@ -109,7 +109,7 @@ func TestBindForm(t *testing.T) {
 	// 创建表单数据
 	form := url.Values{}
 	form.Add("name", "lirous")
-	form.Add("age", "30")
+	form.Add("age", "19")
 
 	// 创建测试请求
 	w := httptest.NewRecorder()
@@ -331,4 +331,116 @@ func TestBindAll(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
+}
+
+func BenchmarkBindURI(b *testing.B) {
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.GET("/users/:id/:action", func(c *gin.Context) {
+		var req TestURI
+		Bind(c, &req)
+	})
+
+	req, _ := http.NewRequest("GET", "/users/123/update", nil)
+	w := httptest.NewRecorder()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		router.ServeHTTP(w, req)
+	}
+}
+
+func BenchmarkBindJSON(b *testing.B) {
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.POST("/users", func(c *gin.Context) {
+		var req TestJSON
+		Bind(c, &req)
+	})
+
+	jsonData := `{"name":"lirous","age":19}`
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/users", bytes.NewBufferString(jsonData))
+		req.Header.Set("Content-Type", "application/json")
+		router.ServeHTTP(w, req)
+	}
+}
+
+func BenchmarkBindForm(b *testing.B) {
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.POST("/users", func(c *gin.Context) {
+		var req TestForm
+		Bind(c, &req)
+	})
+
+	form := url.Values{}
+	form.Add("name", "lirous")
+	form.Add("age", "19")
+	formData := form.Encode()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/users", strings.NewReader(formData))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		router.ServeHTTP(w, req)
+	}
+}
+
+func BenchmarkBindMultipartForm(b *testing.B) {
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.POST("/upload", func(c *gin.Context) {
+		var req TestMultipartForm
+		Bind(c, &req)
+	})
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+		_ = writer.WriteField("name", "lirous")
+		avatarPart, _ := writer.CreateFormFile("avatar", "avatar.png")
+		avatarPart.Write([]byte("模拟图片内容"))
+		docPart, _ := writer.CreateFormFile("document", "doc.pdf")
+		docPart.Write([]byte("模拟PDF内容"))
+		writer.Close()
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/upload", body)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+		router.ServeHTTP(w, req)
+	}
+}
+
+func BenchmarkBindAll(b *testing.B) {
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.POST("/users/:id/:action", func(c *gin.Context) {
+		var req TestAllBindings
+		Bind(c, &req)
+	})
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+		_ = writer.WriteField("name", "lirous")
+		_ = writer.WriteField("age", "25")
+		avatarPart, _ := writer.CreateFormFile("avatar", "avatar.png")
+		avatarPart.Write([]byte("模拟图片内容"))
+		docPart, _ := writer.CreateFormFile("document", "doc.pdf")
+		docPart.Write([]byte("模拟PDF内容"))
+		writer.Close()
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/users/123/update?page=2&category=go", body)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+		req.Header.Set("Authorization", "Bearer token123")
+		req.Header.Set("User-Agent", "TestAgent")
+		router.ServeHTTP(w, req)
+	}
 }
