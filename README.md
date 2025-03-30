@@ -29,20 +29,24 @@
 
 ```
 scaffold/
-├── cmd/              # 命令入口
-│   └── main.go
-├── pkg/              # 项目包
-│   ├── config/       # 配置管理
-│   ├── engine/       # Web引擎初始化
-│   ├── logger/       # 日志配置
-│   ├── model/        # 数据模型
-│   ├── repository/   # 数据存储层
-│   │   ├── db/       # 数据库操作
-│   │   └── redis/    # Redis操作
-│   └── service/      # 业务逻辑层
+├── internal/         # 实际业务逻辑
+│   └── ...
+│   └── ...
+├── logs/             # 日志文件
 ├── manifest/         # 配置文件目录
 │   └── config/
 │       └── config.yaml
+├── pkg/              # 依赖项
+│   ├── config/       # 配置结构化管理
+│   ├── httpserver/   # gin引擎初始化
+│   ├── logger/       # 日志配置
+│   ├── repository/   # 数据存储层
+│   │   ├── db/       # 数据库单例
+│   │   └── redis/    # Redis单例
+├── resource/              # 静态资源
+├── utility/          # 工具函数
+├── .air.conf         # air配置
+├── .gitignore        # air配置
 ├── main.go           # 主入口
 └── README.md
 ```
@@ -85,11 +89,9 @@ go run main.go
 配置文件路径：`manifest/config/config.yaml`
 
 ```yaml
-app:
+server:
   mode: "production"     # 运行模式: development, production
   port: "8080"           # 服务端口
-  start_time: "2025-03-19"
-  machine_id: 1
 
 log:
   mode: "dev"            # 日志模式
@@ -129,16 +131,16 @@ auth:
 
 ## 🔌 主要组件
 
-### Engine - Web引擎
+### httpserver - Web引擎
 
 基于Gin封装，支持优雅重启和关闭:
 
 ```go
 // 初始化路由
-router := engine.Init(&config.Cfg.App)
+s := httpserver.New(8080)
 
 // 启动服务
-engine.Run(router, config.Cfg.App.Port)
+s.Run()
 ```
 
 ### Logger - 日志系统
@@ -161,21 +163,10 @@ zap.L().Error("数据库错误",
 
 支持MySQL和PostgreSQL，自动迁移:
 
-```go
-// 查询用户
-user, err := service.GetUserByID(1)
-
-// 创建用户
-err := service.CreateUser(&model.User{
-    Username: "newUser",
-    Password: "password123",
-})
-```
 
 ### Redis - 缓存
 
 简化的Redis操作:
-
 ```go
 // 设置缓存
 err := redis.Client().Set(ctx, "key", "value", time.Minute).Err()
