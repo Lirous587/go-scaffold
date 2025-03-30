@@ -1,6 +1,6 @@
-# 基于Gin的轻量级脚手架
+# 基于 Gin 的轻量级脚手架
 
-一个基于Gin框架的轻量级脚手架，集成了常用组件，帮助你快速搭建高性能的Go Web应用。
+一个基于 Gin 框架的轻量级脚手架，集成了常用组件，帮助你快速搭建高性能的 Go Web 应用。
 
 [![Go Version](https://img.shields.io/badge/Go-v1.18+-blue.svg)](https://golang.org/doc/devel/release.html)
 [![Gin](https://img.shields.io/badge/Gin-v1.9.0+-green.svg)](https://github.com/gin-gonic/gin)
@@ -9,8 +9,8 @@
 ## 🚀 特性
 
 - 📝 完整的项目结构和最佳实践
-- 🔒 JWT认证集成
-- 📊 统一的API响应格式
+- 🔒 JWT 认证集成
+- 📊 统一的 API 响应格式
 - 🔄 强大的中间件支持
 - 📋 详尽的日志记录
 - 🔌 多数据库支持
@@ -19,11 +19,11 @@
 
 ## 🔧 技术栈
 
-- [Gin](https://github.com/gin-gonic/gin) - 高性能HTTP Web框架
-- [GORM](https://gorm.io/) - 优秀的ORM库，支持MySQL、PostgreSQL等
+- [Gin](https://github.com/gin-gonic/gin) - 高性能 HTTP Web 框架
+- [GORM](https://gorm.io/) - 优秀的 ORM 库，支持 MySQL、PostgreSQL 等
 - [Viper](https://github.com/spf13/viper) - 完整的配置解决方案
 - [Zap](https://github.com/uber-go/zap) - 高性能、结构化日志
-- [Redis](https://github.com/redis/go-redis) - Redis客户端
+- [Redis](https://github.com/redis/go-redis) - Redis 客户端
 
 ## 📁 项目结构
 
@@ -36,6 +36,8 @@ scaffold/
 ├── manifest/         # 配置文件目录
 │   └── config/
 │       └── config.yaml
+│   └── docker/
+│       └── Dockerfile
 ├── pkg/              # 依赖项
 │   ├── config/       # 配置结构化管理
 │   ├── httpserver/   # gin引擎初始化
@@ -43,10 +45,11 @@ scaffold/
 │   ├── repository/   # 数据存储层
 │   │   ├── db/       # 数据库单例
 │   │   └── redis/    # Redis单例
+│   ├── validator/    # validator管理
 ├── resource/              # 静态资源
 ├── utility/          # 工具函数
 ├── .air.conf         # air配置
-├── .gitignore        # air配置
+├── .gitignore
 ├── main.go           # 主入口
 └── README.md
 ```
@@ -76,7 +79,7 @@ go mod tidy
 
 3. 修改配置
 
-编辑 `manifest/config/config.yaml` 配置文件，设置数据库和Redis连接信息。
+编辑 `manifest/config/config.yaml` 配置文件，设置数据库和 Redis 连接信息。
 
 4. 运行服务
 
@@ -90,19 +93,19 @@ go run main.go
 
 ```yaml
 server:
-  mode: "production"     # 运行模式: development, production
-  port: "8080"           # 服务端口
+  mode: "production" # 运行模式: development, production
+  port: "8080" # 服务端口
 
 log:
-  mode: "dev"            # 日志模式
-  level: "info"          # 日志级别: debug, info, warn, error
+  mode: "dev" # 日志模式
+  level: "info" # 日志级别: debug, info, warn, error
   filename: "logs/scaffold.log"
-  max_size: 1            # 单个日志文件大小(MB)
-  max_age: 30            # 日志保留天数
-  max_backups: 7         # 保留的旧日志文件数量
+  max_size: 1 # 单个日志文件大小(MB)
+  max_age: 30 # 日志保留天数
+  max_backups: 7 # 保留的旧日志文件数量
 
 db:
-  driver: "mysql"        # 数据库类型: mysql, postgres
+  driver: "mysql" # 数据库类型: mysql, postgres
   host: "127.0.0.1"
   port: "3306"
   username: "root"
@@ -111,7 +114,7 @@ db:
   max_open_con: 100
   max_idle_con: 50
   log_level: "info"
-  slow_threshold: 200    # 慢SQL阈值(ms)
+  slow_threshold: 200 # 慢SQL阈值(ms)
 
 redis:
   host: "127.0.0.1"
@@ -131,9 +134,9 @@ auth:
 
 ## 🔌 主要组件
 
-### httpserver - Web引擎
+### httpserver - Web 引擎
 
-基于Gin封装，支持优雅重启和关闭:
+基于 Gin 封装，支持优雅重启和关闭:
 
 ```go
 // 初始化路由
@@ -145,28 +148,28 @@ s.Run()
 
 ### Logger - 日志系统
 
-基于Zap，支持分级、轮转和多输出:
+基于 Zap，支持分级、轮转和多输出:
 
 ```go
 // 记录信息
-zap.L().Info("操作成功", 
+zap.L().Info("操作成功",
     zap.String("user", "admin"),
     zap.Int("items", 10))
 
 // 记录错误
-zap.L().Error("数据库错误", 
+zap.L().Error("数据库错误",
     zap.Error(err),
     zap.String("query", "SELECT * FROM users"))
 ```
 
 ### 数据库 - GORM
 
-支持MySQL和PostgreSQL，自动迁移:
-
+支持 MySQL 和 PostgreSQL，自动迁移:
 
 ### Redis - 缓存
 
-简化的Redis操作:
+简化的 Redis 操作:
+
 ```go
 // 设置缓存
 err := redis.Client().Set(ctx, "key", "value", time.Minute).Err()
@@ -179,18 +182,18 @@ val, err := redis.Client().Get(ctx, "key").Result()
 
 1. **配置验证** - 启动时自动验证必要配置项
 2. **错误处理** - 使用 `github.com/pkg/errors` 提供完整错误栈
-3. **优雅关机** - 处理SIGTERM等信号，平滑关闭服务
+3. **优雅关机** - 处理 SIGTERM 等信号，平滑关闭服务
 4. **热重启** - 支持不停机更新应用程序
 
 ## 🤝 贡献
 
 欢迎贡献代码或提出建议！请遵循以下步骤：
 
-1. Fork项目
+1. Fork 项目
 2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
 3. 提交更改 (`git commit -m 'Add some amazing feature'`)
 4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建Pull Request
+5. 创建 Pull Request
 
 ## 📄 许可证
 
@@ -206,4 +209,4 @@ val, err := redis.Client().Get(ctx, "key").Result()
 
 ---
 
-⭐️ 如果这个项目对你有帮助，请给它一个start！
+⭐️ 如果这个项目对你有帮助，请给它一个 start！
