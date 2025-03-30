@@ -1,15 +1,15 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"scaffold/pkg/httpserver"
-	"scaffold/utility/bind"
+	"scaffold/pkg/validator"
 )
 
 type TestJSON struct {
-	Name string `json:"name" validate:"required"`
-	Age  int    `json:"age" validate:"required"`
+	Name  string `json:"name" binding:"required"`
+	Age   int    `json:"age" binding:"required"`
+	Phone string `json:"phone" binding:"mobile_cn"`
 }
 
 func Main() {
@@ -18,16 +18,17 @@ func Main() {
 
 	s.POST("/test", func(c *gin.Context) {
 		var test TestJSON
-		if err := bind.Bind(c, &test); err != nil {
+		if err := c.ShouldBindJSON(&test); err != nil {
+			// 翻译错误
+			errMsg := validator.TranslateError(err, "zh")
 			c.AbortWithStatusJSON(400, gin.H{
 				"msg":   "参数错误",
-				"error": err.Error(),
+				"error": errMsg,
 			})
-			fmt.Printf("%#v", err)
 			return
 		}
 		c.JSON(200, gin.H{
-			"msg": "hello simple",
+			"msg": "hello",
 		})
 	})
 

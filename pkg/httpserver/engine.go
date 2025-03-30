@@ -6,9 +6,10 @@ import (
 	"scaffold/pkg/config"
 	"syscall"
 
+	"scaffold/pkg/logger"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"scaffold/pkg/logger"
 )
 
 type Server struct {
