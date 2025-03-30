@@ -35,6 +35,13 @@ func loadConfig() error {
 		return errors.Wrap(err, "无法解析配置到结构体")
 	}
 
+	//// 调试输出
+	//fmt.Printf("读取到的配置: %+v\n", Cfg)
+	//if len(Cfg.Server) > 0 {
+	//	fmt.Printf("Server配置: %+v\n", Cfg.Server[0])
+	//} else {
+	//	fmt.Println("Server配置为空")
+	//}
 	return nil
 }
 
@@ -95,6 +102,19 @@ func validateStruct(prefix string, s interface{}) error {
 				}
 			}
 
+		case reflect.Slice, reflect.Array:
+			// 处理切片或数组类型
+			for j := 0; j < field.Len(); j++ {
+				sliceElem := field.Index(j)
+				elemPath := fmt.Sprintf("%s[%d]", fieldPath, j)
+
+				if sliceElem.Kind() == reflect.Struct || sliceElem.Kind() == reflect.Ptr {
+					if err := validateStruct(elemPath, sliceElem.Interface()); err != nil {
+						return errors.WithMessage(err, fmt.Sprintf("验证切片元素 %s 失败", elemPath))
+					}
+				}
+			}
+
 		case reflect.String:
 			// 验证必要的字符串字段不为空
 			if !isPermitEmpty(fieldPath) && field.String() == "" {
@@ -106,6 +126,7 @@ func validateStruct(prefix string, s interface{}) error {
 			if !isPermitEmpty(fieldPath) && field.Int() <= 0 {
 				return errors.New(fmt.Sprintf("无效配置: %s 必须大于0", fieldPath))
 			}
+
 		}
 	}
 	return nil

@@ -16,7 +16,9 @@ func Main() {
 	// 创建服务器
 	s := httpserver.New(8080)
 
-	s.POST("/test", func(c *gin.Context) {
+	r := s.Router
+
+	r.POST("/test", func(c *gin.Context) {
 		var test TestJSON
 		if err := c.ShouldBindJSON(&test); err != nil {
 			// 翻译错误
@@ -32,9 +34,5 @@ func Main() {
 		})
 	})
 
-	err := s.Run()
-
-	if err != nil {
-		panic(err)
-	}
+	s.Run()
 }

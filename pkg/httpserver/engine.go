@@ -13,15 +13,16 @@ import (
 )
 
 type Server struct {
-	engine *gin.Engine
+	Router *gin.Engine
 	config *config.ServerConfig
 }
 
-func New(port int) *gin.Engine {
+func New(port int) *Server {
 	serverConfig, ok := validateConfig(port)
 	if !ok {
 		zap.L().Panic("此服务端口没有配置成功", zap.Int("port", port))
 	}
+
 	// 设置运行模式
 	if serverConfig.Mode == gin.ReleaseMode {
 		gin.SetMode(gin.ReleaseMode)
@@ -41,7 +42,10 @@ func New(port int) *gin.Engine {
 		c.JSONP(404, gin.H{"msg": "404"})
 	})
 
-	return r
+	return &Server{
+		Router: r,
+		config: serverConfig,
+	}
 }
 
 func validateConfig(port int) (*config.ServerConfig, bool) {
@@ -57,7 +61,7 @@ func (s *Server) Run() {
 	// 创建HTTP服务器
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.config.Port),
-		Handler: s.engine,
+		Handler: s.Router,
 	}
 
 	// 启动服务器

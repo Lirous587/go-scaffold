@@ -8,6 +8,11 @@ type Config struct {
 	//Auth    AuthConfig    `mapstructure:"auth"`
 }
 
+type ServerConfig struct {
+	Port int    `mapstructure:"port"`
+	Mode string `mapstructure:"mode"`
+}
+
 type LogConfig struct {
 	Mode       string `mapstructure:"mode"`
 	Level      string `mapstructure:"level"`
@@ -38,11 +43,6 @@ type RedisConfig struct {
 	DB       int    `mapstructure:"db"`
 	Password string `mapstructure:"password"`
 	PoolSize int    `mapstructure:"pool_size"`
-}
-
-type ServerConfig struct {
-	Port int    `mapstructure:"port"`
-	Mode string `mapstructure:"mode"`
 }
 
 //// AuthConfig 认证配置
