@@ -25,7 +25,7 @@
 - [Viper](https://github.com/spf13/viper) - 完整的配置解决方案
 - [Zap](https://github.com/uber-go/zap) - 高性能、结构化日志
 - [Wire](https://github.com/google/wire) - Wire 依赖注入
-- [JWT](https://github.com/golang-jwt/jwt) - JWT 鉴权惯例
+- [JWT](https://github.com/golang-jwt/jwt) - JWT 鉴权管理
 - [go-gomail](https://github.com/go-gomail/gomail/tree/v2) - go-gomail 邮箱库
 
 ## 📁 项目结构
@@ -70,39 +70,50 @@ scaffold/
 - Redis 6.0+
 
 ### 快速开始
+
 > 以下演示以Windows作为示例
 
 1. 新建目录
+
 ```bash
 mkdir demo
 ```
 
 2. 克隆项目
+
 ```bash
 git clone https://github.com/Lirou587/go-scaffold.git
 ```
 
 3. 移动目录 并删除git记录
+
 ```bash
 robocopy go-scaffold . /E /XD .git
 ```
 
 4. 删除clone目录
+
 ```bash
 Remove-Item go-scaffold -Recurse -Force
 ```
+
 5. 编写并运行ast脚本
+
 ```bash
 go build ./ast.go 
 # 填写实际的项目名称
 ./ast.exe demo
 ```
+
 6. 删除ast
+
 ```bash
 rm ./ast.go
 rm ./ast.exe
 ```
+
 7. 安装依赖
+
 ```bash
 go mod tidy
 ```
@@ -248,12 +259,16 @@ val, err := redis.Client().Get(ctx, "key").Result()
 本项目采用 MIT 许可证 - 详情参见 [LICENSE](LICENSE) 文件
 
 ## 🙏 致谢
+> 以下排名不分先后
 
 - [Gin](https://github.com/gin-gonic/gin)
 - [GORM](https://gorm.io/)
+- [Redis](https://github.com/redis/go-redis)
 - [Viper](https://github.com/spf13/viper)
 - [Zap](https://github.com/uber-go/zap)
-- [Redis](https://github.com/redis/go-redis)
+- [Wire](https://github.com/google/wire)
+- [JWT](https://github.com/golang-jwt/jwt)
+- [go-gomail](https://github.com/go-gomail/gomail/tree/v2)
 
 ---
 
