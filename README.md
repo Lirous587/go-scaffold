@@ -91,13 +91,15 @@ robocopy go-scaffold . /E /XD .git
 ```bash
 Remove-Item go-scaffold -Recurse -Force
 ```
-5. 运行ast脚本
+5. 编写并运行ast脚本
 ```bash
+go build ./ast.go 
 # 填写实际的项目名称
 ./ast.exe demo
 ```
-6. 删除ast脚本
+6. 删除ast
 ```bash
+rm ./ast.go
 rm ./ast.exe
 ```
 7. 安装依赖
