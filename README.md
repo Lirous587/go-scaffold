@@ -21,9 +21,12 @@
 
 - [Gin](https://github.com/gin-gonic/gin) - 高性能 HTTP Web 框架
 - [GORM](https://gorm.io/) - 优秀的 ORM 库，支持 MySQL、PostgreSQL 等
+- [Redis](https://github.com/redis/go-redis) - Redis 客户端
 - [Viper](https://github.com/spf13/viper) - 完整的配置解决方案
 - [Zap](https://github.com/uber-go/zap) - 高性能、结构化日志
-- [Redis](https://github.com/redis/go-redis) - Redis 客户端
+- [Wire](https://github.com/google/wire) - Wire 依赖注入
+- [JWT](https://github.com/golang-jwt/jwt) - JWT 鉴权惯例
+- [go-gomail](https://github.com/go-gomail/gomail/tree/v2) - go-gomail 邮箱库
 
 ## 📁 项目结构
 
