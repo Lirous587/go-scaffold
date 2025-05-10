@@ -17,8 +17,8 @@ type db struct {
 }
 
 func NewDB(orm *gorm.DB) DB {
-	var admin model.Admin
-	orm.AutoMigrate(&admin)
+	//var admin model.Admin
+	//orm.AutoMigrate(&admin)
 	return &db{orm: orm}
 }
 
