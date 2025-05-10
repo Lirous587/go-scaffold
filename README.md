@@ -69,26 +69,47 @@ scaffold/
 - MySQL 5.7+ 或 PostgreSQL 10+
 - Redis 6.0+
 
-### 安装
+### 快速开始
+> 以下演示以Windows作为示例
 
-1. 克隆项目
-
+1. 新建目录
 ```bash
-git clone https://github.com/yourusername/scaffold.git
-cd scaffold
+mkdir demo
 ```
 
-2. 安装依赖
+2. 克隆项目
+```bash
+git clone https://github.com/Lirou587/go-scaffold.git
+```
 
+3. 移动目录 并删除git记录
+```bash
+robocopy go-scaffold . /E /XD .git
+```
+
+4. 删除clone目录
+```bash
+Remove-Item go-scaffold -Recurse -Force
+```
+5. 运行ast脚本
+```bash
+# 填写实际的项目名称
+./ast.exe demo
+```
+6. 删除ast脚本
+```bash
+rm ./ast.exe
+```
+7. 安装依赖
 ```bash
 go mod tidy
 ```
 
-3. 修改配置
+8. 修改配置
 
-编辑 `manifest/config/config.yaml` 配置文件，设置数据库和 Redis 连接信息。
+编辑 `manifest/config/config.yaml` 配置文件
 
-4. 运行服务
+9. 运行服务
 
 ```bash
 go run main.go

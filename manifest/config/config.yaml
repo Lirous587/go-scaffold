@@ -5,7 +5,7 @@ server:
 log:
   mode: "dev"
   level: "info"
-  filename: "logs/scaffold.log"
+  filename: "logs/logs.log"
   max_size: 1
   max_age: 30
   max_backups: 7
