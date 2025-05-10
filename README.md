@@ -26,7 +26,7 @@
 - [Zap](https://github.com/uber-go/zap) - 高性能、结构化日志
 - [Wire](https://github.com/google/wire) - Wire 依赖注入
 - [JWT](https://github.com/golang-jwt/jwt) - JWT 鉴权管理
-- [go-gomail](https://github.com/go-gomail/gomail/tree/v2) - go-gomail 邮箱库
+- [go-gomail](https://github.com/go-gomail/gomail) - go-gomail 邮箱库
 
 ## 📁 项目结构
 
@@ -268,7 +268,7 @@ val, err := redis.Client().Get(ctx, "key").Result()
 - [Zap](https://github.com/uber-go/zap)
 - [Wire](https://github.com/google/wire)
 - [JWT](https://github.com/golang-jwt/jwt)
-- [go-gomail](https://github.com/go-gomail/gomail/tree/v2)
+- [go-gomail](https://github.com/go-gomail/gomail)
 
 ---
 
