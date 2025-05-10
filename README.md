@@ -30,23 +30,27 @@
 ```
 scaffold/
 ├── internal/         # 实际业务逻辑
-│   └── ...
-│   └── ...
+│   └── cmd           
+│   └── domain        # 领域模型  
+│   └── middleware    # 中间件 
 ├── logs/             # 日志文件
-├── manifest/         # 配置文件目录
+├── manifest/         # 配置目录
 │   └── config/
-│       └── config.yaml
+│       └── config.yaml 
 │   └── docker/
 │       └── Dockerfile
 ├── pkg/              # 依赖项
 │   ├── config/       # 配置结构化管理
+│   ├── email/        # email相关
 │   ├── httpserver/   # gin引擎初始化
+│   ├── jwt/          # jwt相关
 │   ├── logger/       # 日志配置
 │   ├── repository/   # 数据存储层
-│   │   ├── db/       # 数据库单例
-│   │   └── redis/    # Redis单例
+│   │   ├── gorm.go   # 数据库单例
+│   │   └── redis.go  # Redis单例
+│   ├── response/     # 响应管理
 │   ├── validator/    # validator管理
-├── resource/              # 静态资源
+├── resource/         # 静态资源
 ├── utility/          # 工具函数
 ├── .air.conf         # air配置
 ├── .gitignore
@@ -93,43 +97,50 @@ go run main.go
 
 ```yaml
 server:
-  mode: "production" # 运行模式: development, production
-  port: "8080" # 服务端口
+  - port: 8080
+    mode: "dev"
 
 log:
-  mode: "dev" # 日志模式
-  level: "info" # 日志级别: debug, info, warn, error
+  mode: "dev"
+  level: "info"
   filename: "logs/scaffold.log"
-  max_size: 1 # 单个日志文件大小(MB)
-  max_age: 30 # 日志保留天数
-  max_backups: 7 # 保留的旧日志文件数量
+  max_size: 1
+  max_age: 30
+  max_backups: 7
 
 db:
-  driver: "mysql" # 数据库类型: mysql, postgres
+  driver: "mysql"  # 增加驱动类型字段，方便将来切换数据库
   host: "127.0.0.1"
-  port: "3306"
   username: "root"
-  password: "password"
-  dbname: "scaffold"
+  password: "123"
+  port: "3306"
+  dbname: "test"
   max_open_con: 100
   max_idle_con: 50
+  # 可以增加GORM特有配置
   log_level: "info"
-  slow_threshold: 200 # 慢SQL阈值(ms)
+  slow_threshold: 200  # 慢SQL阈值(ms)
 
 redis:
   host: "127.0.0.1"
   port: "6379"
   db: 0
-  password: ""
+  #  password:
   pool_size: 200
 
-auth:
-  admin:
-    jwt_secret: "your-secret-key"
-    jwt_expire_minute: 120
-  user:
-    jwt_secret: "your-secret-key"
-    jwt_expire_minute: 120
+jwt:
+  issuer: "lirous"
+  secret: "https://lirous.com"
+  expire_minute: 120
+
+email:
+  host: "smtp.qq.com" //可以换成对应的平台
+  port: 465
+  username: "xxxx@xx.xx"
+  password: "xxxxxx"
+  from: "xxxx@xx.xx"
+  fromName: "xxx"
+  cc: "xxxxx.com"
 ```
 
 ## 🔌 主要组件
@@ -144,6 +155,16 @@ s := httpserver.New(8080)
 
 // 启动服务
 s.Run()
+
+// 支持多个端口启动 类似与gin官网的做法
+{
+    s1 := httpserver.New(8080)
+    s2 := httpserver.New(8081)
+    
+    // 启动服务
+    go s1.Run()
+    s2.Run()
+}
 ```
 
 ### Logger - 日志系统
