@@ -115,6 +115,7 @@ go mod tidy
 
 ```bash
 go run main.go
+# 或者运行 air
 ```
 
 ## ⚙️ 配置项
