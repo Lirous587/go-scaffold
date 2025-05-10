@@ -5,7 +5,8 @@ type Config struct {
 	Log    LogConfig      `mapstructure:"log"`
 	DB     DBConfig       `mapstructure:"db"`
 	Redis  RedisConfig    `mapstructure:"redis"`
-	//Auth    AuthConfig    `mapstructure:"auth"`
+	JWT    JWTConfig      `mapstructure:"jwt"`
+	Email  EmailConfig    `mapstructure:"email"`
 }
 
 type ServerConfig struct {
@@ -45,18 +46,18 @@ type RedisConfig struct {
 	PoolSize int    `mapstructure:"pool_size"`
 }
 
-//// AuthConfig 认证配置
-//type AuthConfig struct {
-//	Admin AdminAuth `mapstructure:"admin"`
-//	User  UserAuth  `mapstructure:"user"`
-//}
-//
-//type AdminAuth struct {
-//	JwtSecret       string `mapstructure:"jwt_secret"`
-//	JwtExpireMinute int    `mapstructure:"jwt_expire_minute"`
-//}
-//
-//type UserAuth struct {
-//	JwtSecret       string `mapstructure:"jwt_secret"`
-//	JwtExpireMinute int    `mapstructure:"jwt_expire_minute"`
-//}
+type JWTConfig struct {
+	Issuer       string `mapstructure:"issuer"`
+	Secret       string `mapstructure:"secret"`
+	ExpireMinute uint   `mapstructure:"expire_minute"`
+}
+
+type EmailConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	From     string `mapstructure:"from"`
+	FromName string `mapstructure:"fromName"`
+	CC       string `mapstructure:"cc"`
+}

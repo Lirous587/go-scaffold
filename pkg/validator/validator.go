@@ -44,8 +44,12 @@ func Init() error {
 func toSnakeCase(str string) string {
 	var result []rune
 	for i, r := range str {
-		if i > 0 && r >= 'A' && r <= 'Z' {
-			result = append(result, '_')
+		// 如果是大写字母
+		if r >= 'A' && r <= 'Z' {
+			// 不是第一个字符，并且前一个字符不是大写字母，才添加下划线
+			if i > 0 && (str[i-1] < 'A' || str[i-1] > 'Z') {
+				result = append(result, '_')
+			}
 		}
 		result = append(result, r)
 	}
@@ -53,3 +57,5 @@ func toSnakeCase(str string) string {
 }
 
 var TranslateError = i18n.TranslateError
+
+var GetTranslateLang = i18n.GetTranslateLang

@@ -11,6 +11,13 @@ func Register(v *validator.Validate) error {
 	if err = v.RegisterValidation("mobile_cn", validateChineseMobile); err != nil {
 		return errors.WithMessage(err, "register mobile_cn failed")
 	}
+	if err = v.RegisterValidation("hex_color", validateHexColor); err != nil {
+		return errors.WithMessage(err, "register hex_color failed")
+	}
+	if err = v.RegisterValidation("domain_url", validateDomainURL); err != nil {
+		return errors.WithMessage(err, "register domain_url failed")
+	}
+
 	return nil
 }
 
@@ -29,18 +36,31 @@ func (r *RTrans) RegisterTranslation(v *validator.Validate) error {
 	// 注册中文自定义翻译
 	if t, exists := r.trans["zh"]; exists {
 		// 手机号验证
-		err := r.registerMobileCNTranslation(v, t, true)
-		if err != nil {
+		if err := r.registerMobileCNTranslation(v, t, true); err != nil {
 			return errors.WithMessage(err, "registerMobileCNTranslation failed")
+		}
+		// 十六进颜色
+		if err := r.registerHexColorTranslation(v, t, true); err != nil {
+			return errors.WithMessage(err, "registerHexColorTranslation failed")
+		}
+		// 域名url
+		if err := r.registerDomainURLTranslation(v, t, true); err != nil {
+			return errors.WithMessage(err, "registerHexColorTranslation failed")
 		}
 	}
 
 	// 注册英文自定义翻译
 	if t, exists := r.trans["en"]; exists {
 		// 手机号验证
-		err := r.registerMobileCNTranslation(v, t, false)
-		if err != nil {
+		if err := r.registerMobileCNTranslation(v, t, false); err != nil {
 			return errors.WithMessage(err, "registerMobileCNTranslation failed")
+		}
+		if err := r.registerHexColorTranslation(v, t, false); err != nil {
+			return errors.WithMessage(err, "registerHexColorTranslation failed")
+		}
+		// 域名url
+		if err := r.registerDomainURLTranslation(v, t, false); err != nil {
+			return errors.WithMessage(err, "registerHexColorTranslation failed")
 		}
 	}
 	return nil

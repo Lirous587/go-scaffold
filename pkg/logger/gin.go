@@ -74,11 +74,6 @@ func GinLogger() gin.HandlerFunc {
 		}
 
 		GinLog(msg, level)
-
-		// 如果有错误，额外记录
-		if len(c.Errors) > 0 {
-			GinLog(fmt.Sprintf("Gin errors: %s", c.Errors[0]), zapcore.ErrorLevel)
-		}
 	}
 }
 

@@ -1,11 +1,13 @@
 package i18n
 
 import (
+	"scaffold/pkg/validator/register"
+	"strings"
+
+	"github.com/gin-gonic/gin"
 	entranslations "github.com/go-playground/validator/v10/translations/en"
 	zhtranslations "github.com/go-playground/validator/v10/translations/zh"
 	"github.com/pkg/errors"
-	"scaffold/pkg/validator/register"
-	"strings"
 
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/zh"
@@ -112,4 +114,19 @@ func TranslateError(err error, lang ...string) ValidatorError {
 	}
 
 	return result
+}
+
+func GetTranslateLang(ctx *gin.Context) string {
+	acceptLang := ctx.GetHeader("Accept-Language")
+
+	// 转换为小写并分割
+	acceptLang = strings.ToLower(acceptLang)
+
+	// 检查是否包含英文
+	if strings.Contains(acceptLang, "en") {
+		return "en"
+	}
+
+	// 默认中文
+	return "zh"
 }

@@ -30,10 +30,16 @@ redis:
   #  password:
   pool_size: 200
 
-#auth:
-#  admin:
-#    jwt_secret: "https://lirous.com"
-#    jwt_expire_minute: 120
-#  user:
-#    jwt_secret: "https://lirous.com"
-#    jwt_expire_minute: 120
+jwt:
+  issuer: "lirous"
+  secret: "https://lirous.com"
+  expire_minute: 120
+
+email:
+  host: "smtp.qq.com"
+  port: 465
+  username: "xxxx@xx.xx"
+  password: "xxxxxx"
+  from: "xxxx@xx.xx"
+  fromName: "xxx"
+  cc: "xxxxx.com"
