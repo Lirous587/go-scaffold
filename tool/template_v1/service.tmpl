@@ -21,7 +21,7 @@ func NewService(db infrastructure.IDB, cache infrastructure.ICache) IService {
 	return &service{db: db, cache: cache}
 }
 
-func (s *service) CreateRole(req *model.Create{{.DomainTitle}}Req) *response.AppError {
+func (s *service) Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}Req) *response.AppError {
     {{.Domain}} := model.{{.DomainTitle}}{
 
 	}
