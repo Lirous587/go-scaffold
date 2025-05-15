@@ -2,14 +2,36 @@ package model
 
 import "gorm.io/gorm"
 
+
 type {{.DomainTitle}} struct {
 	gorm.Model
+	Name        string `gorm:"type:varchar(64);not null;comment:名称"`
+	Unique      string `gorm:"uniqueIndex"`
+	Description string `gorm:"type:varchar(255);comment:描述"`
+	Status      int    `gorm:"type:int;default:1;comment:状态（1:启用 0:禁用）"`
+	Remark      string `gorm:"type:varchar(255);comment:备注"`
+
+	// --- GORM 关系映射示例 ---
+	// UserID uint         // Belongs To 示例
+	// User   User         `gorm:"foreignKey:UserID"` // Belongs To
+
+	// Items  []Item       `gorm:"foreignKey:{{.DomainTitle}}ID"` // Has Many
+
+	// Tags   []Tag        `gorm:"many2many:{{.Domain}}_tags;"` // Many2Many
 }
 
 type Create{{.DomainTitle}}Req struct {
-
+	Name        string `json:"name" binding:"required,max=64"`
+	Unique      string `json:"unique" binding:"required"`
+	Description string `json:"introduction,omitempty" binding:"max=255"`
+	Status      int    `json:"status" binding:"oneof=0 1"`
+	Remark      string `json:"remark,omitempty" binding:"max=255"`
 }
 
 type Update{{.DomainTitle}}Req struct {
-
+	Name        string `json:"name" binding:"required,max=64"`
+	Unique      string `json:"unique" binding:"required"`
+	Description string `json:"introduction,omitempty" binding:"max=255"`
+	Status      int    `json:"status" binding:"oneof=0 1"`
+	Remark      string `json:"remark,omitempty" binding:"max=255"`
 }

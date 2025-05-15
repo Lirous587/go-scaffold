@@ -1,0 +1,30 @@
+﻿package model
+
+import (
+	"scaffold/utils"
+)
+
+type {{.DomainTitle}}DTO struct {
+	ID          uint   `json:"id"`
+	CreatedAt   string `json:"create_at"`
+	Name        string `json:"name"`
+	Unique      string `json:"unique"`
+	Description string `json:"introduction,omitempty"`
+	Status      int    `json:"status"`
+	Remark      string `json:"remark,omitempty"`
+}
+
+func ({{.Domain}} *{{.DomainTitle}}) ConvertToDTO() *{{.DomainTitle}}DTO {
+	if {{.Domain}} == nil {
+		return nil
+	}
+	return &{{.DomainTitle}}DTO{
+		ID:           	{{.Domain}}.ID,
+		CreatedAt:    	utils.FormatTime({{.Domain}}.CreatedAt),
+		Name:         	{{.Domain}}.Name,
+		Unique: 		{{.Domain}}.Unique,
+		Description:	{{.Domain}}.Description,
+		Status:			{{.Domain}}.Status,
+		Remark:			{{.Domain}}.Remark,
+	}
+}
