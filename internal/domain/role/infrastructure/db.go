@@ -1,8 +1,8 @@
 package infrastructure
 
 import (
-	"comment/internal/domain/role/model"
 	"gorm.io/gorm"
+	"scaffold/internal/domain/role/model"
 )
 
 type IDB interface {

@@ -7,6 +7,7 @@ type Config struct {
 	Redis  RedisConfig    `mapstructure:"redis"`
 	JWT    JWTConfig      `mapstructure:"jwt"`
 	Email  EmailConfig    `mapstructure:"email"`
+	OAuth  OAuthConfig    `mapstructure:"oauth"`
 }
 
 type ServerConfig struct {
@@ -60,4 +61,13 @@ type EmailConfig struct {
 	From     string `mapstructure:"from"`
 	FromName string `mapstructure:"fromName"`
 	CC       string `mapstructure:"cc"`
+}
+
+type OAuthConfig struct {
+	Github GithubOAuth `mapstructure:"github"`
+}
+
+type GithubOAuth struct {
+	ClientSecret string `mapstructure:"client_secret"`
+	ClientID     string `mapstructure:"client_id"`
 }

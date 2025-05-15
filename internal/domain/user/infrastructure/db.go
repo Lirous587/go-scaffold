@@ -1,9 +1,9 @@
 package infrastructure
 
 import (
-	"comment/internal/domain/user/model"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"scaffold/internal/domain/user/model"
 )
 
 type IDB interface {

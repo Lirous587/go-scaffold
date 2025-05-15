@@ -4,10 +4,10 @@
 package role
 
 import (
-	"comment/internal/domain/permission/infrastructure"
-	"comment/pkg/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
+	"scaffold/internal/domain/permission/infrastructure"
+	"scaffold/pkg/repository"
 )
 
 func InitV1(r *gin.RouterGroup) error {

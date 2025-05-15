@@ -4,10 +4,10 @@
 package user
 
 import (
-	"comment/internal/domain/user/infrastructure"
-	"comment/pkg/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
+	"scaffold/internal/domain/user/infrastructure"
+	"scaffold/pkg/repository"
 )
 
 func InitV1(r *gin.RouterGroup) error {

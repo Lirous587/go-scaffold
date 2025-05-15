@@ -4,8 +4,8 @@
 package middleware
 
 import (
-	"comment/pkg/config"
 	"github.com/google/wire"
+	"scaffold/pkg/config"
 )
 
 // InitializeAdminAPI 初始化Admin模块的API

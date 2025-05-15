@@ -1,10 +1,10 @@
 package infrastructure
 
 import (
-	"comment/internal/domain/user/model"
-	"comment/utils"
 	"context"
 	"encoding/json"
+	"scaffold/internal/domain/user/model"
+	"scaffold/utils"
 	"time"
 
 	"github.com/pkg/errors"

@@ -1,0 +1,50 @@
+server:
+  - port: 8080
+    mode: "dev"
+
+log:
+  mode: "dev"
+  level: "info"
+  filename: "logs/logs.log"
+  max_size: 1
+  max_age: 30
+  max_backups: 7
+
+db:
+  driver: "mysql"  # 增加驱动类型字段，方便将来切换数据库
+  host: "127.0.0.1"
+  username: "root"
+  password: "123"
+  port: "3306"
+  dbname: "comment_sass"
+  max_open_con: 100
+  max_idle_con: 50
+  # 可以增加GORM特有配置
+  log_level: "info"
+  slow_threshold: 200  # 慢SQL阈值(ms)
+
+redis:
+  host: "127.0.0.1"
+  port: "6379"
+  db: 0
+  #  password:
+  pool_size: 200
+
+jwt:
+  issuer: "lirous"
+  secret: "https://lirous.com"
+  expire_minute: 120
+
+email:
+  host: "smtp.qq.com"
+  port: 465
+  username: "xxxx@xx.xx"
+  password: "xxxxxx"
+  from: "xxxx@xx.xx"
+  fromName: "xxx"
+  cc: "xxxxx.com"
+
+oauth:
+  github:
+    client_secret: "xxxx"
+    client_id: "xxxx"

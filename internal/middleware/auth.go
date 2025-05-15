@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"comment/internal/domain/user/model"
-	"comment/pkg/jwt"
-	"comment/pkg/response"
 	"errors"
+	"scaffold/internal/domain/user/model"
+	"scaffold/pkg/jwt"
+	"scaffold/pkg/response"
 	"strings"
 
 	"github.com/gin-gonic/gin"

@@ -6,5 +6,5 @@ output/
 /tmp
 logs
 docs
-manifest/config/*
+manifest/config/config.yaml
 ast.go

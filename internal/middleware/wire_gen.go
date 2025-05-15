@@ -7,7 +7,7 @@
 package middleware
 
 import (
-	"comment/pkg/config"
+	"scaffold/pkg/config"
 )
 
 // Injectors from wire.go:

@@ -1,10 +1,10 @@
 package user
 
 import (
-	"comment/internal/domain/user/model"
-	"comment/pkg/response"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"scaffold/internal/domain/user/model"
+	"scaffold/pkg/response"
 )
 
 type IController interface {

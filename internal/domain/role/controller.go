@@ -1,10 +1,10 @@
 package role
 
 import (
-	"comment/internal/domain/role/model"
-	"comment/pkg/response"
-	"comment/utils"
 	"github.com/gin-gonic/gin"
+	"scaffold/internal/domain/role/model"
+	"scaffold/pkg/response"
+	"scaffold/utils"
 )
 
 type IController interface {

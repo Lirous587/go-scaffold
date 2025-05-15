@@ -1,9 +1,9 @@
 package role
 
 import (
-	"comment/internal/domain/permission/infrastructure"
-	"comment/internal/domain/role/model"
-	"comment/pkg/response"
+	"scaffold/internal/domain/permission/infrastructure"
+	"scaffold/internal/domain/role/model"
+	"scaffold/pkg/response"
 )
 
 type IService interface {

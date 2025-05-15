@@ -1,18 +1,18 @@
 package user
 
 import (
-	"comment/internal/domain/user/infrastructure"
-	"comment/internal/domain/user/model"
-	"comment/pkg/config"
-	"comment/pkg/jwt"
-	"comment/pkg/response"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+	"resty.dev/v3"
+	"scaffold/internal/domain/user/infrastructure"
+	"scaffold/internal/domain/user/model"
+	"scaffold/pkg/config"
+	"scaffold/pkg/jwt"
+	"scaffold/pkg/response"
 	"time"
 
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
-	"resty.dev/v3"
 )
 
 type IService interface {
