@@ -1,0 +1,35 @@
+package infrastructure
+
+import (
+	"gorm.io/gorm"
+	"{{.Domain}}/internal/domain/{{.DomainTitle}}/model"
+)
+
+type IDB interface {
+	Create{{.DomainTitle}}({{.Domain}} *model.{{.DomainTitle}}) error
+	Delete{{.DomainTitle}}(id uint) error
+	Update{{.DomainTitle}}(id uint, req *model.Update{{.DomainTitle}}Req) error
+}
+
+type db struct {
+	orm *gorm.DB
+}
+
+func NewDB(orm *gorm.DB) IDB {
+	//var {{.Domain}} model.{{.DomainTitle}}
+	//orm.AutoMigrate(&{{.Domain}})
+
+	return &db{orm: orm}
+}
+
+func (d *db) Create{{.DomainTitle}}({{.Domain}} *model.{{.DomainTitle}}) error {
+	return d.orm.Create({{.Domain}}).Error
+}
+
+func (d *db) Delete{{.DomainTitle}}(id uint) error {
+	return d.orm.Model(&model.{{.DomainTitle}}{}).Delete("where id = ?", id).Error
+}
+
+func (d *db) Update{{.DomainTitle}}(id uint, req *model.Update{{.DomainTitle}}Req) error {
+	return d.orm.Model(&model.{{.DomainTitle}}{}).Where("id = ?", id).Updates(req).Error
+}

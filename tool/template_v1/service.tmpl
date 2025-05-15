@@ -1,0 +1,46 @@
+package {{.Domain}}
+
+import (
+	"{{.Module}}/internal/domain/{{.Domain}}/infrastructure"
+	"{{.Module}}/internal/domain/{{.Domain}}/model"
+	"{{.Module}}/pkg/response"
+)
+
+type IService interface {
+	Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}Req) *response.AppError
+	Delete{{.DomainTitle}}(id uint) *response.AppError
+	Update{{.DomainTitle}}(id uint, req *model.Update{{.DomainTitle}}Req) *response.AppError
+}
+
+type service struct {
+	db    infrastructure.IDB
+	cache infrastructure.ICache
+}
+
+func NewService(db infrastructure.IDB, cache infrastructure.ICache) IService {
+	return &service{db: db, cache: cache}
+}
+
+func (s *service) CreateRole(req *model.Create{{.DomainTitle}}Req) *response.AppError {
+    {{.Domain}} := model.{{.DomainTitle}}{
+
+	}
+	if err := s.db.Create{{.DomainTitle}}(&{{.Domain}}); err != nil {
+		return response.NewAppError(response.CodeServerError, err)
+	}
+	return nil
+}
+
+func (s *service) Delete{{.DomainTitle}}(id uint) *response.AppError {
+	if err := s.db.Delete{{.DomainTitle}}(id); err != nil {
+		return response.NewAppError(response.CodeServerError, err)
+	}
+	return nil
+}
+
+func (s *service) Update{{.DomainTitle}}(id uint, req *model.Update{{.DomainTitle}}Req) *response.AppError {
+	if err := s.db.Update{{.DomainTitle}}(id, req); err != nil {
+		return response.NewAppError(response.CodeServerError, err)
+	}
+	return nil
+}

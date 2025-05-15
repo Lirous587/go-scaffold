@@ -1,0 +1,74 @@
+package {{.Domain}}
+
+import (
+	"github.com/gin-gonic/gin"
+	"{{.Module}}/internal/domain/{{.Domain}}/model"
+	"{{.Module}}/pkg/response"
+	"{{.Module}}/utils"
+)
+
+type IController interface {
+	Create{{.DomainTitle}}(ctx *gin.Context)
+	Delete{{.DomainTitle}}(ctx *gin.Context)
+	Update{{.DomainTitle}}(ctx *gin.Context)
+}
+
+type controller struct {
+	server IService
+}
+
+func NewController(svc IService) IController {
+	ctrl := &controller{
+		server: svc,
+	}
+	return ctrl
+}
+
+func (c *controller) Create{{.DomainTitle}}(ctx *gin.Context) {
+	req := new(model.Create{{.DomainTitle}}Req)
+	if err := ctx.ShouldBindJSON(req); err != nil {
+		response.ErrorParameterInvalid(ctx, err)
+		return
+	}
+	if err := c.server.Create{{.DomainTitle}}(req); err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	response.Success(ctx)
+}
+
+func (c *controller) Delete{{.DomainTitle}}(ctx *gin.Context) {
+	id, err := utils.GetID(ctx)
+	if err != nil {
+		response.ErrorParameterInvalid(ctx, err)
+		return
+	}
+	if err := c.server.Delete{{.DomainTitle}}(id); err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	response.Success(ctx)
+}
+
+func (c *controller) Update{{.DomainTitle}}(ctx *gin.Context) {
+	id, err := utils.GetID(ctx)
+	if err != nil {
+		response.ErrorParameterInvalid(ctx, err)
+		return
+	}
+
+	req := new(model.Update{{.DomainTitle}}Req)
+
+	if err = ctx.ShouldBindJSON(req); err != nil {
+		response.ErrorParameterInvalid(ctx, err)
+		return
+	}
+	if err := c.server.Update{{.DomainTitle}}(id, req); err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	response.Success(ctx)
+}

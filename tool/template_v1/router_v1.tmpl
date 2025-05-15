@@ -1,0 +1,17 @@
+package {{.Domain}}
+
+import (
+	"github.com/gin-gonic/gin"
+	"{{.Module}}/internal/middleware"
+	"{{.Module}}/pkg/config"
+)
+
+func RegisterV1(r *gin.RouterGroup, ctrl IController) error {
+	g := r.Group("/v1/{{.Domain}}")
+	{
+        g.POST("/:id", ctrl.Create{{.DomainTitle}})
+        g.DELETE("/:id", ctrl.Delete{{.DomainTitle}}))
+		g.PUT("/auth", ctrl.Update{{.DomainTitle}})
+	}
+	return nil
+}
