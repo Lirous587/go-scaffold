@@ -4,15 +4,15 @@
 package middleware
 
 import (
+	"comment/pkg/config"
 	"github.com/google/wire"
-	"scaffold/pkg/config"
 )
 
 // InitializeAdminAPI 初始化Admin模块的API
-func InitAdminAuth() (Auth, error) {
+func InitUserAuth() (Auth, error) {
 	wire.Build(
 		provideJWTSecret,
-		NewAdminAuth,
+		NewUserAuth,
 	)
 	return nil, nil
 }

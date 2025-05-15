@@ -1,17 +1,17 @@
-package cache
+package infrastructure
 
 import (
+	"comment/internal/domain/user/model"
+	"comment/utils"
 	"context"
 	"encoding/json"
-	"scaffold/internal/domain/admin/model"
-	"scaffold/utils"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 )
 
-type Cache interface {
+type ICache interface {
 	GenRefreshToken(payload *model.JwtPayload) (string, error)
 	ValidateRefreshToken(payload *model.JwtPayload, refreshToken string) error
 	ResetRefreshTokenExpiry(payload *model.JwtPayload) error
@@ -21,9 +21,7 @@ type cache struct {
 	client *redis.Client
 }
 
-func NewCache(client *redis.Client) Cache {
-	// var admin model.Admin
-	// db.AutoMigrate(&admin)
+func NewCache(client *redis.Client) ICache {
 	return &cache{client: client}
 }
 

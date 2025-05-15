@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"comment/internal/domain/user/model"
+	"comment/pkg/jwt"
+	"comment/pkg/response"
 	"errors"
-	"scaffold/internal/domain/admin/model"
-	"scaffold/pkg/jwt"
-	"scaffold/pkg/response"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -33,18 +33,18 @@ type Auth interface {
 	Validate() gin.HandlerFunc
 }
 
-type adminAuth struct {
+type userAuth struct {
 	secret []byte
 }
 
-func NewAdminAuth(secret []byte) Auth {
-	return &adminAuth{
+func NewUserAuth(secret []byte) Auth {
+	return &userAuth{
 		secret: secret,
 	}
 }
 
 // Validate 验证管理员 Token
-func (auth *adminAuth) Validate() gin.HandlerFunc {
+func (auth *userAuth) Validate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. 从请求头解析 Token
 		tokenStr, err := parseTokenFromHeader(c)
@@ -68,8 +68,9 @@ func (auth *adminAuth) Validate() gin.HandlerFunc {
 			return
 		}
 
-		// 3. 将用户 ID 存入上下文
-		c.Set("admin_id", claims.PayLoad.ID)
+		// 3. 将用户 相关信息存入上下文
+		c.Set("user_id", claims.PayLoad.ID)
+		c.Set("login_type", claims.PayLoad.LoginType)
 		c.Next()
 	}
 }

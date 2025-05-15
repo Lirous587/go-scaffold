@@ -7,15 +7,15 @@
 package middleware
 
 import (
-	"scaffold/pkg/config"
+	"comment/pkg/config"
 )
 
 // Injectors from wire.go:
 
 // InitializeAdminAPI 初始化Admin模块的API
-func InitAdminAuth() (Auth, error) {
+func InitUserAuth() (Auth, error) {
 	v := provideJWTSecret()
-	auth := NewAdminAuth(v)
+	auth := NewUserAuth(v)
 	return auth, nil
 }
 
