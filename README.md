@@ -119,8 +119,7 @@ go mod tidy
 ```
 
 8. 修改配置
-
-编辑 `manifest/config/config.yaml` 配置文件
+将 `manifest/config/config_copy.yaml` 重命名为 `config.yaml`，配置 `manifest/config/config.yaml` 文件
 
 9. 运行服务
 
