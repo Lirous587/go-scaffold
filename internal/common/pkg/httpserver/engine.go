@@ -11,45 +11,21 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"scaffold/pkg/config"
-	"scaffold/pkg/logger"
-	"scaffold/pkg/repository"
+	"scaffold/internal/common/pkg/logger"
 	"syscall"
 	"time"
 )
 
-func validateConfig(port int) (*config.ServerConfig, bool) {
-	for _, server := range config.Cfg.Server {
-		if port == server.Port {
-			return &server, true
-		}
-	}
-	return nil, false
-}
-
 type Server struct {
 	Router       *gin.Engine
-	config       *config.ServerConfig
 	server       *http.Server
 	stopHandlers []func() // 存储关闭处理函数
+	port         int
 }
 
-func (s *Server) setupCORS() {
-	corsCfg := cors.DefaultConfig()
-	corsCfg.AllowOrigins = []string{"https://Lirous.com", "http://localhost:3000"}
-	corsCfg.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
-	corsCfg.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Refresh-Token"}
-	s.Router.Use(cors.New(corsCfg))
-}
-
-func New(port int) *Server {
-	serverConfig, ok := validateConfig(port)
-	if !ok {
-		zap.L().Panic("此服务端口没有配置成功", zap.Int("port", port))
-	}
-
+func New(port int, mode string) *Server {
 	// 设置运行模式
-	if serverConfig.Mode == gin.ReleaseMode {
+	if mode == gin.ReleaseMode {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
 		gin.SetMode(gin.DebugMode)
@@ -64,11 +40,11 @@ func New(port int) *Server {
 	// 创建服务器实例
 	server := &Server{
 		Router: r,
-		config: serverConfig,
 		server: &http.Server{
-			Addr:    fmt.Sprintf(":%d", serverConfig.Port),
+			Addr:    fmt.Sprintf(":%d", port),
 			Handler: r,
 		},
+		port: port,
 	}
 
 	// 配置CORS中间件
@@ -82,20 +58,10 @@ func New(port int) *Server {
 	return server
 }
 
-func (s *Server) RegisterStopHandler(handler func()) {
-	s.stopHandlers = append(s.stopHandlers, handler)
-}
-
-func (s *Server) executeStopHandlers() {
-	for i := len(s.stopHandlers) - 1; i >= 0; i-- {
-		s.stopHandlers[i]()
-	}
-}
-
 func (s *Server) Run() {
 	// 创建HTTP服务器
 	s.server = &http.Server{
-		Addr:    fmt.Sprintf(":%d", s.config.Port),
+		Addr:    fmt.Sprintf(":%d", s.port),
 		Handler: s.Router,
 	}
 
@@ -120,9 +86,19 @@ func (s *Server) Run() {
 	s.shutdownServer()
 }
 
+func (s *Server) RegisterStopHandler(handler func()) {
+	s.stopHandlers = append(s.stopHandlers, handler)
+}
+
+func (s *Server) executeStopHandlers() {
+	for i := len(s.stopHandlers) - 1; i >= 0; i-- {
+		s.stopHandlers[i]()
+	}
+}
+
 func (s *Server) startServer() {
 	go func() {
-		zap.L().Info("服务器启动", zap.Int("端口", s.config.Port))
+		zap.L().Info("服务器启动", zap.Int("端口", s.port))
 		if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			zap.L().Fatal("服务器启动失败", zap.Error(err))
 		}
@@ -137,8 +113,6 @@ func (s *Server) waitForSignal() os.Signal {
 
 // 优雅关闭服务器
 func (s *Server) shutdownServer() {
-	s.cleanup()
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -167,9 +141,14 @@ func (s *Server) restartServer() {
 	zap.L().Info("新进程已启动", zap.Int("PID", cmd.Process.Pid))
 }
 
-// 清理资源
-func (s *Server) cleanup() {
-	repository.RedisClose() // 关闭Redis连接
-	repository.GormClose()  // 关闭数据库连接
-	zap.L().Info("所有资源已成功关闭")
+func (s *Server) setupCORS() {
+	corsCfg := cors.DefaultConfig()
+	allow := os.Getenv("SERVER_ALLOW_ORIGINS")
+	if allow == "" {
+		panic(errors.New("httpserver加载SERVER_ALLOW_ORIGINS环境变量失败"))
+	}
+	corsCfg.AllowOrigins = []string{allow}
+	corsCfg.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
+	corsCfg.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Refresh-Token"}
+	s.Router.Use(cors.New(corsCfg))
 }

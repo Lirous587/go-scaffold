@@ -6,36 +6,10 @@ import (
 	"time"
 )
 
-type JWTTokenParams struct {
-	Payload  interface{}
-	Secret   []byte
-	Duration time.Duration
-}
-
 // MyClaims 自定义声明结构体并内嵌 jwt.RegisteredClaims
 type MyClaims[T any] struct {
 	PayLoad T `json:"payLoad"`
 	jwt.RegisteredClaims
-}
-
-func GenToken[T any](data *JWTTokenParams) (string, error) {
-	payload, ok := data.Payload.(T)
-	if !ok {
-		return "", errors.New("invalid payload type")
-	}
-
-	claims := &MyClaims[T]{
-		PayLoad: payload,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(data.Duration)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "Lirous-Go-Scaffold",
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(data.Secret)
 }
 
 var (
@@ -46,6 +20,21 @@ var (
 	// ErrTokenInvalidIssuer   = errors.New("token颁发者无效")
 	// ErrTokenInvalidAudience = errors.New("token接收者无效")
 )
+
+func GenToken[T any](payload T, secret string, duration time.Duration) (string, error) {
+	claims := &MyClaims[T]{
+		PayLoad: payload,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    "Lirous-Go-Scaffold",
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(secret))
+}
 
 func ParseToken[T any](tokenString string, secret []byte) (myClaims *MyClaims[T], err error) {
 	token, err := jwt.ParseWithClaims(tokenString, &MyClaims[T]{}, func(token *jwt.Token) (interface{}, error) {

@@ -3,7 +3,7 @@ package logger
 import (
 	"errors"
 	"os"
-	"scaffold/pkg/config"
+	"strconv"
 	"time"
 
 	"github.com/natefinch/lumberjack"
@@ -11,20 +11,82 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func Init(cfg *config.LogConfig) (err error) {
-	writeSyncer := getLogWriter(cfg.Filename, cfg.MaxSize, cfg.MaxBackups, cfg.MaxAge)
+type zapConfig struct {
+	mode       string
+	level      string
+	fileName   string
+	maxSize    int
+	maxAge     int
+	maxBackups int
+}
 
+var config zapConfig
+
+func UpdateConfig() {
+	mode := os.Getenv("LOG_MODE")
+	level := os.Getenv("LOG_LEVEL")
+	fileName := os.Getenv("LOG_FILENAME")
+	maxSizeStr := os.Getenv("LOG_MAX_SIZE")
+	maxSize, err := strconv.Atoi(maxSizeStr)
+	if err != nil {
+		panic(err)
+	}
+	maxAgeStr := os.Getenv("LOG_MAX_AGE")
+	maxAge, err := strconv.Atoi(maxAgeStr)
+	if err != nil {
+		panic(err)
+	}
+	maxBackupsStr := os.Getenv("LOG_MAX_BACKUPS")
+	maxBackups, err := strconv.Atoi(maxBackupsStr)
+	if err != nil {
+		panic(err)
+	}
+
+	if mode == "" || level == "" || fileName == "" || maxSize == 0 || maxAge == 0 || maxBackups == 0 {
+		panic(errors.New("zap配置文件加载失败"))
+	}
+
+	config = zapConfig{
+		mode:       mode,
+		level:      level,
+		fileName:   fileName,
+		maxSize:    maxSize,
+		maxAge:     maxAge,
+		maxBackups: maxBackups,
+	}
+
+}
+
+func getLogWriter() zapcore.WriteSyncer {
+	lumberJackLogger := &lumberjack.Logger{
+		Filename:   config.fileName,
+		MaxSize:    config.maxSize,
+		MaxBackups: config.maxBackups,
+		MaxAge:     config.maxAge,
+	}
+
+	// 添加文件写入器
+	writers := []zapcore.WriteSyncer{zapcore.AddSync(lumberJackLogger)}
+
+	writers = append(writers, zapcore.AddSync(os.Stdout))
+
+	return zapcore.NewMultiWriteSyncer(writers...)
+}
+
+func Init() (err error) {
+	UpdateConfig()
+	writeSyncer := getLogWriter()
 	// 创建编码器
 	encoder := getEncoder()
 
 	var l = new(zapcore.Level)
-	err = l.UnmarshalText([]byte(cfg.Level))
+	err = l.UnmarshalText([]byte(config.level))
 	if err != nil {
 		return errors.New("l.UnmarshalText([]byte(cfg.Level)) failed")
 	}
 
 	var core zapcore.Core
-	if cfg.Mode == "dev" {
+	if config.mode == "dev" {
 		// 创建一个自定义的开发模式编码器配置
 		devEncoderConfig := zap.NewDevelopmentEncoderConfig()
 		// 应用相同的自定义时间格式
@@ -48,7 +110,6 @@ func Init(cfg *config.LogConfig) (err error) {
 	zap.ReplaceGlobals(lg)
 	return
 }
-
 func getEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = customTimeEncoder
@@ -61,20 +122,4 @@ func getEncoder() zapcore.Encoder {
 
 func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format("2006/01/02 - 15:04:05"))
-}
-
-func getLogWriter(filename string, maxSize, maxBackup, maxAge int) zapcore.WriteSyncer {
-	lumberJackLogger := &lumberjack.Logger{
-		Filename:   filename,
-		MaxSize:    maxSize,
-		MaxBackups: maxBackup,
-		MaxAge:     maxAge,
-	}
-
-	// 添加文件写入器
-	writers := []zapcore.WriteSyncer{zapcore.AddSync(lumberJackLogger)}
-
-	writers = append(writers, zapcore.AddSync(os.Stdout))
-
-	return zapcore.NewMultiWriteSyncer(writers...)
 }

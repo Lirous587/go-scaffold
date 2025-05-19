@@ -1,7 +1,7 @@
 package i18n
 
 import (
-	"scaffold/pkg/validator/register"
+	"scaffold/internal/common/pkg/validator/register"
 	"strings"
 
 	"github.com/gin-gonic/gin"
