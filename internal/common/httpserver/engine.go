@@ -6,12 +6,11 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
-	"scaffold/internal/common/pkg/logger"
 	"syscall"
 	"time"
 )
@@ -32,8 +31,7 @@ func New(port int, mode string) *Server {
 	}
 
 	// 创建Gin引擎并配置基础中间件
-	r := gin.New()
-	r.Use(logger.GinLogger(), logger.GinRecovery(true))
+	r := gin.Default()
 
 	r.Use(ErrorHandler())
 
@@ -70,15 +68,16 @@ func (s *Server) Run() {
 
 	// 等待终止信号
 	sig := s.waitForSignal()
-	zap.L().Info("接收到信号", zap.String("信号", sig.String()))
+	log.Printf("接收到信号:%v\n", sig.String())
 
 	// 执行关闭前的处理函数
-	zap.L().Info("正在关闭服务器...")
+	log.Println("正在关闭服务器...")
+
 	s.executeStopHandlers()
 
 	// 处理重启信号
 	if sig == syscall.SIGHUP {
-		zap.L().Info("正在重启服务器...")
+		log.Println("正在重启服务器...")
 		s.restartServer()
 	}
 
@@ -98,9 +97,10 @@ func (s *Server) executeStopHandlers() {
 
 func (s *Server) startServer() {
 	go func() {
-		zap.L().Info("服务器启动", zap.Int("端口", s.port))
+		log.Printf("服务器启动,端口:%d\n", s.port)
+
 		if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			zap.L().Fatal("服务器启动失败", zap.Error(err))
+			log.Fatalf("服务器启动失败,err:%#v\n", err)
 		}
 	}()
 }
@@ -117,16 +117,16 @@ func (s *Server) shutdownServer() {
 	defer cancel()
 
 	if err := s.server.Shutdown(ctx); err != nil {
-		zap.L().Fatal("服务器关闭错误", zap.Error(err))
+		log.Fatalf("服务器关闭失败,err:%#v\n", err)
 	}
-	zap.L().Info("服务器已退出")
+	log.Println("服务器已退出")
 }
 
 // 重启服务器
 func (s *Server) restartServer() {
 	execPath, err := os.Executable()
 	if err != nil {
-		zap.L().Error("获取可执行文件路径失败", zap.Error(err))
+		log.Fatalf("获取可执行文件路径失败,err:%#v\n", err)
 		return
 	}
 
@@ -135,10 +135,10 @@ func (s *Server) restartServer() {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Start(); err != nil {
-		zap.L().Error("启动新进程失败", zap.Error(err))
+		log.Fatalf("启动新进程失败,err:%#v\n", err)
 		return
 	}
-	zap.L().Info("新进程已启动", zap.Int("PID", cmd.Process.Pid))
+	log.Printf("新进程已启动,PID:%#v\n", cmd.Process.Pid)
 }
 
 func (s *Server) setupCORS() {

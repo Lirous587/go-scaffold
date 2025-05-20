@@ -1,6 +1,7 @@
 ﻿package email
 
 import (
+	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"gopkg.in/gomail.v2"
 	"os"
@@ -25,27 +26,33 @@ var instance Mailer
 
 var config mailerConfig
 
-func Init() {
-	UpdateConfig()
-	validateEnv()
+func init() {
+	if err := UpdateConfig(); err != nil {
+		panic(err)
+	}
+	if err := validateEnv(); err != nil {
+		panic(err)
+	}
 }
 
-func validateEnv() {
+func validateEnv() error {
 	// 校验必填项
 	if config.Host == "" ||
 		config.Port == 0 ||
 		config.Username == "" ||
 		config.Password == "" ||
 		config.From == "" {
-		panic(errors.New("email config: 环境变量缺失，必填项不能为空"))
+		return errors.New("email config: 环境变量缺失，必填项不能为空")
 	}
+	return nil
 }
 
-func UpdateConfig() {
+func UpdateConfig() error {
+	_ = godotenv.Load()
 	portStr := os.Getenv("EMAIL_PORT")
 	port, err := strconv.Atoi(portStr)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	config = mailerConfig{
@@ -62,4 +69,5 @@ func UpdateConfig() {
 	instance = &mailer{
 		dialer: dialer,
 	}
+	return nil
 }

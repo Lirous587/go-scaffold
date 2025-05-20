@@ -3,8 +3,8 @@ package infrastructure
 import (
 	"context"
 	"encoding/json"
-	"scaffold/internal/domain/user/model"
-	"scaffold/utils"
+	"scaffold/internal/common/utils"
+	"scaffold/internal/user/model"
 	"time"
 
 	"github.com/pkg/errors"

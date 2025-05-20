@@ -4,11 +4,10 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 	"resty.dev/v3"
-	"scaffold/internal/domain/user/infrastructure"
-	"scaffold/internal/domain/user/model"
-	"scaffold/pkg/config"
-	"scaffold/pkg/jwt"
-	"scaffold/pkg/response"
+	"scaffold/internal/common/pkg/jwt"
+	"scaffold/internal/common/pkg/response"
+	"scaffold/internal/user/infrastructure"
+	"scaffold/internal/user/model"
 	"time"
 
 	"github.com/pkg/errors"
@@ -16,8 +15,8 @@ import (
 )
 
 type IService interface {
-	Auth(req model.AuthReq) (*model.AuthRes, *response.AppError)
-	RefreshToken(payload *model.JwtPayload, refreshToken string) (*model.RefreshTokenRes, *response.AppError)
+	Auth(req model.AuthReq) (model.AuthRes, error)
+	RefreshToken(payload *model.JwtPayload, refreshToken string) (model.RefreshTokenRes, error)
 }
 
 type service struct {
@@ -45,7 +44,7 @@ func (s *service) genToken(payload *model.JwtPayload) (token string, err error) 
 	return
 }
 
-func (s *service) Auth(req model.AuthReq) (*model.AuthRes, *response.AppError) {
+func (s *service) Auth(req model.AuthReq) (*model.AuthRes, error) {
 	switch req.(type) {
 	case *model.EmailAuthReq:
 		data := req.(*model.EmailAuthReq)
@@ -113,7 +112,7 @@ func (s *service) emailAuth(email, password string) (*model.AuthRes, *response.A
 	return res, nil
 }
 
-func (s *service) githubAuth(code string) (*model.AuthRes, *response.AppError) {
+func (s *service) githubAuth(code string) (*model.AuthRes, error) {
 	client := resty.New()
 
 	// 1. 获取 access_token
@@ -194,7 +193,7 @@ func (s *service) githubAuth(code string) (*model.AuthRes, *response.AppError) {
 	return res, nil
 }
 
-func (s *service) RefreshToken(payload *model.JwtPayload, refreshToken string) (res *model.RefreshTokenRes, appErr *response.AppError) {
+func (s *service) RefreshToken(payload *model.JwtPayload, refreshToken string) (*model.RefreshTokenRes, error) {
 	if err := s.cache.ValidateRefreshToken(payload, refreshToken); err != nil {
 		if errors.Is(err, redis.Nil) {
 			return nil, response.NewAppError(response.CodeRefreshInvalid, err)

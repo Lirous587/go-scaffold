@@ -1,4 +1,4 @@
-package user
+﻿package user
 
 import (
 	"github.com/gin-gonic/gin"
@@ -7,32 +7,26 @@ import (
 	"scaffold/internal/user/model"
 )
 
-type IController interface {
-	Login(ctx *gin.Context)
-	RefreshToken(ctx *gin.Context)
+type HttpServer struct {
+	db db
 }
 
-type controller struct {
-	server          IService
-	loginStrategies map[model.LoginType]loginStrategy
-}
+//func NewController(svc IService) IController {
+//	ctrl := &controller{
+//		server:          svc,
+//		loginStrategies: make(map[model.LoginType]loginStrategy),
+//	}
+//
+//	ctrl.loginStrategies[model.GithubLogin] = &githubLoginStrategy{}
+//	ctrl.loginStrategies[model.EmailLogin] = &emailLoginStrategy{}
+//	// 如果将来有新的登录方式，例如：
+//	// const googleLogin loginT = "google"
+//	// ctrl.loginStrategies[googleLogin] = &GoogleLoginStrategy{}
+//
+//	return ctrl
+//}
 
-func NewController(svc IService) IController {
-	ctrl := &controller{
-		server:          svc,
-		loginStrategies: make(map[model.LoginType]loginStrategy),
-	}
-
-	ctrl.loginStrategies[model.GithubLogin] = &githubLoginStrategy{}
-	ctrl.loginStrategies[model.EmailLogin] = &emailLoginStrategy{}
-	// 如果将来有新的登录方式，例如：
-	// const googleLogin loginT = "google"
-	// ctrl.loginStrategies[googleLogin] = &GoogleLoginStrategy{}
-
-	return ctrl
-}
-
-func (c *controller) Login(ctx *gin.Context) {
+func (c *HttpServer) Login(ctx *gin.Context) {
 	loginTypeQuery, exist := ctx.GetQuery("type")
 	if !exist {
 		response.ErrorParameterInvalid(ctx, errors.New("缺少 'type' 查询参数"))

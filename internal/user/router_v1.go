@@ -2,13 +2,18 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"scaffold/internal/middleware"
-	"scaffold/pkg/config"
+	"os"
+	"scaffold/internal/common/middleware"
 )
 
 func RegisterV1(r *gin.RouterGroup, ctrl IController) error {
 	g := r.Group("/v1/user")
-	authMiddleware := middleware.NewUserAuth([]byte(config.Cfg.JWT.Secret))
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		panic("JWT_SECRET为空")
+	}
+
+	authMiddleware := middleware.NewUserAuth([]byte(secret))
 	{
 		g.POST("/auth", authMiddleware.Validate())
 		g.POST("/login", ctrl.Login)

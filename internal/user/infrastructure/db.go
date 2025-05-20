@@ -3,7 +3,7 @@ package infrastructure
 import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	"scaffold/internal/domain/user/model"
+	"scaffold/internal/user/model"
 )
 
 type IDB interface {

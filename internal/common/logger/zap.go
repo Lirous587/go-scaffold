@@ -2,6 +2,7 @@ package logger
 
 import (
 	"errors"
+	"github.com/joho/godotenv"
 	"os"
 	"strconv"
 	"time"
@@ -57,23 +58,9 @@ func UpdateConfig() {
 
 }
 
-func getLogWriter() zapcore.WriteSyncer {
-	lumberJackLogger := &lumberjack.Logger{
-		Filename:   config.fileName,
-		MaxSize:    config.maxSize,
-		MaxBackups: config.maxBackups,
-		MaxAge:     config.maxAge,
-	}
-
-	// 添加文件写入器
-	writers := []zapcore.WriteSyncer{zapcore.AddSync(lumberJackLogger)}
-
-	writers = append(writers, zapcore.AddSync(os.Stdout))
-
-	return zapcore.NewMultiWriteSyncer(writers...)
-}
-
 func Init() (err error) {
+	_ = godotenv.Load()
+
 	UpdateConfig()
 	writeSyncer := getLogWriter()
 	// 创建编码器
@@ -110,6 +97,23 @@ func Init() (err error) {
 	zap.ReplaceGlobals(lg)
 	return
 }
+
+func getLogWriter() zapcore.WriteSyncer {
+	lumberJackLogger := &lumberjack.Logger{
+		Filename:   config.fileName,
+		MaxSize:    config.maxSize,
+		MaxBackups: config.maxBackups,
+		MaxAge:     config.maxAge,
+	}
+
+	// 添加文件写入器
+	writers := []zapcore.WriteSyncer{zapcore.AddSync(lumberJackLogger)}
+
+	writers = append(writers, zapcore.AddSync(os.Stdout))
+
+	return zapcore.NewMultiWriteSyncer(writers...)
+}
+
 func getEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = customTimeEncoder

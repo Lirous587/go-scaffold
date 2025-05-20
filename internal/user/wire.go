@@ -6,8 +6,7 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
-	"scaffold/internal/domain/user/infrastructure"
-	"scaffold/pkg/repository"
+	"scaffold/internal/user/infrastructure"
 )
 
 func InitV1(r *gin.RouterGroup) error {
