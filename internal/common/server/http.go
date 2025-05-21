@@ -11,12 +11,17 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"scaffold/internal/common/validator"
 	"strings"
 	"syscall"
 	"time"
 )
 
-func RunHttpServer(port int, registerRouter func(r *gin.RouterGroup)) {
+func RunHttpServer(port string, registerRouter func(r *gin.RouterGroup)) {
+	if port == "" {
+		panic(errors.New("RunHttpServer中的port无效"))
+	}
+
 	_ = godotenv.Load()
 	mode := os.Getenv("SERVER_MODE")
 	if mode == "" {
@@ -33,6 +38,11 @@ func RunHttpServer(port int, registerRouter func(r *gin.RouterGroup)) {
 
 	engine.Use(errorHandler())
 
+	// 注册验证器
+	if err := validator.Init(); err != nil {
+		panic(errors.WithMessage(err, "validator模块初始化失败"))
+	}
+
 	// 配置CORS中间件
 	setCORS(engine)
 
@@ -47,7 +57,7 @@ func RunHttpServer(port int, registerRouter func(r *gin.RouterGroup)) {
 
 	// 创建HTTP服务器
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
+		Addr:    fmt.Sprintf(":%s", port),
 		Handler: engine,
 	}
 
@@ -140,6 +150,8 @@ func printBusinessStack(err error) {
 		if strings.Contains(currentLine, "internal") &&
 			!strings.Contains(currentLine, "github.com/gin-gonic") &&
 			!strings.Contains(currentLine, "net/http") &&
+			!strings.Contains(currentLine, "net/http") &&
+			!strings.Contains(currentLine, "/common/decorator") &&
 			strings.Contains(nextLine, ".go:") {
 			log.Println(currentLine)
 			log.Println(nextLine)

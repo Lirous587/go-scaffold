@@ -11,7 +11,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// V 全局验证器实例
+// v 全局验证器实例
 var v = validator.New()
 
 // Init 初始化验证器

@@ -60,7 +60,7 @@ func (s *githubLoginStrategy) login(ctx *gin.Context, h *HttpServer) {
 	res, err := h.app.Queries.UserJWTByGithub.Handle(ctx, *req)
 
 	if err != nil {
-		//response.Error(ctx, err)
+		response.Error(ctx, err)
 		return
 	}
 	response.Success(ctx, res)

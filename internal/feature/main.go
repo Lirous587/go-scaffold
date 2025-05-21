@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
+	"os"
 	"scaffold/internal/common/logger"
 	"scaffold/internal/common/metrics"
 	"scaffold/internal/common/server"
@@ -24,10 +25,6 @@ func main() {
 	metricsClient := metrics.NewPrometheusClient()
 	metrics.StartPrometheusServer()
 
-	//if err = validator.Init(); err != nil {
-	//	panic(errors.WithMessage(err, "validator模块初始化失败"))
-	//}
-
 	application, cleanup := service.NewApplication(ctx, metricsClient)
 	defer cleanup()
 
@@ -35,7 +32,7 @@ func main() {
 	serverType := "http"
 	switch serverType {
 	case "http":
-		server.RunHttpServer(8000, func(r *gin.RouterGroup) {
+		server.RunHttpServer(os.Getenv("USER_SERVER_PORT"), func(r *gin.RouterGroup) {
 			httpServer := ports.NewHttpServer(application)
 			ports.RegisterRouter(r, httpServer)
 		})

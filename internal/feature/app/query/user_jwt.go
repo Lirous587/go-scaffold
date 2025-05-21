@@ -2,6 +2,7 @@
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"scaffold/internal/common/decorator"
 	"scaffold/internal/feature/domain/user"
 )
@@ -29,5 +30,5 @@ type loginByGithubQueryHandler struct {
 }
 
 func (h loginByGithubQueryHandler) Handle(ctx context.Context, query LoginByGithubQuery) (LoginResponse, error) {
-	return LoginResponse{}, nil
+	return LoginResponse{}, errors.New("test")
 }

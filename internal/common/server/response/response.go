@@ -1,11 +1,52 @@
 package response
 
 import (
-	"net/http"
-	"scaffold/internal/common/validator"
-
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	"net/http"
 )
+
+type code int
+
+const (
+	codeSuccess      code = 2000
+	codeParamInvalid code = 4000
+	CodeServerError  code = 5000
+	codeUnKnowError  code = 9999
+
+	// CodeAuthFailed 认证相关
+	CodeAuthFailed code = 4100 + iota
+	CodeTokenInvalid
+	CodeTokenExpired
+	CodeRefreshInvalid
+)
+
+var errCodeMsgMap = map[code]string{
+	CodeServerError:    "服务器错误",
+	CodeAuthFailed:     "认证失败",
+	CodeTokenInvalid:   "无效的令牌",
+	CodeTokenExpired:   "令牌已过期",
+	CodeRefreshInvalid: "无效的refreshToken",
+}
+
+type AppError struct {
+	Code code
+	Err  error
+}
+
+func (e *AppError) Error() string {
+	if e.Err != nil {
+		return e.Err.Error()
+	}
+	return "未知错误"
+}
+
+func NewAppError(code code, err error) *AppError {
+	return &AppError{
+		Code: code,
+		Err:  errors.WithStack(err),
+	}
+}
 
 type response struct {
 	Code    code        `json:"code"`
@@ -28,32 +69,30 @@ func ErrorParameterInvalid(ctx *gin.Context, err error) {
 	res := response{
 		Code:    codeParamInvalid,
 		Message: "参数无效",
+		Data:    err.Error(),
 	}
-	lang := validator.GetTranslateLang(ctx)
-	transErr := validator.TranslateError(err, lang)
-	res.Data = transErr.Error()
-
-	if err != nil {
-		ctx.Error(err)
-	}
+	ctx.Error(err)
 	ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 }
 
-func Error(ctx *gin.Context, appErr *AppError) {
-	res := response{
-		Code: appErr.Code,
-	}
-	msg, ok := errCodeMsgMap[appErr.Code]
+func Error(ctx *gin.Context, err error) {
+	var appErr *AppError
+	ok := errors.As(err, &appErr)
+	res := response{}
 	if ok {
-		res.Message = msg
-	} else {
-		res.Code = codeUnKnowError
-		res.Message = "未知错误"
-	}
-
-	if appErr.Err != nil {
+		res.Code = appErr.Code
+		msg, exist := errCodeMsgMap[appErr.Code]
+		if exist {
+			res.Message = msg
+		} else {
+			res.Code = codeUnKnowError
+			res.Message = "未知错误"
+		}
 		ctx.Error(appErr.Err)
+	} else {
+		res.Code = CodeServerError
+		res.Message = "服务器错误"
+		ctx.Error(err)
 	}
-
 	ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 }
