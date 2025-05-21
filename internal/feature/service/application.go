@@ -6,23 +6,31 @@ import (
 	"scaffold/internal/feature/adapters"
 	"scaffold/internal/feature/app"
 	"scaffold/internal/feature/app/command"
+	"scaffold/internal/feature/app/query"
 )
 
-func NewApplication(ctx context.Context, metricsClient decorator.MetricsClient) app.Application {
+func NewApplication(ctx context.Context, metricsClient decorator.MetricsClient) (app.Application, func()) {
+	application, clean := newApplication(ctx, metricsClient)
+	return application, func() {
+		clean()
+	}
+}
+
+func newApplication(ctx context.Context, metricsClient decorator.MetricsClient) (app.Application, func()) {
 	psqlRepository := adapters.NewPSQLRepository()
 
-	return app.Application{
+	application := app.Application{
 		Commands: app.Commands{
-			LoginWithType:  command.NewLoginWithTypeHandle(psqlRepository, metricsClient),
-			LoginWithType2: command.NewLoginWithTypeHandle2(psqlRepository, metricsClient),
-			//CancelTraining:       command.NewCancelTrainingHandler(hourRepository, logger, metricsClient),
-			//ScheduleTraining:     command.NewScheduleTrainingHandler(hourRepository, logger, metricsClient),
-			//MakeHoursAvailable:   command.NewMakeHoursAvailableHandler(hourRepository, logger, metricsClient),
-			//MakeHoursUnavailable: command.NewMakeHoursUnavailableHandler(hourRepository, logger, metricsClient),
+			LoginByGithub: command.NewLoginByGithubHandler(psqlRepository, metricsClient),
 		},
 		Queries: app.Queries{
-			//HourAvailability:      query.NewHourAvailabilityHandler(hourRepository, logger, metricsClient),
-			//TrainerAvailableHours: query.NewAvailableHoursHandler(datesRepository, logger, metricsClient),
+			UserJWTByGithub: query.NewLoginByGithubQueryHandler(psqlRepository, metricsClient),
 		},
 	}
+
+	clean := func() {
+		//_ =
+	}
+
+	return application, clean
 }

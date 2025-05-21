@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/pkg/errors"
 	"reflect"
-	"scaffold/internal/common/pkg/validator/i18n"
-	"scaffold/internal/common/pkg/validator/register"
+	"scaffold/internal/common/validator/i18n"
+	"scaffold/internal/common/validator/register"
 	"strings"
 
 	"github.com/go-playground/validator/v10"

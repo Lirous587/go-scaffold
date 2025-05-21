@@ -5,10 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
-	"scaffold/internal/common/httpserver"
 	"scaffold/internal/common/logger"
 	"scaffold/internal/common/metrics"
-	"scaffold/internal/feature/app/command"
+	"scaffold/internal/common/server"
+	"scaffold/internal/feature/ports"
 	"scaffold/internal/feature/service"
 )
 
@@ -28,35 +28,20 @@ func main() {
 	//	panic(errors.WithMessage(err, "validator模块初始化失败"))
 	//}
 
-	application := service.NewApplication(ctx, metricsClient)
+	application, cleanup := service.NewApplication(ctx, metricsClient)
+	defer cleanup()
 
 	//serverType := strings.ToLower(os.Getenv("SERVER_TO_RUN"))
 	serverType := "http"
 	switch serverType {
 	case "http":
-		// 使用application去注册路由
-		loginT := command.LoginWithType{
-			LoginType: "haha",
-		}
-
-		r := httpserver.New(8080, "dev")
-		r.Router.GET("/user", func(c *gin.Context) {
-			application.Commands.LoginWithType.Handle(ctx, loginT)
-			c.JSON(200, gin.H{
-				"msg": "ok",
-			})
+		server.RunHttpServer(8000, func(r *gin.RouterGroup) {
+			httpServer := ports.NewHttpServer(application)
+			ports.RegisterRouter(r, httpServer)
 		})
-		r.Run()
-		//server.RunHTTPServer(func(router chi.Router) http.Handler {
-		//	return ports.HandlerFromMux(
-		//		ports.NewHttpServer(application),
-		//		router,
-		//	)
-		//})
 	case "grpc":
 
 	default:
 		panic(fmt.Sprintf("server type '%s' is not supported", serverType))
 	}
-
 }

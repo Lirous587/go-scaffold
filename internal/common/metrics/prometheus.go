@@ -2,6 +2,7 @@
 
 import (
 	"github.com/joho/godotenv"
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
@@ -43,17 +44,19 @@ func (p *PrometheusClient) ObserveDuration(action, status string, seconds float6
 
 var (
 	path string
-	addr string
+	port string
 )
 
 func init() {
 	_ = godotenv.Load()
-	path = os.Getenv("")
-	path = os.Getenv("")
-
+	path = os.Getenv("PROMETHEUS_PATH")
+	port = os.Getenv("PROMETHEUS_ADDR")
+	if path == "" || port == "" {
+		panic(errors.New("Prometheus读取环境变量失败"))
+	}
 }
 
-func StartPrometheusServer(path, addr string) {
+func StartPrometheusServer() {
 	http.Handle(path, promhttp.Handler())
-	go http.ListenAndServe(addr, nil)
+	go http.ListenAndServe(":"+port, nil)
 }

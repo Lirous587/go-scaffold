@@ -1,6 +1,9 @@
 ﻿package app
 
-import "scaffold/internal/feature/app/command"
+import (
+	"scaffold/internal/feature/app/command"
+	"scaffold/internal/feature/app/query"
+)
 
 type Application struct {
 	Commands Commands
@@ -8,9 +11,9 @@ type Application struct {
 }
 
 type Commands struct {
-	LoginWithType command.LoginWithTypeHandler
+	LoginByGithub command.LoginByGithubHandler
 }
 
 type Queries struct {
-	//HourAvailability query.HourAvailabilityHandler
+	UserJWTByGithub query.LoginByGithubQueryHandler
 }

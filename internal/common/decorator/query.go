@@ -2,10 +2,9 @@ package decorator
 
 import (
 	"context"
-	"go.uber.org/zap"
 )
 
-func ApplyQueryDecorators[H any, R any](handler QueryHandler[H, R], logger *zap.Logger, metricsClient MetricsClient) QueryHandler[H, R] {
+func ApplyQueryDecorators[H any, R any](handler QueryHandler[H, R], metricsClient MetricsClient) QueryHandler[H, R] {
 	return queryLoggingDecorator[H, R]{
 		base: queryMetricsDecorator[H, R]{
 			base:   handler,

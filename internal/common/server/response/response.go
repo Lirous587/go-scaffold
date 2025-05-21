@@ -2,7 +2,7 @@ package response
 
 import (
 	"net/http"
-	"scaffold/pkg/validator"
+	"scaffold/internal/common/validator"
 
 	"github.com/gin-gonic/gin"
 )
