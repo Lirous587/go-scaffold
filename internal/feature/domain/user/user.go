@@ -1,4 +1,4 @@
-﻿package command
+﻿package user
 
 type LoginType string
 

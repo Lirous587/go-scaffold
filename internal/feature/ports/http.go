@@ -5,18 +5,18 @@ import (
 	"github.com/pkg/errors"
 	"scaffold/internal/common/server/response"
 	"scaffold/internal/feature/app"
-	"scaffold/internal/feature/app/command"
 	"scaffold/internal/feature/app/query"
+	"scaffold/internal/feature/domain/user"
 )
 
 type HttpServer struct {
 	app             app.Application
-	loginStrategies map[command.LoginType]loginStrategy
+	loginStrategies map[user.LoginType]loginStrategy
 }
 
 func NewHttpServer(application app.Application) HttpServer {
-	loginStrategy := make(map[command.LoginType]loginStrategy)
-	loginStrategy[command.GithubLogin] = &githubLoginStrategy{}
+	loginStrategy := make(map[user.LoginType]loginStrategy)
+	loginStrategy[user.GithubLogin] = &githubLoginStrategy{}
 
 	return HttpServer{
 		app:             application,
@@ -30,7 +30,7 @@ func (h *HttpServer) Login(ctx *gin.Context) {
 		response.ErrorParameterInvalid(ctx, errors.New("缺少 'type' 查询参数"))
 		return
 	}
-	currentLoginType := command.LoginType(loginTypeQuery)
+	currentLoginType := user.LoginType(loginTypeQuery)
 	strategy, found := h.loginStrategies[currentLoginType]
 	if !found {
 		response.ErrorParameterInvalid(ctx, errors.New("不支持的登录类型: "+string(currentLoginType)))

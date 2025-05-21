@@ -1,10 +1,12 @@
-package middleware
+package auth
 
 import (
 	"errors"
-	"scaffold/internal/domain/user/model"
-	"scaffold/pkg/jwt"
-	"scaffold/pkg/response"
+	"github.com/joho/godotenv"
+	"os"
+	"scaffold/internal/common/jwt"
+	"scaffold/internal/common/server/response"
+	"scaffold/internal/feature/domain/user"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +16,11 @@ const (
 	authHeaderKey = "Authorization"
 	bearerPrefix  = "Bearer "
 )
+
+type JwtPayload struct {
+	ID        uint           `json:"id"`
+	LoginType user.LoginType `json:"login_type"`
+}
 
 // 解析 Authorization 头部的 Token
 func parseTokenFromHeader(c *gin.Context) (string, error) {
@@ -29,22 +36,17 @@ func parseTokenFromHeader(c *gin.Context) (string, error) {
 	return strings.TrimPrefix(authHeader, bearerPrefix), nil
 }
 
-type Auth interface {
-	Validate() gin.HandlerFunc
-}
+var secret string
 
-type userAuth struct {
-	secret []byte
-}
-
-func NewUserAuth(secret []byte) Auth {
-	return &userAuth{
-		secret: secret,
+func init() {
+	_ = godotenv.Load()
+	secret = os.Getenv("JWT_SECRET")
+	if secret == "" {
+		panic("加载JWT_SECRET环境变量失败")
 	}
 }
 
-// Validate 验证管理员 Token
-func (auth *userAuth) Validate() gin.HandlerFunc {
+func Validate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. 从请求头解析 Token
 		tokenStr, err := parseTokenFromHeader(c)
@@ -54,8 +56,7 @@ func (auth *userAuth) Validate() gin.HandlerFunc {
 		}
 
 		// 2. 解析 Token
-		secret := auth.secret
-		claims, err := jwt.ParseToken[model.JwtPayload](tokenStr, secret)
+		claims, err := jwt.ParseToken[JwtPayload](tokenStr, secret)
 		if err != nil {
 			switch {
 			case errors.Is(err, jwt.ErrTokenExpired):

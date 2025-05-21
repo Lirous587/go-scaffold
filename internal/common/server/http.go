@@ -63,7 +63,7 @@ func RunHttpServer(port string, registerRouter func(r *gin.RouterGroup)) {
 
 	// 启动服务器
 	go func() {
-		log.Printf("服务器启动,端口:%d\n", port)
+		log.Printf("服务器启动,端口:%v\n", port)
 
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("服务器启动失败,err:%#v\n", err)

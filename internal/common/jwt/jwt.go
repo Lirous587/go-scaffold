@@ -36,9 +36,9 @@ func GenToken[T any](payload T, secret string, duration time.Duration) (string, 
 	return token.SignedString([]byte(secret))
 }
 
-func ParseToken[T any](tokenString string, secret []byte) (myClaims *MyClaims[T], err error) {
+func ParseToken[T any](tokenString string, secret string) (myClaims *MyClaims[T], err error) {
 	token, err := jwt.ParseWithClaims(tokenString, &MyClaims[T]{}, func(token *jwt.Token) (interface{}, error) {
-		return secret, nil
+		return []byte(secret), nil
 	})
 
 	if err != nil {
