@@ -8,3 +8,4 @@ logs
 docs
 manifest/config/config.yaml
 ast.go
+.env
