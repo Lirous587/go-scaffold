@@ -25,7 +25,6 @@ require (
 	golang.org/x/net v0.37.0
 	golang.org/x/text v0.25.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gorm.io/gorm v1.25.12
 	resty.dev/v3 v3.0.0-beta.3
 )
 

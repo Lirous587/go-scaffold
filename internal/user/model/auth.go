@@ -8,7 +8,7 @@ const (
 )
 
 type JwtPayload struct {
-	ID        int       `json:"id"`
+	ID        int64     `json:"id"`
 	LoginType LoginType `json:"login_type"`
 }
 

@@ -1,9 +1,9 @@
 package model
 
 type User struct {
-	ID       int
+	ID       int64
 	Name     string
 	Email    string
-	GithubID string
-	//Roles        []model.Role `gorm:"many2many:user_roles"`
+	GithubID int64
+	//Roles        []model.Role
 }

@@ -636,7 +636,7 @@ func (roleL) LoadUser(ctx context.Context, e boil.ContextExecutor, singular bool
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if local.ID == foreign.RoleID {
+			if queries.Equal(local.ID, foreign.RoleID) {
 				local.R.User = foreign
 				if foreign.R == nil {
 					foreign.R = &userR{}
@@ -1047,7 +1047,7 @@ func (o *Role) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bo
 	var err error
 
 	if insert {
-		related.RoleID = o.ID
+		queries.Assign(&related.RoleID, o.ID)
 
 		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
 			return errors.Wrap(err, "failed to insert into foreign table")
@@ -1069,7 +1069,7 @@ func (o *Role) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bo
 			return errors.Wrap(err, "failed to update foreign table")
 		}
 
-		related.RoleID = o.ID
+		queries.Assign(&related.RoleID, o.ID)
 	}
 
 	if o.R == nil {
@@ -1087,6 +1087,30 @@ func (o *Role) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bo
 	} else {
 		related.R.Role = o
 	}
+	return nil
+}
+
+// RemoveUser relationship.
+// Sets o.R.User to nil.
+// Removes o from all passed in related items' relationships struct.
+func (o *Role) RemoveUser(ctx context.Context, exec boil.ContextExecutor, related *User) error {
+	var err error
+
+	queries.SetScanner(&related.RoleID, nil)
+	if _, err = related.Update(ctx, exec, boil.Whitelist("role_id")); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	if o.R != nil {
+		o.R.User = nil
+	}
+
+	if related == nil || related.R == nil {
+		return nil
+	}
+
+	related.R.Role = nil
+
 	return nil
 }
 

@@ -51,7 +51,7 @@ func (P PSQLRepository) FindByEmail(email string) (*model.User, error) {
 	}, err
 }
 
-func (P PSQLRepository) FindByGithubID(id string) (*model.User, error) {
+func (P PSQLRepository) FindByGithubID(id int64) (*model.User, error) {
 	ctx := context.Background()
 	user, err := orm.Users(orm.UserWhere.GithubID.EQ(id)).One(ctx, P.db)
 	if err != nil {

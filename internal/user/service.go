@@ -1,9 +1,9 @@
 package user
 
 import (
+	"database/sql"
 	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
-	"gorm.io/gorm"
 	"os"
 	"resty.dev/v3"
 	"scaffold/internal/common/middleware/auth"
@@ -81,7 +81,7 @@ func (s *service) GithubAuth(code string) (*model.AuthRes, error) {
 
 	// 2. 用 access_token 获取用户信息
 	var userInfo struct {
-		GithubID string `json:"id"`
+		GithubID int64  `json:"id"`
 		Name     string `json:"login"`
 		Email    string `json:"email"`
 	}
@@ -98,7 +98,7 @@ func (s *service) GithubAuth(code string) (*model.AuthRes, error) {
 	user, err := s.db.FindByGithubID(userInfo.GithubID)
 	if err != nil {
 		// 没有就入库
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, sql.ErrNoRows) {
 			u := &model.User{
 				Email:    userInfo.Email,
 				GithubID: userInfo.GithubID,
