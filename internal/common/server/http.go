@@ -99,11 +99,13 @@ func shutdownServer(server *http.Server) {
 
 func setCORS(r *gin.Engine) {
 	corsCfg := cors.DefaultConfig()
-	allow := os.Getenv("SERVER_ALLOW_ORIGINS")
-	if allow == "" {
+	allowsStr := os.Getenv("SERVER_ALLOW_ORIGINS")
+	if allowsStr == "" {
 		panic(errors.New("httpserver加载SERVER_ALLOW_ORIGINS环境变量失败"))
 	}
-	corsCfg.AllowOrigins = []string{allow}
+	allows := strings.Split(allowsStr, ",")
+	
+	corsCfg.AllowOrigins = allows
 	corsCfg.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
 	corsCfg.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Refresh-Token"}
 	r.Use(cors.New(corsCfg))

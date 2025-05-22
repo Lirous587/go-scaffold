@@ -54,7 +54,6 @@ func (s *service) GithubAuth(code string) (*model.AuthRes, error) {
 	client := resty.New()
 
 	// 1. 获取 access_token
-	//oauthCfg := config.Cfg.OAuth.Github
 	tokenURL := "https://github.com/login/oauth/access_token"
 
 	params := map[string]string{
@@ -82,7 +81,7 @@ func (s *service) GithubAuth(code string) (*model.AuthRes, error) {
 
 	// 2. 用 access_token 获取用户信息
 	var userInfo struct {
-		GithubID int    `json:"id"`
+		GithubID string `json:"id"`
 		Name     string `json:"login"`
 		Email    string `json:"email"`
 	}
@@ -105,7 +104,7 @@ func (s *service) GithubAuth(code string) (*model.AuthRes, error) {
 				GithubID: userInfo.GithubID,
 			}
 
-			if err := s.db.Create(u); err != nil {
+			if user, err = s.db.Register(u); err != nil {
 				return nil, errors.WithStack(err)
 			}
 		} else {

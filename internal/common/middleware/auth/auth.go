@@ -1,16 +1,36 @@
 package auth
 
 import (
-	"errors"
 	"github.com/joho/godotenv"
+	"github.com/pkg/errors"
 	"os"
 	"scaffold/internal/common/jwt"
 	"scaffold/internal/common/server/response"
-	"scaffold/internal/feature/domain/user"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+var (
+	secret string
+	expire time.Duration
+)
+
+func init() {
+	_ = godotenv.Load()
+	secret = os.Getenv("JWT_SECRET")
+	expireMinuteStr := os.Getenv("JWT_EXPIRE_MINUTE")
+	if secret == "" || expireMinuteStr == "" {
+		panic("加载环境变量失败")
+	}
+	expireMinute, err := strconv.Atoi(expireMinuteStr)
+	if err != nil {
+		panic(err)
+	}
+	expire = time.Minute * time.Duration(expireMinute)
+}
 
 const (
 	authHeaderKey = "Authorization"
@@ -18,8 +38,8 @@ const (
 )
 
 type JwtPayload struct {
-	ID        uint           `json:"id"`
-	LoginType user.LoginType `json:"login_type"`
+	ID        uint   `json:"id"`
+	LoginType string `json:"login_type"`
 }
 
 // 解析 Authorization 头部的 Token
@@ -34,16 +54,6 @@ func parseTokenFromHeader(c *gin.Context) (string, error) {
 	}
 
 	return strings.TrimPrefix(authHeader, bearerPrefix), nil
-}
-
-var secret string
-
-func init() {
-	_ = godotenv.Load()
-	secret = os.Getenv("JWT_SECRET")
-	if secret == "" {
-		panic("加载JWT_SECRET环境变量失败")
-	}
 }
 
 func Validate() gin.HandlerFunc {
@@ -74,4 +84,9 @@ func Validate() gin.HandlerFunc {
 		c.Set("login_type", claims.PayLoad.LoginType)
 		c.Next()
 	}
+}
+
+func GenUserToken[T any](payload T) (string, error) {
+	token, err := jwt.GenToken[T](payload, secret, expire)
+	return token, errors.WithStack(err)
 }

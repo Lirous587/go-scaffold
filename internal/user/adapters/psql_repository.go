@@ -1,9 +1,13 @@
 ﻿package adapters
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"os"
+	"scaffold/internal/common/orm"
 	"scaffold/internal/user/model"
 )
 
@@ -34,16 +38,48 @@ func NewPSQLRepository() *PSQLRepository {
 }
 
 func (P PSQLRepository) FindByEmail(email string) (*model.User, error) {
-	//TODO implement me
-	panic("implement me")
+	ctx := context.Background()
+	user, err := orm.Users(orm.UserWhere.Email.EQ(email)).One(ctx, P.db)
+	if err != nil {
+		return nil, err
+	}
+	return &model.User{
+		ID:       user.ID,
+		Name:     user.Name,
+		Email:    user.Email,
+		GithubID: user.GithubID,
+	}, err
 }
 
-func (P PSQLRepository) FindByGithubID(id int) (*model.User, error) {
-	//TODO implement me
-	panic("implement me")
+func (P PSQLRepository) FindByGithubID(id string) (*model.User, error) {
+	ctx := context.Background()
+	user, err := orm.Users(orm.UserWhere.GithubID.EQ(id)).One(ctx, P.db)
+	if err != nil {
+		return nil, err
+	}
+	return &model.User{
+		ID:       user.ID,
+		Name:     user.Name,
+		Email:    user.Email,
+		GithubID: user.GithubID,
+	}, err
 }
 
-func (P PSQLRepository) Create(user *model.User) error {
-	//TODO implement me
-	panic("implement me")
+func (P PSQLRepository) Register(u *model.User) (*model.User, error) {
+	ctx := context.Background()
+	user := &orm.User{
+		Name:     u.Name,
+		GithubID: u.GithubID,
+		Email:    u.Email,
+	}
+	if err := user.Insert(ctx, P.db, boil.Infer()); err != nil {
+		return nil, err
+	}
+
+	return &model.User{
+		ID:       user.ID,
+		Name:     user.Name,
+		Email:    user.Email,
+		GithubID: user.GithubID,
+	}, nil
 }

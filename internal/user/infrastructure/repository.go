@@ -6,8 +6,8 @@ import (
 
 type UserRepository interface {
 	FindByEmail(email string) (*model.User, error)
-	FindByGithubID(id int) (*model.User, error)
-	Create(user *model.User) error
+	FindByGithubID(id string) (*model.User, error)
+	Register(u *model.User) (*model.User, error)
 }
 
 //type db struct {

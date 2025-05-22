@@ -7,17 +7,13 @@ import (
 	"{{.Module}}/utils"
 )
 
-type IController interface {
-	Create{{.DomainTitle}}(ctx *gin.Context)
-	Delete{{.DomainTitle}}(ctx *gin.Context)
-	Update{{.DomainTitle}}(ctx *gin.Context)
+
+
+type Controller struct {
+	server Service
 }
 
-type controller struct {
-	server IService
-}
-
-func NewController(svc IService) IController {
+func NewController(svc Service) Controller {
 	ctrl := &controller{
 		server: svc,
 	}
