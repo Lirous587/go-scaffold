@@ -3,28 +3,22 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"scaffold/internal/common/pkg/response"
+	"scaffold/internal/common/server/response"
 	"scaffold/internal/user/model"
 )
 
-type IController interface {
-	Login(ctx *gin.Context)
-	RefreshToken(ctx *gin.Context)
-}
-
-type controller struct {
-	server          IService
+type Controller struct {
+	server          Service
 	loginStrategies map[model.LoginType]loginStrategy
 }
 
-func NewController(svc IService) IController {
-	ctrl := &controller{
-		server:          svc,
+func NewController(serve Service) *Controller {
+	ctrl := &Controller{
+		server:          serve,
 		loginStrategies: make(map[model.LoginType]loginStrategy),
 	}
 
 	ctrl.loginStrategies[model.GithubLogin] = &githubLoginStrategy{}
-	ctrl.loginStrategies[model.EmailLogin] = &emailLoginStrategy{}
 	// 如果将来有新的登录方式，例如：
 	// const googleLogin loginT = "google"
 	// ctrl.loginStrategies[googleLogin] = &GoogleLoginStrategy{}
@@ -32,7 +26,7 @@ func NewController(svc IService) IController {
 	return ctrl
 }
 
-func (c *controller) Login(ctx *gin.Context) {
+func (c *Controller) Login(ctx *gin.Context) {
 	loginTypeQuery, exist := ctx.GetQuery("type")
 	if !exist {
 		response.ErrorParameterInvalid(ctx, errors.New("缺少 'type' 查询参数"))
@@ -49,24 +43,24 @@ func (c *controller) Login(ctx *gin.Context) {
 }
 
 type loginStrategy interface {
-	login(ctx *gin.Context, c *controller)
+	login(ctx *gin.Context, c *Controller)
 }
 
 type githubLoginStrategy struct {
 }
 
-func (s *githubLoginStrategy) githubLoginStrategy(ctx *gin.Context, ctrl *controller) {
+func (s *githubLoginStrategy) githubLoginStrategy(ctx *gin.Context, ctrl *Controller) {
 	s.login(ctx, ctrl)
 }
 
-func (s *githubLoginStrategy) login(ctx *gin.Context, ctrl *controller) {
+func (s *githubLoginStrategy) login(ctx *gin.Context, ctrl *Controller) {
 	req := new(model.GithubAuthReq)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		response.ErrorParameterInvalid(ctx, err)
 		return
 	}
 
-	res, err := ctrl.server.Auth(req)
+	res, err := ctrl.server.GithubAuth(req.Code)
 	if err != nil {
 		response.Error(ctx, err)
 		return
@@ -74,29 +68,7 @@ func (s *githubLoginStrategy) login(ctx *gin.Context, ctrl *controller) {
 	response.Success(ctx, res)
 }
 
-type emailLoginStrategy struct {
-}
-
-func (s *emailLoginStrategy) loginStrategy(ctx *gin.Context, ctrl *controller) {
-	s.login(ctx, ctrl)
-}
-
-func (s *emailLoginStrategy) login(ctx *gin.Context, ctrl *controller) {
-	req := new(model.EmailAuthReq)
-	if err := ctx.ShouldBindJSON(req); err != nil {
-		response.ErrorParameterInvalid(ctx, err)
-		return
-	}
-
-	res, err := ctrl.server.Auth(req)
-	if err != nil {
-		response.Error(ctx, err)
-		return
-	}
-	response.Success(ctx, res)
-}
-
-func (c *controller) RefreshToken(ctx *gin.Context) {
+func (c *Controller) RefreshToken(ctx *gin.Context) {
 	refreshToken := ctx.GetHeader("refresh-token")
 	if refreshToken == "" {
 		appError := response.NewAppError(response.CodeAuthFailed, errors.New("refresh-token请求头为空"))

@@ -1,126 +1,65 @@
 package user
 
 import (
+	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+	"os"
 	"resty.dev/v3"
-	"scaffold/internal/common/pkg/jwt"
-	"scaffold/internal/common/pkg/response"
+	"scaffold/internal/common/middleware/auth"
+	"scaffold/internal/common/server/response"
 	"scaffold/internal/user/infrastructure"
 	"scaffold/internal/user/model"
-	"time"
-
-	"github.com/pkg/errors"
-	"golang.org/x/crypto/bcrypt"
 )
 
-type IService interface {
-	Auth(req model.AuthReq) (model.AuthRes, error)
-	RefreshToken(payload *model.JwtPayload, refreshToken string) (model.RefreshTokenRes, error)
+type Service interface {
+	GithubAuth(code string) (*model.AuthRes, error)
+	RefreshToken(payload *model.JwtPayload, refreshToken string) (*model.RefreshTokenRes, error)
 }
 
 type service struct {
-	db    infrastructure.IDB
-	cache infrastructure.ICache
+	db    infrastructure.UserRepository
+	cache infrastructure.UserCache
 }
 
-func NewService(db infrastructure.IDB, cache infrastructure.ICache) IService {
+var (
+	githubClientID     string
+	githubClientSecret string
+)
+
+func NewService(db infrastructure.UserRepository, cache infrastructure.UserCache) Service {
+	githubClientID = os.Getenv("GITHUB_CLIENT_ID")
+	githubClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
+	if githubClientID == "" || githubClientSecret == "" {
+		panic("加载环境变量失败")
+	}
 	return &service{db: db, cache: cache}
 }
 
-func (s *service) genToken(payload *model.JwtPayload) (token string, err error) {
-	jwtCfg := config.Cfg.JWT
-
-	JWTTokenParams := jwt.JWTTokenParams{
-		Payload:  *payload,
-		Duration: time.Minute * time.Duration(jwtCfg.ExpireMinute),
-		Secret:   []byte(jwtCfg.Secret),
-	}
-
-	token, err = jwt.GenToken[model.JwtPayload](&JWTTokenParams)
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	return
-}
-
-func (s *service) Auth(req model.AuthReq) (*model.AuthRes, error) {
-	switch req.(type) {
-	case *model.EmailAuthReq:
-		data := req.(*model.EmailAuthReq)
-		return s.emailAuth(data.Email, data.Password)
-	case *model.GithubAuthReq:
-		data := req.(*model.GithubAuthReq)
-		return s.githubAuth(data.Code)
-	}
-	return nil, nil
-}
-
 func (s *service) genTokenAndRefreshToken(payload *model.JwtPayload) (token, refreshToken string, err error) {
-	jwtCfg := config.Cfg.JWT
-
-	JWTTokenParams := jwt.JWTTokenParams{
-		Payload:  *payload,
-		Duration: time.Minute * time.Duration(jwtCfg.ExpireMinute),
-		Secret:   []byte(jwtCfg.Secret),
-	}
-
-	token, err = jwt.GenToken[model.JwtPayload](&JWTTokenParams)
+	token, err = auth.GenUserToken(payload)
 	if err != nil {
 		return "", "", errors.WithStack(err)
 	}
 
 	refreshToken, err = s.cache.GenRefreshToken(payload)
 	if err != nil {
-		return "", "", response.NewAppError(response.CodeServerError, err)
+		return "", "", errors.WithStack(err)
 	}
 
 	return token, refreshToken, nil
 }
 
-func (s *service) emailAuth(email, password string) (*model.AuthRes, *response.AppError) {
-	user, err := s.db.FindByEmail(email)
-	if err != nil {
-		return nil, response.NewAppError(response.CodeServerError, err)
-	}
-
-	if user == nil {
-		return nil, response.NewAppError(response.CodeAuthFailed, err)
-	}
-
-	err = bcrypt.CompareHashAndPassword(user.HashPassword, []byte(password))
-	if err != nil {
-		return nil, response.NewAppError(response.CodeServerError, err)
-	}
-
-	payload := &model.JwtPayload{
-		ID:        user.ID,
-		LoginType: model.EmailLogin,
-	}
-
-	token, refreshToken, err := s.genTokenAndRefreshToken(payload)
-	if err != nil {
-		return nil, response.NewAppError(response.CodeServerError, err)
-	}
-
-	res := &model.AuthRes{
-		Payload:      *payload,
-		Token:        token,
-		RefreshToken: refreshToken,
-	}
-
-	return res, nil
-}
-
-func (s *service) githubAuth(code string) (*model.AuthRes, error) {
+func (s *service) GithubAuth(code string) (*model.AuthRes, error) {
 	client := resty.New()
 
 	// 1. 获取 access_token
-	oauthCfg := config.Cfg.OAuth.Github
+	//oauthCfg := config.Cfg.OAuth.Github
 	tokenURL := "https://github.com/login/oauth/access_token"
+
 	params := map[string]string{
-		"client_id":     oauthCfg.ClientID,
-		"client_secret": oauthCfg.ClientSecret,
+		"client_id":     githubClientID,
+		"client_secret": githubClientSecret,
 		"code":          code,
 	}
 
@@ -136,9 +75,9 @@ func (s *service) githubAuth(code string) (*model.AuthRes, error) {
 
 	if err != nil || tokenRes.AccessToken == "" {
 		if err != nil {
-			return nil, response.NewAppError(response.CodeServerError, err)
+			return nil, errors.WithStack(err)
 		}
-		return nil, response.NewAppError(response.CodeServerError, errors.New("获取github_token失败"))
+		return nil, errors.New("获取github_token失败")
 	}
 
 	// 2. 用 access_token 获取用户信息
@@ -153,7 +92,7 @@ func (s *service) githubAuth(code string) (*model.AuthRes, error) {
 		Get("https://api.github.com/user")
 
 	if err != nil {
-		return nil, response.NewAppError(response.CodeServerError, err)
+		return nil, errors.WithStack(err)
 	}
 
 	//	3.是否入库
@@ -167,10 +106,10 @@ func (s *service) githubAuth(code string) (*model.AuthRes, error) {
 			}
 
 			if err := s.db.Create(u); err != nil {
-				return nil, response.NewAppError(response.CodeServerError, errors.WithStack(err))
+				return nil, errors.WithStack(err)
 			}
 		} else {
-			return nil, response.NewAppError(response.CodeServerError, err)
+			return nil, errors.WithStack(err)
 		}
 	}
 
@@ -181,7 +120,7 @@ func (s *service) githubAuth(code string) (*model.AuthRes, error) {
 
 	token, refreshToken, err := s.genTokenAndRefreshToken(payload)
 	if err != nil {
-		return nil, response.NewAppError(response.CodeServerError, err)
+		return nil, errors.WithStack(err)
 	}
 
 	res := &model.AuthRes{
@@ -198,20 +137,20 @@ func (s *service) RefreshToken(payload *model.JwtPayload, refreshToken string) (
 		if errors.Is(err, redis.Nil) {
 			return nil, response.NewAppError(response.CodeRefreshInvalid, err)
 		}
-		return nil, response.NewAppError(response.CodeServerError, err)
+		return nil, errors.WithStack(err)
 	}
 
 	if err := s.cache.ResetRefreshTokenExpiry(payload); err != nil {
-		return nil, response.NewAppError(response.CodeServerError, err)
+		return nil, errors.WithStack(err)
 	}
 
-	newToken, err := s.genToken(payload)
+	newToken, err := auth.GenUserToken(payload)
 	if err != nil {
-		return nil, response.NewAppError(response.CodeServerError, err)
+		return nil, errors.WithStack(err)
 	}
 
-	res = &model.RefreshTokenRes{
+	res := &model.RefreshTokenRes{
 		Token: newToken,
 	}
-	return
+	return res, nil
 }
