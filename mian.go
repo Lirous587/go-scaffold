@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"os"
 	"scaffold/internal/common/logger"
+	"scaffold/internal/common/metrics"
 	"scaffold/internal/common/server"
 	"scaffold/internal/user"
 )
@@ -19,8 +20,8 @@ func main() {
 	//ctx := context.Background()
 	//metricsClient := metrics.NewPrometheusClient()
 	//metrics.StartPrometheusServer()
-
-	server.RunHttpServer(os.Getenv("SERVER_PORT"), func(r *gin.RouterGroup) {
+	
+	server.RunHttpServer(os.Getenv("SERVER_PORT"), metrics.NoOp{}, func(r *gin.RouterGroup) {
 		user.InitV1(r)
 	})
 }

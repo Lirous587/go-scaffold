@@ -17,16 +17,16 @@ type PrometheusClient struct {
 func NewPrometheusClient() *PrometheusClient {
 	c := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "app_command_metrics",
-			Help: "Command metrics",
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests",
 		},
 		[]string{"action", "status"},
 	)
 	h := prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Name:    "app_command_duration_seconds",
-			Help:    "Command duration in seconds",
-			Buckets: prometheus.DefBuckets,
+			Name:    "http_request_duration_seconds",
+			Help:    "HTTP request duration in seconds",
+			Buckets: []float64{0.01, 0.05, 0.1, 0.2, 0.5, 1, 2, 5},
 		},
 		[]string{"action", "status"},
 	)

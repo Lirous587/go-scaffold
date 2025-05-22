@@ -94,5 +94,5 @@ func Error(ctx *gin.Context, err error) {
 		res.Message = "服务器错误"
 		ctx.Error(err)
 	}
-	ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+	ctx.JSON(http.StatusInternalServerError, res)
 }

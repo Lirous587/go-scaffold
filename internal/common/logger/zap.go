@@ -13,7 +13,6 @@ import (
 )
 
 type zapConfig struct {
-	mode       string
 	level      string
 	fileName   string
 	maxSize    int
@@ -24,7 +23,6 @@ type zapConfig struct {
 var config zapConfig
 
 func UpdateConfig() {
-	mode := os.Getenv("LOG_MODE")
 	level := os.Getenv("LOG_LEVEL")
 	fileName := os.Getenv("LOG_FILENAME")
 	maxSizeStr := os.Getenv("LOG_MAX_SIZE")
@@ -43,12 +41,11 @@ func UpdateConfig() {
 		panic(err)
 	}
 
-	if mode == "" || level == "" || fileName == "" || maxSize == 0 || maxAge == 0 || maxBackups == 0 {
+	if level == "" || fileName == "" || maxSize == 0 || maxAge == 0 || maxBackups == 0 {
 		panic(errors.New("zap配置文件加载失败"))
 	}
 
 	config = zapConfig{
-		mode:       mode,
 		level:      level,
 		fileName:   fileName,
 		maxSize:    maxSize,
@@ -73,24 +70,7 @@ func Init() (err error) {
 	}
 
 	var core zapcore.Core
-	if config.mode == "dev" {
-		// 创建一个自定义的开发模式编码器配置
-		devEncoderConfig := zap.NewDevelopmentEncoderConfig()
-		// 应用相同的自定义时间格式
-		devEncoderConfig.EncodeTime = customTimeEncoder
-		devEncoderConfig.TimeKey = "time"
-		devEncoderConfig.CallerKey = "caller"
-
-		// 使用自定义配置创建控制台编码器
-		consoleEncoder := zapcore.NewConsoleEncoder(devEncoderConfig)
-		//开发模式,日志输出到终端
-		core = zapcore.NewTee(
-			//往终端写
-			zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel),
-		)
-	} else {
-		core = zapcore.NewCore(encoder, writeSyncer, l)
-	}
+	core = zapcore.NewCore(encoder, writeSyncer, l)
 
 	lg := zap.New(core, zap.AddCaller())
 	// 替换zap包中全局的logger实例，后续在其他包中只需使用zap.L()调用即可
