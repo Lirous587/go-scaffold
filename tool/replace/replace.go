@@ -25,9 +25,9 @@ func main() {
 
 	newModule := os.Args[1]
 
-	replaceGoMod("go.mod", oldModule, newModule)
+	replaceGoMod("../../go.mod", oldModule, newModule)
 
-	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+	filepath.Walk("../../", func(path string, info os.FileInfo, err error) error {
 		if err != nil || !strings.HasSuffix(path, ".go") {
 			return nil
 		}

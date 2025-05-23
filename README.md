@@ -109,6 +109,7 @@ rm ./replace
 7. 安装依赖
 
 ```bash
+cd ..
 go mod tidy
 ```
 
