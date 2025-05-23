@@ -53,6 +53,7 @@ scaffold/
 ├── .gitignore
 ├── main.go                 # 主入口
 └── README.md
+└── sqlboiler.toml          # sqlboiler相关配置
 ```
 
 ## ⚡ 快速开始
