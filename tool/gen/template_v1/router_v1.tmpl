@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterV1(r *gin.RouterGroup, ctrl Controller) bool {
+func RegisterV1(r *gin.RouterGroup, ctrl *Controller) bool {
 	g := r.Group("/v1/{{.Domain}}")
 	{
         g.POST("/", ctrl.Create{{.DomainTitle}})

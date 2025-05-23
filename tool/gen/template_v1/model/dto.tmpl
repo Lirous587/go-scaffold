@@ -1,12 +1,15 @@
 ﻿package model
 
+import "github.com/volatiletech/null/v8"
+
+
 type {{.DomainTitle}}DTO struct {
-	ID          int   `json:"id"`
-	Name        string `json:"name"`
-	Unique      string `json:"unique"`
-	Description string `json:"introduction,omitempty"`
-	Status      int    `json:"status"`
-	Remark      string `json:"remark,omitempty"`
+	ID          int   			`json:"id"`
+	Name        string 			`json:"name"`
+	Unique      string 			`json:"unique"`
+	Description null.String 	`json:"introduction,omitempty"`
+	Status      int    			`json:"status"`
+	Remark      null.String 	`json:"remark,omitempty"`
 }
 
 func ({{.Domain}} *{{.DomainTitle}}) ConvertToDTO() *{{.DomainTitle}}DTO {
@@ -14,11 +17,11 @@ func ({{.Domain}} *{{.DomainTitle}}) ConvertToDTO() *{{.DomainTitle}}DTO {
 		return nil
 	}
 	return &{{.DomainTitle}}DTO{
-		ID:           	{{.Domain}}.ID,
-		Name:         	{{.Domain}}.Name,
-		Unique: 		{{.Domain}}.Unique,
-		Description:	{{.Domain}}.Description,
-		Status:			{{.Domain}}.Status,
-		Remark:			{{.Domain}}.Remark,
+		ID:           		{{.Domain}}.ID,
+		// Name:         	{{.Domain}}.Name,
+		// Unique: 			{{.Domain}}.Unique,
+		// Description:		{{.Domain}}.Description,
+		// Status:			{{.Domain}}.Status,
+		// Remark:			{{.Domain}}.Remark,
 	}
 }

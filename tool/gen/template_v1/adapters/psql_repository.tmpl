@@ -41,9 +41,9 @@ func (P *PSQLRepository) Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}
 	entity := &orm.{{.DomainTitle}}{
 		// Name:        req.Name,
 		// Unique:      req.Unique,
-		// Description: null.StringFrom(req.Description),
+		// Description: req.Description,
 		// Status:      req.Status,
-		// Remark:     null.StringFrom(req.Remark)
+		// Remark:     	req.Remark
 	}
 
 	if err := entity.Insert(ctx, P.db, boil.Infer()); err != nil {
@@ -54,13 +54,13 @@ func (P *PSQLRepository) Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}
 		// ID:          entity.ID,
 		// Name:        entity.Name,
 		// Unique:      entity.Unique,
-		// Description: entity.Description.String
+		// Description: entity.Description
 		// Status:      entity.Status,
-		// Remark:      entity.Remark.String,
+		// Remark:      entity.Remark,
 		}, nil
 }
 
-func (P *PSQLRepository) Delete{{.DomainTitle}}(id uint) error {
+func (P *PSQLRepository) Delete{{.DomainTitle}}(id int) error {
 	ctx := context.Background()
 	entity, err := orm.{{.DomainTitle}}s(orm.{{.DomainTitle}}Where.ID.EQ(int(id))).One(ctx, P.db)
 	if err != nil {
@@ -71,7 +71,7 @@ func (P *PSQLRepository) Delete{{.DomainTitle}}(id uint) error {
 	return err
 }
 
-func (P *PSQLRepository) Update{{.DomainTitle}}(id uint, req *model.Update{{.DomainTitle}}Req) error  {
+func (P *PSQLRepository) Update{{.DomainTitle}}(id int, req *model.Update{{.DomainTitle}}Req) error  {
 	ctx := context.Background()
 	entity, err := orm.{{.DomainTitle}}s(orm.{{.DomainTitle}}Where.ID.EQ(int(id))).One(ctx, P.db)
 	if err != nil {
@@ -80,9 +80,9 @@ func (P *PSQLRepository) Update{{.DomainTitle}}(id uint, req *model.Update{{.Dom
 
 	// entity.Name = req.Name
 	// entity.Unique = req.Unique
-	// entity.Description = null.StringFrom(req.Description)
+	// entity.Description = req.Description
 	// entity.Status = req.Status
-	// entity.Remark = null.StringFrom(req.Remark)
+	// entity.Remark = req.Remark
 
 	_, err = entity.Update(ctx, P.db, boil.Infer())
 	return err

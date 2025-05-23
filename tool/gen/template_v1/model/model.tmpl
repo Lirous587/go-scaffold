@@ -1,26 +1,29 @@
 package model
 
+import "github.com/volatiletech/null/v8"
+
+
 type {{.DomainTitle}} struct {
 	ID 			int
 	Name        string
 	Unique      string
-	Description string
+	Description null.String
 	Status      int
-	Remark      string
+	Remark      null.String
 }
 
 type Create{{.DomainTitle}}Req struct {
-	Name        string `json:"name" binding:"required,max=64"`
-	Unique      string `json:"unique" binding:"required"`
-	Description string `json:"introduction,omitempty" binding:"max=255"`
-	Status      int    `json:"status" binding:"oneof=0 1"`
-	Remark      string `json:"remark,omitempty" binding:"max=255"`
+	Name        string 			`json:"name" binding:"required,max=64"`
+	Unique      string 			`json:"unique" binding:"required"`
+	Description null.String 	`json:"introduction,omitempty" binding:"max=255"`
+	Status      int    			`json:"status" binding:"oneof=0 1"`
+	Remark      null.String 	`json:"remark,omitempty" binding:"max=255"`
 }
 
 type Update{{.DomainTitle}}Req struct {
-	Name        string `json:"name" binding:"required,max=64"`
-	Unique      string `json:"unique" binding:"required"`
-	Description string `json:"introduction,omitempty" binding:"max=255"`
-	Status      int    `json:"status" binding:"oneof=0 1"`
-	Remark      string `json:"remark,omitempty" binding:"max=255"`
+	Name        string 			`json:"name" binding:"required,max=64"`
+	Unique      string 			`json:"unique" binding:"required"`
+	Description null.String 	`json:"introduction,omitempty" binding:"max=255"`
+	Status      int   			`json:"status" binding:"oneof=0 1"`
+	Remark      null.String 	`json:"remark,omitempty" binding:"max=255"`
 }
