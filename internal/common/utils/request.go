@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func GetID(ctx *gin.Context) (uint, error) {
+func GetID(ctx *gin.Context) (int, error) {
 	idStr := ctx.Param("id")
 	idInt, err := strconv.Atoi(idStr)
 	if err != nil {

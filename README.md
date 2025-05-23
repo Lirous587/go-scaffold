@@ -4,7 +4,7 @@
 
 [![Go Version](https://img.shields.io/badge/Go-v1.18+-blue.svg)](https://golang.org/doc/devel/release.html)
 [![Gin](https://img.shields.io/badge/Gin-v1.9.0+-green.svg)](https://github.com/gin-gonic/gin)
-[![GORM](https://img.shields.io/badge/GORM-v1.25.0+-lightblue.svg)](https://gorm.io/)
+[![SQLBoiler](https://img.shields.io/badge/SQLBoiler-v4.14.0+-orange.svg)](https://github.com/volatiletech/sqlboiler)
 
 ## 🚀 特性
 
@@ -20,9 +20,8 @@
 ## 🔧 技术栈
 
 - [Gin](https://github.com/gin-gonic/gin) - 高性能 HTTP Web 框架
-- [GORM](https://gorm.io/) - 优秀的 ORM 库，支持 MySQL、PostgreSQL 等
+- [SQLBoiler](https://github.com/volatiletech/sqlboiler) - 优秀的 ORM 库，基于代码生成
 - [Redis](https://github.com/redis/go-redis) - Redis 客户端
-- [Viper](https://github.com/spf13/viper) - 完整的配置解决方案
 - [Zap](https://github.com/uber-go/zap) - 高性能、结构化日志
 - [Wire](https://github.com/google/wire) - Wire 依赖注入
 - [JWT](https://github.com/golang-jwt/jwt) - JWT 鉴权管理
@@ -32,32 +31,27 @@
 
 ```
 scaffold/
-├── internal/         # 实际业务逻辑
-│   └── cmd           
-│   └── domain        # 领域模型  
-│   └── middleware    # 中间件 
-├── logs/             # 日志文件
-├── manifest/         # 配置目录
-│   └── config/
-│       └── config.yaml 
-│   └── docker/
-│       └── Dockerfile
-├── pkg/              # 依赖项
-│   ├── config/       # 配置结构化管理
-│   ├── email/        # email相关
-│   ├── httpserver/   # gin引擎初始化
-│   ├── jwt/          # jwt相关
-│   ├── logger/       # 日志配置
-│   ├── repository/   # 数据存储层
-│   │   ├── gorm.go   # 数据库单例
-│   │   └── redis.go  # Redis单例
-│   ├── response/     # 响应管理
-│   ├── validator/    # validator管理
-├── resource/         # 静态资源
-├── utility/          # 工具函数
-├── .air.conf         # air配置
+├── api/
+├── docker/
+├── internal/
+│   ├── common
+│   │    ├── email/         # email相关
+│   │    ├── jwt/           # jwt相关
+│   │    ├── logger/        # 日志配置
+│   │    ├── metrics/       # 指数收集
+│   │    ├── middleware/    # 中间件
+│   │    ├── orm/           # SQLBoiler生成的代码
+│   │    ├── server/        # 服务配置
+│   │    ├── utils/         # utils工具函数
+│   │    └── validator/     # validator管理
+│   └── user                # 用户模块
+│   └── ...                 # 其余模块
+├── logs/                   # 日志文件
+├── tool/                   # 工具脚本
+├── .air.conf               # air配置
+├── .env                    # 环境变量
 ├── .gitignore
-├── main.go           # 主入口
+├── main.go                 # 主入口
 └── README.md
 ```
 
@@ -97,19 +91,19 @@ robocopy go-scaffold . /E /XD .git
 Remove-Item go-scaffold -Recurse -Force
 ```
 
-5. 编写并运行ast脚本
+5. 编写并运行replace脚本
 
 ```bash
-go build ./ast.go 
-# 填写实际的项目名称
-./ast.exe demo
+cd ./tool/replace
+go build
+./replace.exe demo # 填写想要的实际module名
 ```
 
-6. 删除ast
+6. 删除replace
 
 ```bash
-rm ./ast.go
-rm ./ast.exe
+cd ..
+rm ./replace
 ```
 
 7. 安装依赖
@@ -119,7 +113,7 @@ go mod tidy
 ```
 
 8. 修改配置
-将 `manifest/config/config_copy.yaml` 重命名为 `config.yaml`，配置 `manifest/config/config.yaml` 文件
+将 `.copy.env` 重命名为 `.env`，配置 `.env`
 
 9. 运行服务
 
@@ -128,116 +122,7 @@ go run main.go
 # 或者运行 air
 ```
 
-## ⚙️ 配置项
-
-配置文件路径：`manifest/config/config.yaml`
-
-```yaml
-server:
-  - port: 8080
-    mode: "dev"
-
-log:
-  mode: "dev"
-  level: "info"
-  filename: "logs/scaffold.log"
-  max_size: 1
-  max_age: 30
-  max_backups: 7
-
-db:
-  driver: "mysql"  # 增加驱动类型字段，方便将来切换数据库
-  host: "127.0.0.1"
-  username: "root"
-  password: "123"
-  port: "3306"
-  dbname: "test"
-  max_open_con: 100
-  max_idle_con: 50
-  # 可以增加GORM特有配置
-  log_level: "info"
-  slow_threshold: 200  # 慢SQL阈值(ms)
-
-redis:
-  host: "127.0.0.1"
-  port: "6379"
-  db: 0
-  #  password:
-  pool_size: 200
-
-jwt:
-  issuer: "lirous"
-  secret: "https://lirous.com"
-  expire_minute: 120
-
-email:
-  host: "smtp.qq.com" //可以换成对应的平台
-  port: 465
-  username: "xxxx@xx.xx"
-  password: "xxxxxx"
-  from: "xxxx@xx.xx"
-  fromName: "xxx"
-  cc: "xxxxx.com"
-```
-
-## 🔌 主要组件
-
-### httpserver - Web 引擎
-
-基于 Gin 封装，支持优雅重启和关闭:
-
-```go
-// 初始化路由
-s := httpserver.New(8080)
-
-// 启动服务
-s.Run()
-
-// 支持多个端口启动 类似与gin官网的做法
-{
-    s1 := httpserver.New(8080)
-    s2 := httpserver.New(8081)
-    
-    // 启动服务
-    go s1.Run()
-    s2.Run()
-}
-```
-
-### Logger - 日志系统
-
-基于 Zap，支持分级、轮转和多输出:
-
-```go
-// 记录信息
-zap.L().Info("操作成功",
-    zap.String("user", "admin"),
-    zap.Int("items", 10))
-
-// 记录错误
-zap.L().Error("数据库错误",
-    zap.Error(err),
-    zap.String("query", "SELECT * FROM users"))
-```
-
-### 数据库 - GORM
-
-支持 MySQL 和 PostgreSQL，自动迁移:
-
-### Redis - 缓存
-
-简化的 Redis 操作:
-
-```go
-// 设置缓存
-err := redis.Client().Set(ctx, "key", "value", time.Minute).Err()
-
-// 获取缓存
-val, err := redis.Client().Get(ctx, "key").Result()
-```
-
 ## 📝 最佳实践
-
 1. **配置验证** - 启动时自动验证必要配置项
 2. **错误处理** - 使用 `github.com/pkg/errors` 提供完整错误栈
 3. **优雅关机** - 处理 SIGTERM 等信号，平滑关闭服务
@@ -261,9 +146,8 @@ val, err := redis.Client().Get(ctx, "key").Result()
 > 以下排名不分先后
 
 - [Gin](https://github.com/gin-gonic/gin)
-- [GORM](https://gorm.io/)
+- [SQLBoiler](https://github.com/volatiletech/sqlboiler)
 - [Redis](https://github.com/redis/go-redis)
-- [Viper](https://github.com/spf13/viper)
 - [Zap](https://github.com/uber-go/zap)
 - [Wire](https://github.com/google/wire)
 - [JWT](https://github.com/golang-jwt/jwt)

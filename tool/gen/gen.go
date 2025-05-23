@@ -1,4 +1,4 @@
-﻿package main
+package main
 
 import (
 	"bufio"
@@ -15,13 +15,13 @@ import (
 
 func main() {
 	var (
-		domain  = flag.String("d", "", "domain 名称")
-		version = flag.String("v", "1", "version 名称（可选，默认1）")
+		model   = flag.String("m", "", "模块名称")
+		version = flag.String("v", "1", "版本号（可选，默认1）")
 		help    = flag.Bool("h", false, "显示帮助")
 	)
 
 	flag.Usage = func() {
-		fmt.Println("用法: ./gen -d <domain> [-v <version>]")
+		fmt.Println("用法: ./gen -d <model> [-v <version>]")
 		flag.PrintDefaults()
 	}
 
@@ -32,12 +32,12 @@ func main() {
 		return
 	}
 
-	if *domain == "" {
+	if *model == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	domainLower := strings.ToLower(*domain)
+	domainLower := strings.ToLower(*model)
 	domainTitle := cases.Title(language.Und).String(domainLower)
 
 	module := ""
@@ -62,7 +62,7 @@ func main() {
 	}
 
 	tempDir := filepath.Join("template_v" + *version)
-	outBase := filepath.Join("..", "internal", domainLower)
+	outBase := filepath.Join("../..", "internal", domainLower)
 
 	// 脚本是否创建了目录
 
@@ -146,13 +146,4 @@ func getModuleName(goModPath string) (string, error) {
 		}
 	}
 	return "", os.ErrNotExist
-}
-
-func replaceGoMod(goModPath, oldModule, newModule string) {
-	data, err := os.ReadFile(goModPath)
-	if err != nil {
-		return
-	}
-	content := strings.Replace(string(data), oldModule, newModule, 1)
-	_ = os.WriteFile(goModPath, []byte(content), 0644)
 }
