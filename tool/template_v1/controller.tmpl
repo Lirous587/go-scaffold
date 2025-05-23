@@ -2,39 +2,40 @@ package {{.Domain}}
 
 import (
 	"github.com/gin-gonic/gin"
-	"{{.Module}}/internal/domain/{{.Domain}}/model"
-	"{{.Module}}/pkg/response"
-	"{{.Module}}/utils"
+	"{{.Module}}/internal/{{.Domain}}/model"
+	"{{.Module}}/internal/common/server/response"
+	"{{.Module}}/internal/common/utils"
 )
-
 
 
 type Controller struct {
 	server Service
 }
 
-func NewController(svc Service) Controller {
-	ctrl := &controller{
+func NewController(svc Service) *Controller {
+	return &Controller{
 		server: svc,
 	}
-	return ctrl
 }
 
-func (c *controller) Create{{.DomainTitle}}(ctx *gin.Context) {
+func (c *Controller) Create{{.DomainTitle}}(ctx *gin.Context) {
 	req := new(model.Create{{.DomainTitle}}Req)
+
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		response.ErrorParameterInvalid(ctx, err)
 		return
 	}
-	if err := c.server.Create{{.DomainTitle}}(req); err != nil {
+
+	{{.Domain}},err := c.server.Create{{.DomainTitle}}(req)
+	if err != nil {
 		response.Error(ctx, err)
 		return
 	}
 
-	response.Success(ctx)
+	response.Success(ctx,{{.Domain}})
 }
 
-func (c *controller) Delete{{.DomainTitle}}(ctx *gin.Context) {
+func (c *Controller) Delete{{.DomainTitle}}(ctx *gin.Context) {
 	id, err := utils.GetID(ctx)
 	if err != nil {
 		response.ErrorParameterInvalid(ctx, err)
@@ -48,7 +49,7 @@ func (c *controller) Delete{{.DomainTitle}}(ctx *gin.Context) {
 	response.Success(ctx)
 }
 
-func (c *controller) Update{{.DomainTitle}}(ctx *gin.Context) {
+func (c *Controller) Update{{.DomainTitle}}(ctx *gin.Context) {
 	id, err := utils.GetID(ctx)
 	if err != nil {
 		response.ErrorParameterInvalid(ctx, err)
@@ -61,6 +62,7 @@ func (c *controller) Update{{.DomainTitle}}(ctx *gin.Context) {
 		response.ErrorParameterInvalid(ctx, err)
 		return
 	}
+
 	if err := c.server.Update{{.DomainTitle}}(id, req); err != nil {
 		response.Error(ctx, err)
 		return

@@ -1,0 +1,89 @@
+﻿package adapters
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"github.com/volatiletech/sqlboiler/v4/boil"
+	"os"
+	"scaffold/internal/common/orm"
+	"scaffold/internal/{{.Domain}}/model"
+)
+
+type PSQLRepository struct {
+	db *sql.DB
+}
+
+func NewPSQLRepository() *PSQLRepository {
+	host := os.Getenv("PSQL_HOST")
+	port := os.Getenv("PSQL_PORT")
+	user := os.Getenv("PSQL_USERNAME")
+	password := os.Getenv("PSQL_PASSWORD")
+	dbname := os.Getenv("PSQL_DB_NAME")
+	sslmode := os.Getenv("PSQL_SSL_MODE")
+
+	dsn := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		host, port, user, password, dbname, sslmode,
+	)
+
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		panic(err)
+	}
+	return &PSQLRepository{
+		db: db,
+	}
+}
+
+func (P PSQLRepository) Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}Req) (*model.{{.DomainTitle}},error)  {
+	ctx := context.Background()
+	entity := &orm.{{.DomainTitle}}{
+		// Name:        {{.Domain}}.Name,
+		// Unique:      {{.Domain}}.Unique,
+		// Description: {{.Domain}}.Description,
+		// Status:      {{.Domain}}.Status,
+		// Remark:      {{.Domain}}.Remark,
+	}
+
+	if err := entity.Insert(ctx, P.db, boil.Infer()); err != nil {
+		return nil, err
+	}
+
+	return &model.{{.DomainTitle}}{
+		// ID:          entity.ID,
+		// Name:        entity.Name,
+		// Unique:      entity.Unique,
+		// Description: entity.Description,
+		// Status:      entity.Status,
+		// Remark:      entity.Remark,
+		}, nil
+}
+
+func (P *PSQLRepository) Delete{{.DomainTitle}}(id uint) error {
+	ctx := context.Background()
+	entity, err := orm.{{.DomainTitle}}s(orm.{{.DomainTitle}}Where.ID.EQ(int(id))).One(ctx, P.db)
+	if err != nil {
+		return err
+	}
+
+	_, err = entity.Delete(ctx, P.db)
+	return err
+}
+
+func (P PSQLRepository) Update{{.DomainTitle}}(id uint, req *model.Update{{.DomainTitle}}Req) error  {
+	ctx := context.Background()
+	entity, err := orm.{{.DomainTitle}}s(orm.{{.DomainTitle}}Where.ID.EQ(int(id))).One(ctx, P.db)
+	if err != nil {
+		return err
+	}
+
+	// entity.Name = req.Name
+	// entity.Unique = req.Unique
+	// entity.Description = req.Description
+	// entity.Status = req.Status
+	// entity.Remark = req.Remark
+
+	_, err = entity.Update(ctx, P.db, boil.Infer())
+	return err
+}

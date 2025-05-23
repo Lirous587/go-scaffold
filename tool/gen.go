@@ -62,7 +62,7 @@ func main() {
 	}
 
 	tempDir := filepath.Join("template_v" + *version)
-	outBase := filepath.Join("..", "internal", "domain", domainLower)
+	outBase := filepath.Join("..", "internal", domainLower)
 
 	// 脚本是否创建了目录
 

@@ -4,12 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterV1(r *gin.RouterGroup, ctrl IController) error {
+func RegisterV1(r *gin.RouterGroup, ctrl Controller) bool {
 	g := r.Group("/v1/{{.Domain}}")
 	{
-        g.POST("/:id", ctrl.Create{{.DomainTitle}})
+        g.POST("/", ctrl.Create{{.DomainTitle}})
         g.DELETE("/:id", ctrl.Delete{{.DomainTitle}})
-		g.PUT("/auth", ctrl.Update{{.DomainTitle}})
+		g.PUT("/:id", ctrl.Update{{.DomainTitle}})
 	}
-	return nil
+	return true
 }

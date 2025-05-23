@@ -1,46 +1,44 @@
 package {{.Domain}}
 
 import (
-	"{{.Module}}/internal/domain/{{.Domain}}/infrastructure"
-	"{{.Module}}/internal/domain/{{.Domain}}/model"
-	"{{.Module}}/pkg/response"
+	"github.com/pkg/errors"
+	"{{.Module}}/internal/{{.Domain}}/infrastructure"
+	"{{.Module}}/internal/{{.Domain}}/model"
 )
 
-type IService interface {
-	Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}Req) *response.AppError
-	Delete{{.DomainTitle}}(id uint) *response.AppError
-	Update{{.DomainTitle}}(id uint, req *model.Update{{.DomainTitle}}Req) *response.AppError
+type Service interface {
+	Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}Req) (*model.{{.DomainTitle}},error)
+	Delete{{.DomainTitle}}(id int) error
+	Update{{.DomainTitle}}(id int, req *model.Update{{.DomainTitle}}Req) error
 }
 
 type service struct {
-	db    infrastructure.IDB
-	cache infrastructure.ICache
+	repo    infrastructure.{{.DomainTitle}}Repository
+	cache 	infrastructure.{{.DomainTitle}}Cache
 }
 
-func NewService(db infrastructure.IDB, cache infrastructure.ICache) IService {
-	return &service{db: db, cache: cache}
+func NewService(repo infrastructure.{{.DomainTitle}}Repository, cache infrastructure.{{.DomainTitle}}Cache) Service {
+	return &service{repo: repo, cache: cache}
 }
 
-func (s *service) Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}Req) *response.AppError {
-    {{.Domain}} := model.{{.DomainTitle}}{
-
+func (s *service) Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}Req) (*model.{{.DomainTitle}},error)  {
+	{{.Domain}},err := s.repo.Create{{.DomainTitle}}(req)
+	if err != nil {
+		return nil,errors.WithStack(err)
 	}
-	if err := s.db.Create{{.DomainTitle}}(&{{.Domain}}); err != nil {
-		return response.NewAppError(response.CodeServerError, err)
-	}
-	return nil
+	return {{.Domain}},nil
 }
 
-func (s *service) Delete{{.DomainTitle}}(id uint) *response.AppError {
-	if err := s.db.Delete{{.DomainTitle}}(id); err != nil {
-		return response.NewAppError(response.CodeServerError, err)
+func (s *service) Delete{{.DomainTitle}}(id int) error {
+	if err := s.repo.Delete{{.DomainTitle}}(id); err != nil {
+		return errors.WithStack(err)
 	}
 	return nil
 }
 
-func (s *service) Update{{.DomainTitle}}(id uint, req *model.Update{{.DomainTitle}}Req) *response.AppError {
-	if err := s.db.Update{{.DomainTitle}}(id, req); err != nil {
-		return response.NewAppError(response.CodeServerError, err)
+func (s *service) Update{{.DomainTitle}}(id int, req *model.Update{{.DomainTitle}}Req) error {
+	if err := s.repo.Update{{.DomainTitle}}(id, req); err != nil {
+		return errors.WithStack(err)
 	}
 	return nil
 }
