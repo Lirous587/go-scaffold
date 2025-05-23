@@ -36,14 +36,14 @@ func NewPSQLRepository() *PSQLRepository {
 	}
 }
 
-func (P PSQLRepository) Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}Req) (*model.{{.DomainTitle}},error)  {
+func (P *PSQLRepository) Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}Req) (*model.{{.DomainTitle}},error)  {
 	ctx := context.Background()
 	entity := &orm.{{.DomainTitle}}{
-		// Name:        {{.Domain}}.Name,
-		// Unique:      {{.Domain}}.Unique,
-		// Description: {{.Domain}}.Description,
-		// Status:      {{.Domain}}.Status,
-		// Remark:      {{.Domain}}.Remark,
+		// Name:        req.Name,
+		// Unique:      req.Unique,
+		// Description: null.StringFrom(req.Description),
+		// Status:      req.Status,
+		// Remark:     null.StringFrom(req.Remark)
 	}
 
 	if err := entity.Insert(ctx, P.db, boil.Infer()); err != nil {
@@ -54,9 +54,9 @@ func (P PSQLRepository) Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}
 		// ID:          entity.ID,
 		// Name:        entity.Name,
 		// Unique:      entity.Unique,
-		// Description: entity.Description,
+		// Description: entity.Description.String
 		// Status:      entity.Status,
-		// Remark:      entity.Remark,
+		// Remark:      entity.Remark.String,
 		}, nil
 }
 
@@ -71,7 +71,7 @@ func (P *PSQLRepository) Delete{{.DomainTitle}}(id uint) error {
 	return err
 }
 
-func (P PSQLRepository) Update{{.DomainTitle}}(id uint, req *model.Update{{.DomainTitle}}Req) error  {
+func (P *PSQLRepository) Update{{.DomainTitle}}(id uint, req *model.Update{{.DomainTitle}}Req) error  {
 	ctx := context.Background()
 	entity, err := orm.{{.DomainTitle}}s(orm.{{.DomainTitle}}Where.ID.EQ(int(id))).One(ctx, P.db)
 	if err != nil {
@@ -80,10 +80,11 @@ func (P PSQLRepository) Update{{.DomainTitle}}(id uint, req *model.Update{{.Doma
 
 	// entity.Name = req.Name
 	// entity.Unique = req.Unique
-	// entity.Description = req.Description
+	// entity.Description = null.StringFrom(req.Description)
 	// entity.Status = req.Status
-	// entity.Remark = req.Remark
+	// entity.Remark = null.StringFrom(req.Remark)
 
 	_, err = entity.Update(ctx, P.db, boil.Infer())
 	return err
 }
+
