@@ -21,7 +21,7 @@ func main() {
 	)
 
 	flag.Usage = func() {
-		fmt.Println("用法: ./gen -d <model> [-v <version>]")
+		fmt.Println("用法: ./gen -m <model> [-v <version>]")
 		flag.PrintDefaults()
 	}
 
