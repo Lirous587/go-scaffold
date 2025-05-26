@@ -4,21 +4,19 @@
 package orm
 
 var TableNames = struct {
-	Buttons           string
-	Menus             string
-	Permisisions      string
-	Roles             string
-	RolesButtons      string
-	RolesMenus        string
-	RolesPermisssions string
-	Users             string
+	OrganizationMembers string
+	Organizations       string
+	Plans               string
+	ProjectMembers      string
+	Projects            string
+	UsageStats          string
+	Users               string
 }{
-	Buttons:           "buttons",
-	Menus:             "menus",
-	Permisisions:      "permisisions",
-	Roles:             "roles",
-	RolesButtons:      "roles_buttons",
-	RolesMenus:        "roles_menus",
-	RolesPermisssions: "roles_permisssions",
-	Users:             "users",
+	OrganizationMembers: "organization_members",
+	Organizations:       "organizations",
+	Plans:               "plans",
+	ProjectMembers:      "project_members",
+	Projects:            "projects",
+	UsageStats:          "usage_stats",
+	Users:               "users",
 }

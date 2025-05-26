@@ -4,4 +4,9 @@
 package orm
 
 var ViewNames = struct {
-}{}
+	CitusSchemas string
+	CitusTables  string
+}{
+	CitusSchemas: "citus_schemas",
+	CitusTables:  "citus_tables",
+}

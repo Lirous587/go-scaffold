@@ -12,12 +12,19 @@
       - "15432:5432"
     volumes:
       - coordinator-data:/var/lib/postgresql/data
+      - ./config/citus-init.sql:/docker-entrypoint-initdb.d/01-init.sql
     networks:
-      - citus-network
+      citus-network:
+        ipv4_address: 172.20.0.10
     command: >
       postgres
       -c shared_preload_libraries=citus
       -c max_connections=200
+
+    depends_on:
+      - citus-worker1
+      - citus-worker2
+      - citus-worker3
 
   # Citus Worker节点1
   citus-worker1:
@@ -33,7 +40,8 @@
     volumes:
       - worker1-data:/var/lib/postgresql/data
     networks:
-      - citus-network
+      citus-network:
+        ipv4_address: 172.20.0.11
     command: >
       postgres
       -c shared_preload_libraries=citus
@@ -52,7 +60,8 @@
     volumes:
       - worker2-data:/var/lib/postgresql/data
     networks:
-      - citus-network
+      citus-network:
+        ipv4_address: 172.20.0.12
     command: >
       postgres
       -c shared_preload_libraries=citus
@@ -71,13 +80,11 @@
     volumes:
       - worker3-data:/var/lib/postgresql/data
     networks:
-      - citus-network
+      citus-network:
+        ipv4_address: 172.20.0.13
     command: >
       postgres
       -c shared_preload_libraries=citus
-
-
-
 
   # Redis 服务
   redis:
@@ -96,7 +103,7 @@
       --maxmemory-policy allkeys-lru
     volumes:
       - redis-data:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - citus-network
     restart: unless-stopped
@@ -105,7 +112,6 @@
       interval: 30s
       timeout: 10s
       retries: 3
-
 
 volumes:
   coordinator-data:
@@ -120,3 +126,4 @@ networks:
     ipam:
       config:
         - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

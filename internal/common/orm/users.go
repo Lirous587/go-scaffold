@@ -24,138 +24,153 @@ import (
 
 // User is an object representing the database table.
 type User struct {
-	ID        int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
-	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	Name      string    `boil:"name" json:"name" toml:"name" yaml:"name"`
-	Email     string    `boil:"email" json:"email" toml:"email" yaml:"email"`
-	RoleID    null.Int  `boil:"role_id" json:"role_id,omitempty" toml:"role_id" yaml:"role_id,omitempty"`
-	GithubID  int64     `boil:"github_id" json:"github_id" toml:"github_id" yaml:"github_id"`
+	UserID        string      `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
+	Email         string      `boil:"email" json:"email" toml:"email" yaml:"email"`
+	PasswordHash  null.String `boil:"password_hash" json:"password_hash,omitempty" toml:"password_hash" yaml:"password_hash,omitempty"`
+	Name          string      `boil:"name" json:"name" toml:"name" yaml:"name"`
+	Username      null.String `boil:"username" json:"username,omitempty" toml:"username" yaml:"username,omitempty"`
+	AvatarURL     null.String `boil:"avatar_url" json:"avatar_url,omitempty" toml:"avatar_url" yaml:"avatar_url,omitempty"`
+	EmailVerified null.Bool   `boil:"email_verified" json:"email_verified,omitempty" toml:"email_verified" yaml:"email_verified,omitempty"`
+	GithubID      null.String `boil:"github_id" json:"github_id,omitempty" toml:"github_id" yaml:"github_id,omitempty"`
+	GoogleID      null.String `boil:"google_id" json:"google_id,omitempty" toml:"google_id" yaml:"google_id,omitempty"`
+	GitlabID      null.String `boil:"gitlab_id" json:"gitlab_id,omitempty" toml:"gitlab_id" yaml:"gitlab_id,omitempty"`
+	CreatedAt     null.Time   `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
+	UpdatedAt     null.Time   `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
+	LastLoginAt   null.Time   `boil:"last_login_at" json:"last_login_at,omitempty" toml:"last_login_at" yaml:"last_login_at,omitempty"`
+	Status        null.String `boil:"status" json:"status,omitempty" toml:"status" yaml:"status,omitempty"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var UserColumns = struct {
-	ID        string
-	CreatedAt string
-	Name      string
-	Email     string
-	RoleID    string
-	GithubID  string
+	UserID        string
+	Email         string
+	PasswordHash  string
+	Name          string
+	Username      string
+	AvatarURL     string
+	EmailVerified string
+	GithubID      string
+	GoogleID      string
+	GitlabID      string
+	CreatedAt     string
+	UpdatedAt     string
+	LastLoginAt   string
+	Status        string
 }{
-	ID:        "id",
-	CreatedAt: "created_at",
-	Name:      "name",
-	Email:     "email",
-	RoleID:    "role_id",
-	GithubID:  "github_id",
+	UserID:        "user_id",
+	Email:         "email",
+	PasswordHash:  "password_hash",
+	Name:          "name",
+	Username:      "username",
+	AvatarURL:     "avatar_url",
+	EmailVerified: "email_verified",
+	GithubID:      "github_id",
+	GoogleID:      "google_id",
+	GitlabID:      "gitlab_id",
+	CreatedAt:     "created_at",
+	UpdatedAt:     "updated_at",
+	LastLoginAt:   "last_login_at",
+	Status:        "status",
 }
 
 var UserTableColumns = struct {
-	ID        string
-	CreatedAt string
-	Name      string
-	Email     string
-	RoleID    string
-	GithubID  string
+	UserID        string
+	Email         string
+	PasswordHash  string
+	Name          string
+	Username      string
+	AvatarURL     string
+	EmailVerified string
+	GithubID      string
+	GoogleID      string
+	GitlabID      string
+	CreatedAt     string
+	UpdatedAt     string
+	LastLoginAt   string
+	Status        string
 }{
-	ID:        "users.id",
-	CreatedAt: "users.created_at",
-	Name:      "users.name",
-	Email:     "users.email",
-	RoleID:    "users.role_id",
-	GithubID:  "users.github_id",
+	UserID:        "users.user_id",
+	Email:         "users.email",
+	PasswordHash:  "users.password_hash",
+	Name:          "users.name",
+	Username:      "users.username",
+	AvatarURL:     "users.avatar_url",
+	EmailVerified: "users.email_verified",
+	GithubID:      "users.github_id",
+	GoogleID:      "users.google_id",
+	GitlabID:      "users.gitlab_id",
+	CreatedAt:     "users.created_at",
+	UpdatedAt:     "users.updated_at",
+	LastLoginAt:   "users.last_login_at",
+	Status:        "users.status",
 }
 
 // Generated where
 
-type whereHelperint64 struct{ field string }
+type whereHelpernull_Bool struct{ field string }
 
-func (w whereHelperint64) EQ(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperint64) NEQ(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperint64) LT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperint64) LTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperint64) GT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperint64) GTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperint64) IN(slice []int64) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperint64) NIN(slice []int64) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-type whereHelpernull_Int struct{ field string }
-
-func (w whereHelpernull_Int) EQ(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Bool) EQ(x null.Bool) qm.QueryMod {
 	return qmhelper.WhereNullEQ(w.field, false, x)
 }
-func (w whereHelpernull_Int) NEQ(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Bool) NEQ(x null.Bool) qm.QueryMod {
 	return qmhelper.WhereNullEQ(w.field, true, x)
 }
-func (w whereHelpernull_Int) LT(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Bool) LT(x null.Bool) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LT, x)
 }
-func (w whereHelpernull_Int) LTE(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Bool) LTE(x null.Bool) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LTE, x)
 }
-func (w whereHelpernull_Int) GT(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Bool) GT(x null.Bool) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GT, x)
 }
-func (w whereHelpernull_Int) GTE(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Bool) GTE(x null.Bool) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
-func (w whereHelpernull_Int) IN(slice []int) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelpernull_Int) NIN(slice []int) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
 
-func (w whereHelpernull_Int) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Int) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+func (w whereHelpernull_Bool) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Bool) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
 var UserWhere = struct {
-	ID        whereHelperint64
-	CreatedAt whereHelpertime_Time
-	Name      whereHelperstring
-	Email     whereHelperstring
-	RoleID    whereHelpernull_Int
-	GithubID  whereHelperint64
+	UserID        whereHelperstring
+	Email         whereHelperstring
+	PasswordHash  whereHelpernull_String
+	Name          whereHelperstring
+	Username      whereHelpernull_String
+	AvatarURL     whereHelpernull_String
+	EmailVerified whereHelpernull_Bool
+	GithubID      whereHelpernull_String
+	GoogleID      whereHelpernull_String
+	GitlabID      whereHelpernull_String
+	CreatedAt     whereHelpernull_Time
+	UpdatedAt     whereHelpernull_Time
+	LastLoginAt   whereHelpernull_Time
+	Status        whereHelpernull_String
 }{
-	ID:        whereHelperint64{field: "\"users\".\"id\""},
-	CreatedAt: whereHelpertime_Time{field: "\"users\".\"created_at\""},
-	Name:      whereHelperstring{field: "\"users\".\"name\""},
-	Email:     whereHelperstring{field: "\"users\".\"email\""},
-	RoleID:    whereHelpernull_Int{field: "\"users\".\"role_id\""},
-	GithubID:  whereHelperint64{field: "\"users\".\"github_id\""},
+	UserID:        whereHelperstring{field: "\"users\".\"user_id\""},
+	Email:         whereHelperstring{field: "\"users\".\"email\""},
+	PasswordHash:  whereHelpernull_String{field: "\"users\".\"password_hash\""},
+	Name:          whereHelperstring{field: "\"users\".\"name\""},
+	Username:      whereHelpernull_String{field: "\"users\".\"username\""},
+	AvatarURL:     whereHelpernull_String{field: "\"users\".\"avatar_url\""},
+	EmailVerified: whereHelpernull_Bool{field: "\"users\".\"email_verified\""},
+	GithubID:      whereHelpernull_String{field: "\"users\".\"github_id\""},
+	GoogleID:      whereHelpernull_String{field: "\"users\".\"google_id\""},
+	GitlabID:      whereHelpernull_String{field: "\"users\".\"gitlab_id\""},
+	CreatedAt:     whereHelpernull_Time{field: "\"users\".\"created_at\""},
+	UpdatedAt:     whereHelpernull_Time{field: "\"users\".\"updated_at\""},
+	LastLoginAt:   whereHelpernull_Time{field: "\"users\".\"last_login_at\""},
+	Status:        whereHelpernull_String{field: "\"users\".\"status\""},
 }
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	Role string
-}{
-	Role: "Role",
-}
+}{}
 
 // userR is where relationships are stored.
 type userR struct {
-	Role *Role `boil:"Role" json:"Role" toml:"Role" yaml:"Role"`
 }
 
 // NewStruct creates a new relationship struct
@@ -163,30 +178,14 @@ func (*userR) NewStruct() *userR {
 	return &userR{}
 }
 
-func (o *User) GetRole() *Role {
-	if o == nil {
-		return nil
-	}
-
-	return o.R.GetRole()
-}
-
-func (r *userR) GetRole() *Role {
-	if r == nil {
-		return nil
-	}
-
-	return r.Role
-}
-
 // userL is where Load methods for each relationship are stored.
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "created_at", "name", "email", "role_id", "github_id"}
-	userColumnsWithoutDefault = []string{"name", "email", "github_id"}
-	userColumnsWithDefault    = []string{"id", "created_at", "role_id"}
-	userPrimaryKeyColumns     = []string{"id"}
+	userAllColumns            = []string{"user_id", "email", "password_hash", "name", "username", "avatar_url", "email_verified", "github_id", "google_id", "gitlab_id", "created_at", "updated_at", "last_login_at", "status"}
+	userColumnsWithoutDefault = []string{"email", "name"}
+	userColumnsWithDefault    = []string{"user_id", "password_hash", "username", "avatar_url", "email_verified", "github_id", "google_id", "gitlab_id", "created_at", "updated_at", "last_login_at", "status"}
+	userPrimaryKeyColumns     = []string{"user_id"}
 	userGeneratedColumns      = []string{}
 )
 
@@ -495,210 +494,6 @@ func (q userQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
-// Role pointed to by the foreign key.
-func (o *User) Role(mods ...qm.QueryMod) roleQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.RoleID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	return Roles(queryMods...)
-}
-
-// LoadRole allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (userL) LoadRole(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
-	var slice []*User
-	var object *User
-
-	if singular {
-		var ok bool
-		object, ok = maybeUser.(*User)
-		if !ok {
-			object = new(User)
-			ok = queries.SetFromEmbeddedStruct(&object, &maybeUser)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUser))
-			}
-		}
-	} else {
-		s, ok := maybeUser.(*[]*User)
-		if ok {
-			slice = *s
-		} else {
-			ok = queries.SetFromEmbeddedStruct(&slice, maybeUser)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUser))
-			}
-		}
-	}
-
-	args := make(map[interface{}]struct{})
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		if !queries.IsNil(object.RoleID) {
-			args[object.RoleID] = struct{}{}
-		}
-
-	} else {
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
-			}
-
-			if !queries.IsNil(obj.RoleID) {
-				args[obj.RoleID] = struct{}{}
-			}
-
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	argsSlice := make([]interface{}, len(args))
-	i := 0
-	for arg := range args {
-		argsSlice[i] = arg
-		i++
-	}
-
-	query := NewQuery(
-		qm.From(`roles`),
-		qm.WhereIn(`roles.id in ?`, argsSlice...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load Role")
-	}
-
-	var resultSlice []*Role
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Role")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for roles")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for roles")
-	}
-
-	if len(roleAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		foreign := resultSlice[0]
-		object.R.Role = foreign
-		if foreign.R == nil {
-			foreign.R = &roleR{}
-		}
-		foreign.R.User = object
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if queries.Equal(local.RoleID, foreign.ID) {
-				local.R.Role = foreign
-				if foreign.R == nil {
-					foreign.R = &roleR{}
-				}
-				foreign.R.User = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// SetRole of the user to the related item.
-// Sets o.R.Role to related.
-// Adds o to related.R.User.
-func (o *User) SetRole(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Role) error {
-	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
-		}
-	}
-
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"users\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"role_id"}),
-		strmangle.WhereClause("\"", "\"", 2, userPrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	queries.Assign(&o.RoleID, related.ID)
-	if o.R == nil {
-		o.R = &userR{
-			Role: related,
-		}
-	} else {
-		o.R.Role = related
-	}
-
-	if related.R == nil {
-		related.R = &roleR{
-			User: o,
-		}
-	} else {
-		related.R.User = o
-	}
-
-	return nil
-}
-
-// RemoveRole relationship.
-// Sets o.R.Role to nil.
-// Removes o from all passed in related items' relationships struct.
-func (o *User) RemoveRole(ctx context.Context, exec boil.ContextExecutor, related *Role) error {
-	var err error
-
-	queries.SetScanner(&o.RoleID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("role_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.Role = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	related.R.User = nil
-	return nil
-}
-
 // Users retrieves all the records using an executor.
 func Users(mods ...qm.QueryMod) userQuery {
 	mods = append(mods, qm.From("\"users\""))
@@ -712,7 +507,7 @@ func Users(mods ...qm.QueryMod) userQuery {
 
 // FindUser retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindUser(ctx context.Context, exec boil.ContextExecutor, iD int64, selectCols ...string) (*User, error) {
+func FindUser(ctx context.Context, exec boil.ContextExecutor, userID string, selectCols ...string) (*User, error) {
 	userObj := &User{}
 
 	sel := "*"
@@ -720,10 +515,10 @@ func FindUser(ctx context.Context, exec boil.ContextExecutor, iD int64, selectCo
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"users\" where \"id\"=$1", sel,
+		"select %s from \"users\" where \"user_id\"=$1", sel,
 	)
 
-	q := queries.Raw(query, iD)
+	q := queries.Raw(query, userID)
 
 	err := q.Bind(ctx, exec, userObj)
 	if err != nil {
@@ -751,8 +546,11 @@ func (o *User) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if o.CreatedAt.IsZero() {
-			o.CreatedAt = currTime
+		if queries.MustTime(o.CreatedAt).IsZero() {
+			queries.SetScanner(&o.CreatedAt, currTime)
+		}
+		if queries.MustTime(o.UpdatedAt).IsZero() {
+			queries.SetScanner(&o.UpdatedAt, currTime)
 		}
 	}
 
@@ -830,6 +628,12 @@ func (o *User) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *User) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		queries.SetScanner(&o.UpdatedAt, currTime)
+	}
+
 	var err error
 	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
 		return 0, err
@@ -963,9 +767,10 @@ func (o *User) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if o.CreatedAt.IsZero() {
-			o.CreatedAt = currTime
+		if queries.MustTime(o.CreatedAt).IsZero() {
+			queries.SetScanner(&o.CreatedAt, currTime)
 		}
+		queries.SetScanner(&o.UpdatedAt, currTime)
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
@@ -1095,7 +900,7 @@ func (o *User) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, er
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), userPrimaryKeyMapping)
-	sql := "DELETE FROM \"users\" WHERE \"id\"=$1"
+	sql := "DELETE FROM \"users\" WHERE \"user_id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1192,7 +997,7 @@ func (o UserSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (in
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *User) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindUser(ctx, exec, o.ID)
+	ret, err := FindUser(ctx, exec, o.UserID)
 	if err != nil {
 		return err
 	}
@@ -1231,16 +1036,16 @@ func (o *UserSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) er
 }
 
 // UserExists checks if the User row exists.
-func UserExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
+func UserExists(ctx context.Context, exec boil.ContextExecutor, userID string) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"users\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"users\" where \"user_id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, iD)
+		fmt.Fprintln(writer, userID)
 	}
-	row := exec.QueryRowContext(ctx, sql, iD)
+	row := exec.QueryRowContext(ctx, sql, userID)
 
 	err := row.Scan(&exists)
 	if err != nil {
@@ -1252,5 +1057,5 @@ func UserExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool,
 
 // Exists checks if the User row exists.
 func (o *User) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
-	return UserExists(ctx, exec, o.ID)
+	return UserExists(ctx, exec, o.UserID)
 }
