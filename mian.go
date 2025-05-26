@@ -1,10 +1,9 @@
-package main
+﻿package main
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"os"
-	"scaffold/internal/button"
 	"scaffold/internal/common/logger"
 	"scaffold/internal/common/metrics"
 	"scaffold/internal/common/server"
@@ -26,6 +25,5 @@ func main() {
 	server.RunHttpServer(os.Getenv("SERVER_PORT"), metrics.NoOp{}, func(r *gin.RouterGroup) {
 		user.InitV1(r)
 		role.InitV1(r)
-		button.InitV1(r)
 	})
 }

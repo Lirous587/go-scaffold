@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -24,10 +23,10 @@ import (
 
 // Role is an object representing the database table.
 type Role struct {
-	ID          int         `boil:"id" json:"id" toml:"id" yaml:"id"`
-	CreatedAt   time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	Name        string      `boil:"name" json:"name" toml:"name" yaml:"name"`
-	Description null.String `boil:"description" json:"description,omitempty" toml:"description" yaml:"description,omitempty"`
+	ID          int       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	CreatedAt   time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	Name        string    `boil:"name" json:"name" toml:"name" yaml:"name"`
+	Description string    `boil:"description" json:"description" toml:"description" yaml:"description"`
 
 	R *roleR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L roleL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -63,12 +62,12 @@ var RoleWhere = struct {
 	ID          whereHelperint
 	CreatedAt   whereHelpertime_Time
 	Name        whereHelperstring
-	Description whereHelpernull_String
+	Description whereHelperstring
 }{
 	ID:          whereHelperint{field: "\"roles\".\"id\""},
 	CreatedAt:   whereHelpertime_Time{field: "\"roles\".\"created_at\""},
 	Name:        whereHelperstring{field: "\"roles\".\"name\""},
-	Description: whereHelpernull_String{field: "\"roles\".\"description\""},
+	Description: whereHelperstring{field: "\"roles\".\"description\""},
 }
 
 // RoleRels is where relationship names are stored.
@@ -166,8 +165,8 @@ type roleL struct{}
 
 var (
 	roleAllColumns            = []string{"id", "created_at", "name", "description"}
-	roleColumnsWithoutDefault = []string{"name"}
-	roleColumnsWithDefault    = []string{"id", "created_at", "description"}
+	roleColumnsWithoutDefault = []string{"name", "description"}
+	roleColumnsWithDefault    = []string{"id", "created_at"}
 	rolePrimaryKeyColumns     = []string{"id"}
 	roleGeneratedColumns      = []string{}
 )

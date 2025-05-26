@@ -1,0 +1,122 @@
+﻿services:
+  # Citus Coordinator节点
+  citus-coordinator:
+    image: citusdata/citus:12.1
+    container_name: citus-coordinator
+    environment:
+      POSTGRES_DB: scaffold
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "15432:5432"
+    volumes:
+      - coordinator-data:/var/lib/postgresql/data
+    networks:
+      - citus-network
+    command: >
+      postgres
+      -c shared_preload_libraries=citus
+      -c max_connections=200
+
+  # Citus Worker节点1
+  citus-worker1:
+    image: citusdata/citus:12.1
+    container_name: citus-worker1
+    environment:
+      POSTGRES_DB: scaffold
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "15433:5432"
+    volumes:
+      - worker1-data:/var/lib/postgresql/data
+    networks:
+      - citus-network
+    command: >
+      postgres
+      -c shared_preload_libraries=citus
+
+  # Citus Worker节点2
+  citus-worker2:
+    image: citusdata/citus:12.1
+    container_name: citus-worker2
+    environment:
+      POSTGRES_DB: scaffold
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "15434:5432"
+    volumes:
+      - worker2-data:/var/lib/postgresql/data
+    networks:
+      - citus-network
+    command: >
+      postgres
+      -c shared_preload_libraries=citus
+
+  # Citus Worker节点3
+  citus-worker3:
+    image: citusdata/citus:12.1
+    container_name: citus-worker3
+    environment:
+      POSTGRES_DB: scaffold
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "15435:5432"
+    volumes:
+      - worker3-data:/var/lib/postgresql/data
+    networks:
+      - citus-network
+    command: >
+      postgres
+      -c shared_preload_libraries=citus
+
+
+
+
+  # Redis 服务
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis-cache
+    ports:
+      - "16379:6379"
+    environment:
+      REDIS_PASSWORD: password
+    command: >
+      redis-server
+      --requirepass password
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - citus-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+volumes:
+  coordinator-data:
+  worker1-data:
+  worker2-data:
+  worker3-data:
+  redis-data:
+
+networks:
+  citus-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -91,7 +91,7 @@ func Error(ctx *gin.Context, err error) {
 		ctx.Error(appErr.Err)
 	} else {
 		res.Code = CodeServerError
-		res.Message = "服务器错误"
+		res.Message = err.Error()
 		ctx.Error(err)
 	}
 	ctx.JSON(http.StatusInternalServerError, res)

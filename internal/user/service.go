@@ -18,7 +18,7 @@ type Service interface {
 }
 
 type service struct {
-	db    infrastructure.UserRepository
+	repo  infrastructure.UserRepository
 	cache infrastructure.UserCache
 }
 
@@ -27,13 +27,13 @@ var (
 	githubClientSecret string
 )
 
-func NewService(db infrastructure.UserRepository, cache infrastructure.UserCache) Service {
+func NewService(repo infrastructure.UserRepository, cache infrastructure.UserCache) Service {
 	githubClientID = os.Getenv("GITHUB_CLIENT_ID")
 	githubClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
 	if githubClientID == "" || githubClientSecret == "" {
 		panic("加载环境变量失败")
 	}
-	return &service{db: db, cache: cache}
+	return &service{repo: repo, cache: cache}
 }
 
 func (s *service) genTokenAndRefreshToken(payload *model.JwtPayload) (token, refreshToken string, err error) {
@@ -95,7 +95,7 @@ func (s *service) GithubAuth(code string) (*model.AuthRes, error) {
 	}
 
 	//	3.是否入库
-	user, err := s.db.FindByGithubID(userInfo.GithubID)
+	user, err := s.repo.FindByGithubID(userInfo.GithubID)
 	if err != nil {
 		// 没有就入库
 		if errors.Is(err, sql.ErrNoRows) {
@@ -104,7 +104,7 @@ func (s *service) GithubAuth(code string) (*model.AuthRes, error) {
 				GithubID: userInfo.GithubID,
 			}
 
-			if user, err = s.db.Register(u); err != nil {
+			if user, err = s.repo.Register(u); err != nil {
 				return nil, errors.WithStack(err)
 			}
 		} else {

@@ -45,7 +45,7 @@ func NewRedisCache() *RedisCache {
 
 const (
 	keyRefreshTokenMapDuration = 30 * 24 * time.Hour
-	keyRefreshTokenMap         = "refresh_token_map" //这里使用map只是为了以后方便复用 该项目实际只需要一个string键就可以了
+	keyRefreshTokenMap         = "refresh_token_map"
 )
 
 func (ch *RedisCache) GenRefreshToken(payload *model.JwtPayload) (string, error) {
