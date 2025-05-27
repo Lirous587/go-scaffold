@@ -31,6 +31,12 @@ func NewPSQLRepository() *PSQLRepository {
 	if err != nil {
 		panic(err)
 	}
+
+	// 测试连接
+	if err := db.Ping(); err != nil {
+		panic(fmt.Sprintf("无法连接到数据库: %v", err))
+	}
+
 	return &PSQLRepository{
 		db: db,
 	}

@@ -5,7 +5,6 @@ import (
 	"github.com/pkg/errors"
 	"os"
 	"scaffold/internal/common/jwt"
-	"scaffold/internal/common/server/response"
 	"strconv"
 	"strings"
 	"time"

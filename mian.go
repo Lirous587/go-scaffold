@@ -7,7 +7,6 @@ import (
 	"scaffold/internal/common/logger"
 	"scaffold/internal/common/metrics"
 	"scaffold/internal/common/server"
-	"scaffold/internal/role"
 	"scaffold/internal/user"
 )
 
@@ -24,6 +23,5 @@ func main() {
 
 	server.RunHttpServer(os.Getenv("SERVER_PORT"), metrics.NoOp{}, func(r *gin.RouterGroup) {
 		user.InitV1(r)
-		role.InitV1(r)
 	})
 }

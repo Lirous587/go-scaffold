@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "scaffold/internal/user/proto";
+
+import "google/protobuf/timestamp.proto";
+
+// 用户服务定义
+service UserService {
+    // 认证相关
+    rpc AuthenticateWithOAuth(AuthenticateRequest) returns (AuthenticateResponse);
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+    
+    // 用户管理
+    rpc GetUser(GetUserRequest) returns (GetUserResponse);
+    rpc UpdateUserProfile(UpdateUserProfileRequest) returns (UpdateUserProfileResponse);
+    
+    // 团队管理
+    rpc CreateTeam(CreateTeamRequest) returns (CreateTeamResponse);
+    rpc GetUserTeams(GetUserTeamsRequest) returns (GetUserTeamsResponse);
+    rpc JoinTeam(JoinTeamRequest) returns (JoinTeamResponse);
+}
+
+// 基础消息类型
+message User {
+    string id = 1;
+    string email = 2;
+    string name = 3;
+    string username = 4;
+    string avatar_url = 5;
+    bool email_verified = 6;
+    string status = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+    google.protobuf.Timestamp last_login_at = 10;
+}
+
+message Team {
+    string id = 1;
+    string owner_id = 2;
+    string name = 3;
+    string description = 4;
+    string status = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+}
+
+message UserSession {
+    User user = 1;
+    string access_token = 2;
+    string refresh_token = 3;
+    google.protobuf.Timestamp expires_at = 4;
+}
+
+// OAuth 认证请求和响应
+message AuthenticateRequest {
+    string provider = 1;
+    OAuthUserInfo oauth_user_info = 2;
+}
+
+message OAuthUserInfo {
+    string provider = 1;
+    string id = 2;
+    string login = 3;
+    string name = 4;
+    string email = 5;
+    string avatar = 6;
+}
+
+message AuthenticateResponse {
+    UserSession session = 1;
+    string error_message = 2;
+}
+
+// 刷新令牌请求和响应
+message RefreshTokenRequest {
+    string user_id = 1;
+    string refresh_token = 2;
+}
+
+message RefreshTokenResponse {
+    UserSession session = 1;
+    string error_message = 2;
+}
+
+// 获取用户信息
+message GetUserRequest {
+    string user_id = 1;
+}
+
+message GetUserResponse {
+    User user = 1;
+    string error_message = 2;
+}
+
+// 更新用户资料
+message UpdateUserProfileRequest {
+    string user_id = 1;
+    UserProfileUpdate updates = 2;
+}
+
+message UserProfileUpdate {
+    optional string name = 1;
+    optional string username = 2;
+    optional string avatar = 3;
+}
+
+message UpdateUserProfileResponse {
+    User user = 1;
+    string error_message = 2;
+}
+
+// 团队管理
+message CreateTeamRequest {
+    string owner_id = 1;
+    TeamCreateInfo team_info = 2;
+}
+
+message TeamCreateInfo {
+    string name = 1;
+    string description = 2;
+}
+
+message CreateTeamResponse {
+    Team team = 1;
+    string error_message = 2;
+}
+
+message GetUserTeamsRequest {
+    string user_id = 1;
+}
+
+message GetUserTeamsResponse {
+    repeated Team teams = 1;
+    string error_message = 2;
+}
+
+message JoinTeamRequest {
+    string user_id = 1;
+    string team_id = 2;
+}
+
+message JoinTeamResponse {
+    bool success = 1;
+    string error_message = 2;
+}
