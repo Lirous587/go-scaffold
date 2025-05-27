@@ -6,19 +6,20 @@ import (
 	"scaffold/internal/user/handler"
 )
 
-func RegisterRoutes(r *gin.RouterGroup, h *handler.HttpHandler) {
+func RegisterV1(r *gin.RouterGroup, handler *handler.HttpHandler) func() {
 	userGroup := r.Group("/user")
 	{
-		// 认证相关路由（无需token）
-		userGroup.POST("/auth/github", h.GithubAuth)
+		// 认证相关路由
+		userGroup.POST("/auth/github", handler.GithubAuth)
 
 		// 需要token的路由
 		protected := userGroup.Group("")
 		protected.Use(auth.Validate())
 		{
-			protected.POST("/refresh", h.RefreshToken)
-			protected.GET("/profile", h.GetProfile)
-			protected.PUT("/profile", h.UpdateProfile)
+			protected.POST("/refresh", handler.RefreshToken)
+			protected.GET("/profile", handler.GetProfile)
+			protected.PUT("/profile", handler.UpdateProfile)
 		}
 	}
+	return nil
 }

@@ -2,11 +2,9 @@ package domain
 
 // 纯业务逻辑，不依赖传输层
 type UserService interface {
-	// 认证相关
-	AuthenticateWithOAuth(provider string, userInfo *OAuthUserInfo) (*UserSession, error)
-	RefreshUserSession(userID string, refreshToken string) (*UserSession, error)
+	AuthenticateWithOAuth(provider string, userInfo *OAuthUserInfo) (*User2Token, error)
+	RefreshUserToken(userID string, refreshToken string) (*User2Token, error)
 
-	// 用户管理
 	GetUser(userID string) (*User, error)
 	UpdateUserProfile(userID string, updates *UserProfileUpdate) (*User, error)
 
@@ -18,9 +16,9 @@ type UserService interface {
 
 // 令牌服务接口
 type TokenService interface {
-	GenerateAccessToken(payload *JwtPayload) (string, error)
-	ValidateAccessToken(token string) (*JwtPayload, error)
-	GenerateRefreshToken(userID string) (string, error)
-	ValidateRefreshToken(userID, token string) error
+	GenerateAccessToken(payload JwtPayload) (string, error)
+	ValidateAccessToken(token string) (payload JwtPayload, isExpire bool, err error)
 	RefreshAccessToken(userID, refreshToken string) (string, error)
+
+	GenerateRefreshToken(userID string) (string, error)
 }

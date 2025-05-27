@@ -2,7 +2,8 @@
 
 import (
 	"context"
-	"encoding/json"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -16,37 +17,53 @@ type RedisCache struct {
 	client *redis.Client
 }
 
-func NewRedisCache(client *redis.Client) domain.CacheRepository {
+func NewRedisTokenCache() domain.TokenCache {
+	host := os.Getenv("REDIS_HOST")
+	port := os.Getenv("REDIS_PORT")
+	password := os.Getenv("REDIS_PASSWORD")
+	dbStr := os.Getenv("REDIS_DB")
+	poolSizeStr := os.Getenv("REDIS_POOL_SIZE")
+
+	db, _ := strconv.Atoi(dbStr)
+	poolSize, _ := strconv.Atoi(poolSizeStr)
+
+	addr := host + ":" + port
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     addr,
+		DB:       db,
+		Password: password,
+		PoolSize: poolSize,
+	})
+
+	// 可选：ping 检查连接
+	if err := client.Ping(context.Background()).Err(); err != nil {
+		panic(err)
+	}
+
 	return &RedisCache{client: client}
 }
 
 const (
 	keyRefreshTokenMapDuration = 30 * 24 * time.Hour
-	keyRefreshTokenMap         = "refresh_token_map"
+	keyRefreshTokenMap         = "user_refresh_token_map"
 )
 
-func (ch *RedisCache) GenRefreshToken(payload *domain.JwtPayload) (string, error) {
+func (ch *RedisCache) GenRefreshToken(userID string) (string, error) {
 	refreshToken, err := utils.GenRandomHexToken()
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
 
 	key := utils.GetRedisKey(keyRefreshTokenMap)
-	payloadByte, err := json.Marshal(payload)
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-
-	payloadStr := string(payloadByte)
-
 	pipe := ch.client.Pipeline()
 
-	if err := pipe.HSet(context.Background(), key, payloadStr, refreshToken).Err(); err != nil {
+	if err := pipe.HSet(context.Background(), key, userID, refreshToken).Err(); err != nil {
 		return "", errors.WithStack(err)
 	}
 
 	// 使用计算出的过期时间
-	pipe.HExpire(context.Background(), key, keyRefreshTokenMapDuration, payloadStr)
+	pipe.HExpire(context.Background(), key, keyRefreshTokenMapDuration, userID)
 
 	// 执行Pipeline命令
 	_, err = pipe.Exec(context.Background())
@@ -57,18 +74,12 @@ func (ch *RedisCache) GenRefreshToken(payload *domain.JwtPayload) (string, error
 	return refreshToken, nil
 }
 
-func (ch *RedisCache) ValidateRefreshToken(payload *domain.JwtPayload, refreshToken string) error {
-	payloadByte, err := json.Marshal(payload)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
+func (ch *RedisCache) ValidateRefreshToken(userID string, refreshToken string) error {
 	key := utils.GetRedisKey(keyRefreshTokenMap)
-	payloadStr := string(payloadByte)
 
-	result, err := ch.client.HGet(context.Background(), key, payloadStr).Result()
+	result, err := ch.client.HGet(context.Background(), key, userID).Result()
 	if err != nil {
-		if err == redis.Nil {
+		if errors.Is(err, redis.Nil) {
 			return errors.New("refresh token not found or expired")
 		}
 		return errors.WithStack(err)
@@ -81,18 +92,10 @@ func (ch *RedisCache) ValidateRefreshToken(payload *domain.JwtPayload, refreshTo
 	return nil
 }
 
-func (ch *RedisCache) ResetRefreshTokenExpiry(payload *domain.JwtPayload) error {
-	payloadByte, err := json.Marshal(payload)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
+func (ch *RedisCache) ResetRefreshTokenExpiry(userID string) error {
 	key := utils.GetRedisKey(keyRefreshTokenMap)
-	payloadStr := string(payloadByte)
-
-	if err := ch.client.HExpire(context.Background(), key, keyRefreshTokenMapDuration, payloadStr).Err(); err != nil {
+	if err := ch.client.HExpire(context.Background(), key, keyRefreshTokenMapDuration, userID).Err(); err != nil {
 		return errors.WithStack(err)
 	}
-
 	return nil
 }

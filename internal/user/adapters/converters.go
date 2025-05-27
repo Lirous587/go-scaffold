@@ -1,8 +1,6 @@
 package adapters
 
 import (
-	"time"
-
 	"github.com/volatiletech/null/v8"
 	"scaffold/internal/common/orm"
 	"scaffold/internal/user/domain"
@@ -99,83 +97,4 @@ func ORMUserToDomain(ormUser *orm.User) *domain.User {
 	}
 
 	return user
-}
-
-// Domain User <-> HTTP Response 转换
-type UserResponse struct {
-	ID            string     `json:"id"`
-	Email         string     `json:"email"`
-	Name          string     `json:"name"`
-	Username      string     `json:"username,omitempty"`
-	AvatarURL     string     `json:"avatar_url,omitempty"`
-	EmailVerified bool       `json:"email_verified"`
-	Status        string     `json:"status"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
-	LastLoginAt   *time.Time `json:"last_login_at,omitempty"`
-}
-
-func DomainUserToResponse(user *domain.User) *UserResponse {
-	if user == nil {
-		return nil
-	}
-
-	return &UserResponse{
-		ID:            user.ID,
-		Email:         user.Email,
-		Name:          user.Name,
-		Username:      user.Username,
-		AvatarURL:     user.AvatarURL,
-		EmailVerified: user.EmailVerified,
-		Status:        user.Status,
-		CreatedAt:     user.CreatedAt,
-		UpdatedAt:     user.UpdatedAt,
-		LastLoginAt:   user.LastLoginAt,
-	}
-}
-
-// HTTP Request -> Domain 转换
-type AuthRequest struct {
-	Code string `json:"code" binding:"required"`
-}
-
-type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
-}
-
-type UserProfileUpdateRequest struct {
-	Name     *string `json:"name,omitempty"`
-	Username *string `json:"username,omitempty"`
-	Avatar   *string `json:"avatar,omitempty"`
-}
-
-func HTTPUserUpdateToDomain(req *UserProfileUpdateRequest) *domain.UserProfileUpdate {
-	return &domain.UserProfileUpdate{
-		Name:     req.Name,
-		Username: req.Username,
-		Avatar:   req.Avatar,
-	}
-}
-
-// HTTP Response 模型
-type AuthResponse struct {
-	User         *UserResponse `json:"user"`
-	AccessToken  string        `json:"access_token"`
-	RefreshToken string        `json:"refresh_token"`
-	ExpiresAt    time.Time     `json:"expires_at"`
-}
-
-type RefreshTokenResponse struct {
-	AccessToken  string    `json:"access_token"`
-	RefreshToken string    `json:"refresh_token"`
-	ExpiresAt    time.Time `json:"expires_at"`
-}
-
-func DomainSessionToAuthResponse(session *domain.UserSession) *AuthResponse {
-	return &AuthResponse{
-		User:         DomainUserToResponse(session.User),
-		AccessToken:  session.AccessToken,
-		RefreshToken: session.RefreshToken,
-		ExpiresAt:    session.ExpiresAt,
-	}
 }

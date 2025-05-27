@@ -42,6 +42,8 @@ var (
 
 	// Token相关错误
 	ErrTokenGenerationFailed = commonErrors.NewInternal(CodeTokenGenerationFailed, "Token生成失败")
+	ErrTokenInvalid          = commonErrors.NewInternal(CodeTokenGenerationFailed, "Token无效")
+	ErrTokenExpired          = commonErrors.NewInternal(CodeTokenGenerationFailed, "Token已过期")
 	ErrRefreshTokenInvalid   = commonErrors.NewUnauthorized(CodeRefreshTokenInvalid, "无效的RefreshToken")
 	ErrRefreshTokenExpired   = commonErrors.NewUnauthorized(CodeRefreshTokenExpired, "RefreshToken已过期")
 

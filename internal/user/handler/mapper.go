@@ -82,20 +82,17 @@ func DomainUserToResponse(user *domain.User) *UserResponse {
 	}
 }
 
-func DomainSessionToAuthResponse(session *domain.UserSession) *AuthResponse {
+func Domain2TokenToAuthResponse(token2 *domain.User2Token) *AuthResponse {
 	return &AuthResponse{
-		User:         DomainUserToResponse(session.User),
-		AccessToken:  session.AccessToken,
-		RefreshToken: session.RefreshToken,
-		ExpiresAt:    session.ExpiresAt,
+		AccessToken:  token2.AccessToken,
+		RefreshToken: token2.RefreshToken,
 	}
 }
 
-func DomainSessionToRefreshResponse(session *domain.UserSession) *RefreshTokenResponse {
+func DomainSessionToRefreshResponse(token2 *domain.User2Token) *RefreshTokenResponse {
 	return &RefreshTokenResponse{
-		AccessToken:  session.AccessToken,
-		RefreshToken: session.RefreshToken,
-		ExpiresAt:    session.ExpiresAt,
+		AccessToken:  token2.AccessToken,
+		RefreshToken: token2.RefreshToken,
 	}
 }
 

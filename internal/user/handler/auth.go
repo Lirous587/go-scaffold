@@ -43,7 +43,7 @@ func (h *HttpHandler) GithubAuth(ctx *gin.Context) {
 	}
 
 	// 3. 转换为响应格式
-	res := DomainSessionToAuthResponse(session)
+	res := Domain2TokenToAuthResponse(session)
 	response.Success(ctx, res)
 }
 
@@ -66,66 +66,13 @@ func (h *HttpHandler) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	session, err := h.userService.RefreshUserSession(userIDStr, req.RefreshToken)
+	session, err := h.userService.RefreshUserToken(userIDStr, req.RefreshToken)
 	if err != nil {
 		response.Error(ctx, err)
 		return
 	}
 
 	res := DomainSessionToRefreshResponse(session)
-	response.Success(ctx, res)
-}
-
-func (h *HttpHandler) GetProfile(ctx *gin.Context) {
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		response.Error(ctx, domain.ErrRefreshTokenInvalid)
-		return
-	}
-
-	userIDStr, ok := userID.(string)
-	if !ok {
-		response.Error(ctx, domain.ErrRefreshTokenInvalid)
-		return
-	}
-
-	user, err := h.userService.GetUser(userIDStr)
-	if err != nil {
-		response.Error(ctx, err)
-		return
-	}
-
-	res := DomainUserToResponse(user)
-	response.Success(ctx, res)
-}
-
-func (h *HttpHandler) UpdateProfile(ctx *gin.Context) {
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		response.Error(ctx, domain.ErrRefreshTokenInvalid)
-		return
-	}
-
-	userIDStr, ok := userID.(string)
-	if !ok {
-		response.Error(ctx, domain.ErrRefreshTokenInvalid)
-		return
-	}
-
-	req := new(UserProfileUpdateRequest)
-	if err := ctx.ShouldBindJSON(req); err != nil {
-		response.ValidationError(ctx, err)
-		return
-	}
-
-	updates := HTTPUserUpdateToDomain(req)
-	user, err := h.userService.UpdateUserProfile(userIDStr, updates)
-	if err != nil {
-		response.Error(ctx, err)
-		return
-	}
-
-	res := DomainUserToResponse(user)
 	response.Success(ctx, res)
 }
 

@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
+	"os"
 	"strings"
 	"time"
 
@@ -18,8 +20,26 @@ type PSQLUserRepository struct {
 	db *sql.DB
 }
 
-func NewPSQLUserRepository(db *sql.DB) domain.UserRepository {
-	return &PSQLUserRepository{db: db}
+func NewPSQLUserRepository() domain.UserRepository {
+	host := os.Getenv("PSQL_HOST")
+	port := os.Getenv("PSQL_PORT")
+	user := os.Getenv("PSQL_USERNAME")
+	password := os.Getenv("PSQL_PASSWORD")
+	dbname := os.Getenv("PSQL_DB_NAME")
+	sslmode := os.Getenv("PSQL_SSL_MODE")
+
+	dsn := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		host, port, user, password, dbname, sslmode,
+	)
+
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		panic(err)
+	}
+	return &PSQLUserRepository{
+		db: db,
+	}
 }
 
 func (r *PSQLUserRepository) FindByID(userID string) (*domain.User, error) {

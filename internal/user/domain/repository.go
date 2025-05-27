@@ -1,6 +1,5 @@
 package domain
 
-
 type UserRepository interface {
 	// 基础 CRUD
 	FindByID(userID string) (*User, error)
@@ -32,8 +31,8 @@ type TeamRepository interface {
 	FindUserTeams(userID string) ([]*Team, error)
 }
 
-type CacheRepository interface {
-	GenRefreshToken(payload *JwtPayload) (string, error)
-	ValidateRefreshToken(payload *JwtPayload, refreshToken string) error
-	ResetRefreshTokenExpiry(payload *JwtPayload) error
+type TokenCache interface {
+	GenRefreshToken(userID string) (string, error)
+	ValidateRefreshToken(userID string, refreshToken string) error
+	ResetRefreshTokenExpiry(userID string) error
 }

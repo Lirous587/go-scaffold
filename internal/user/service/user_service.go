@@ -2,6 +2,8 @@
 
 import (
 	"fmt"
+	"go.uber.org/zap"
+	"os"
 	"time"
 
 	"github.com/pkg/errors"
@@ -14,14 +16,24 @@ type userService struct {
 	tokenService domain.TokenService
 }
 
+var (
+	githubClientID     string
+	githubClientSecret string
+)
+
 func NewUserService(userRepo domain.UserRepository, tokenService domain.TokenService) domain.UserService {
+	githubClientID = os.Getenv("GITHUB_CLIENT_ID")
+	githubClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
+	if githubClientID == "" || githubClientSecret == "" {
+		panic("加载环境变量失败")
+	}
 	return &userService{
 		userRepo:     userRepo,
 		tokenService: tokenService,
 	}
 }
 
-func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OAuthUserInfo) (*domain.UserSession, error) {
+func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OAuthUserInfo) (*domain.User2Token, error) {
 	// 1. 查找或创建用户
 	user, isNewUser, err := s.findOrCreateUserByOAuth(provider, userInfo)
 	if err != nil {
@@ -32,15 +44,13 @@ func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OA
 	if !isNewUser {
 		if err := s.userRepo.UpdateLastLogin(user.ID); err != nil {
 			// 这个错误不应该阻止登录流程，记录日志即可
-			// TODO: 添加日志记录
+			zap.L().Error("更新用户最后登录时间失败", zap.String("user_id", user.ID), zap.Error(err))
 		}
 	}
 
 	// 3. 生成 Token
-	payload := &domain.JwtPayload{
-		UserID:    user.ID,
-		LoginType: provider,
-		IssuedAt:  time.Now(),
+	payload := domain.JwtPayload{
+		UserID: user.ID,
 	}
 
 	accessToken, err := s.tokenService.GenerateAccessToken(payload)
@@ -53,32 +63,22 @@ func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OA
 		return nil, errors.WithStack(err)
 	}
 
-	return &domain.UserSession{
-		User:         user,
+	return &domain.User2Token{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpiresAt:    time.Now().Add(24 * time.Hour), // Access token 24小时过期
 	}, nil
 }
 
-func (s *userService) RefreshUserSession(userID string, refreshToken string) (*domain.UserSession, error) {
-	// 1. 获取用户信息
-	user, err := s.userRepo.FindByID(userID)
-	if err != nil {
-		return nil, err
-	}
-
-	// 2. 生成新的 access token
+func (s *userService) RefreshUserToken(userID string, refreshToken string) (*domain.User2Token, error) {
+	//1 . 生成新的 access token
 	accessToken, err := s.tokenService.RefreshAccessToken(userID, refreshToken)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.UserSession{
-		User:         user,
+	return &domain.User2Token{
 		AccessToken:  accessToken,
-		RefreshToken: refreshToken, // 复用原来的 refresh token
-		ExpiresAt:    time.Now().Add(24 * time.Hour),
+		RefreshToken: refreshToken,
 	}, nil
 }
 
