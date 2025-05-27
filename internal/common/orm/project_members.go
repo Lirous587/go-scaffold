@@ -24,58 +24,128 @@ import (
 
 // ProjectMember is an object representing the database table.
 type ProjectMember struct {
-	OrgID     string      `boil:"org_id" json:"org_id" toml:"org_id" yaml:"org_id"`
+	OwnerID   string      `boil:"owner_id" json:"owner_id" toml:"owner_id" yaml:"owner_id"`
 	ProjectID string      `boil:"project_id" json:"project_id" toml:"project_id" yaml:"project_id"`
 	UserID    string      `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
-	Role      null.String `boil:"role" json:"role,omitempty" toml:"role" yaml:"role,omitempty"`
-	AddedAt   null.Time   `boil:"added_at" json:"added_at,omitempty" toml:"added_at" yaml:"added_at,omitempty"`
+	Role      string      `boil:"role" json:"role" toml:"role" yaml:"role"`
+	AddedAt   time.Time   `boil:"added_at" json:"added_at" toml:"added_at" yaml:"added_at"`
+	AddedBy   null.String `boil:"added_by" json:"added_by,omitempty" toml:"added_by" yaml:"added_by,omitempty"`
+	Status    string      `boil:"status" json:"status" toml:"status" yaml:"status"`
 
 	R *projectMemberR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L projectMemberL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var ProjectMemberColumns = struct {
-	OrgID     string
+	OwnerID   string
 	ProjectID string
 	UserID    string
 	Role      string
 	AddedAt   string
+	AddedBy   string
+	Status    string
 }{
-	OrgID:     "org_id",
+	OwnerID:   "owner_id",
 	ProjectID: "project_id",
 	UserID:    "user_id",
 	Role:      "role",
 	AddedAt:   "added_at",
+	AddedBy:   "added_by",
+	Status:    "status",
 }
 
 var ProjectMemberTableColumns = struct {
-	OrgID     string
+	OwnerID   string
 	ProjectID string
 	UserID    string
 	Role      string
 	AddedAt   string
+	AddedBy   string
+	Status    string
 }{
-	OrgID:     "project_members.org_id",
+	OwnerID:   "project_members.owner_id",
 	ProjectID: "project_members.project_id",
 	UserID:    "project_members.user_id",
 	Role:      "project_members.role",
 	AddedAt:   "project_members.added_at",
+	AddedBy:   "project_members.added_by",
+	Status:    "project_members.status",
 }
 
 // Generated where
 
+type whereHelpernull_String struct{ field string }
+
+func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+func (w whereHelpernull_String) LIKE(x null.String) qm.QueryMod {
+	return qm.Where(w.field+" LIKE ?", x)
+}
+func (w whereHelpernull_String) NLIKE(x null.String) qm.QueryMod {
+	return qm.Where(w.field+" NOT LIKE ?", x)
+}
+func (w whereHelpernull_String) ILIKE(x null.String) qm.QueryMod {
+	return qm.Where(w.field+" ILIKE ?", x)
+}
+func (w whereHelpernull_String) NILIKE(x null.String) qm.QueryMod {
+	return qm.Where(w.field+" NOT ILIKE ?", x)
+}
+func (w whereHelpernull_String) SIMILAR(x null.String) qm.QueryMod {
+	return qm.Where(w.field+" SIMILAR TO ?", x)
+}
+func (w whereHelpernull_String) NSIMILAR(x null.String) qm.QueryMod {
+	return qm.Where(w.field+" NOT SIMILAR TO ?", x)
+}
+func (w whereHelpernull_String) IN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelpernull_String) NIN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
 var ProjectMemberWhere = struct {
-	OrgID     whereHelperstring
+	OwnerID   whereHelperstring
 	ProjectID whereHelperstring
 	UserID    whereHelperstring
-	Role      whereHelpernull_String
-	AddedAt   whereHelpernull_Time
+	Role      whereHelperstring
+	AddedAt   whereHelpertime_Time
+	AddedBy   whereHelpernull_String
+	Status    whereHelperstring
 }{
-	OrgID:     whereHelperstring{field: "\"project_members\".\"org_id\""},
+	OwnerID:   whereHelperstring{field: "\"project_members\".\"owner_id\""},
 	ProjectID: whereHelperstring{field: "\"project_members\".\"project_id\""},
 	UserID:    whereHelperstring{field: "\"project_members\".\"user_id\""},
-	Role:      whereHelpernull_String{field: "\"project_members\".\"role\""},
-	AddedAt:   whereHelpernull_Time{field: "\"project_members\".\"added_at\""},
+	Role:      whereHelperstring{field: "\"project_members\".\"role\""},
+	AddedAt:   whereHelpertime_Time{field: "\"project_members\".\"added_at\""},
+	AddedBy:   whereHelpernull_String{field: "\"project_members\".\"added_by\""},
+	Status:    whereHelperstring{field: "\"project_members\".\"status\""},
 }
 
 // ProjectMemberRels is where relationship names are stored.
@@ -95,10 +165,10 @@ func (*projectMemberR) NewStruct() *projectMemberR {
 type projectMemberL struct{}
 
 var (
-	projectMemberAllColumns            = []string{"org_id", "project_id", "user_id", "role", "added_at"}
-	projectMemberColumnsWithoutDefault = []string{"org_id", "project_id", "user_id"}
-	projectMemberColumnsWithDefault    = []string{"role", "added_at"}
-	projectMemberPrimaryKeyColumns     = []string{"org_id", "project_id", "user_id"}
+	projectMemberAllColumns            = []string{"owner_id", "project_id", "user_id", "role", "added_at", "added_by", "status"}
+	projectMemberColumnsWithoutDefault = []string{"owner_id", "project_id", "user_id"}
+	projectMemberColumnsWithDefault    = []string{"role", "added_at", "added_by", "status"}
+	projectMemberPrimaryKeyColumns     = []string{"owner_id", "project_id", "user_id"}
 	projectMemberGeneratedColumns      = []string{}
 )
 
@@ -420,7 +490,7 @@ func ProjectMembers(mods ...qm.QueryMod) projectMemberQuery {
 
 // FindProjectMember retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindProjectMember(ctx context.Context, exec boil.ContextExecutor, orgID string, projectID string, userID string, selectCols ...string) (*ProjectMember, error) {
+func FindProjectMember(ctx context.Context, exec boil.ContextExecutor, ownerID string, projectID string, userID string, selectCols ...string) (*ProjectMember, error) {
 	projectMemberObj := &ProjectMember{}
 
 	sel := "*"
@@ -428,10 +498,10 @@ func FindProjectMember(ctx context.Context, exec boil.ContextExecutor, orgID str
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"project_members\" where \"org_id\"=$1 AND \"project_id\"=$2 AND \"user_id\"=$3", sel,
+		"select %s from \"project_members\" where \"owner_id\"=$1 AND \"project_id\"=$2 AND \"user_id\"=$3", sel,
 	)
 
-	q := queries.Raw(query, orgID, projectID, userID)
+	q := queries.Raw(query, ownerID, projectID, userID)
 
 	err := q.Bind(ctx, exec, projectMemberObj)
 	if err != nil {
@@ -789,7 +859,7 @@ func (o *ProjectMember) Delete(ctx context.Context, exec boil.ContextExecutor) (
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), projectMemberPrimaryKeyMapping)
-	sql := "DELETE FROM \"project_members\" WHERE \"org_id\"=$1 AND \"project_id\"=$2 AND \"user_id\"=$3"
+	sql := "DELETE FROM \"project_members\" WHERE \"owner_id\"=$1 AND \"project_id\"=$2 AND \"user_id\"=$3"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -886,7 +956,7 @@ func (o ProjectMemberSlice) DeleteAll(ctx context.Context, exec boil.ContextExec
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *ProjectMember) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindProjectMember(ctx, exec, o.OrgID, o.ProjectID, o.UserID)
+	ret, err := FindProjectMember(ctx, exec, o.OwnerID, o.ProjectID, o.UserID)
 	if err != nil {
 		return err
 	}
@@ -925,16 +995,16 @@ func (o *ProjectMemberSlice) ReloadAll(ctx context.Context, exec boil.ContextExe
 }
 
 // ProjectMemberExists checks if the ProjectMember row exists.
-func ProjectMemberExists(ctx context.Context, exec boil.ContextExecutor, orgID string, projectID string, userID string) (bool, error) {
+func ProjectMemberExists(ctx context.Context, exec boil.ContextExecutor, ownerID string, projectID string, userID string) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"project_members\" where \"org_id\"=$1 AND \"project_id\"=$2 AND \"user_id\"=$3 limit 1)"
+	sql := "select exists(select 1 from \"project_members\" where \"owner_id\"=$1 AND \"project_id\"=$2 AND \"user_id\"=$3 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, orgID, projectID, userID)
+		fmt.Fprintln(writer, ownerID, projectID, userID)
 	}
-	row := exec.QueryRowContext(ctx, sql, orgID, projectID, userID)
+	row := exec.QueryRowContext(ctx, sql, ownerID, projectID, userID)
 
 	err := row.Scan(&exists)
 	if err != nil {
@@ -946,5 +1016,5 @@ func ProjectMemberExists(ctx context.Context, exec boil.ContextExecutor, orgID s
 
 // Exists checks if the ProjectMember row exists.
 func (o *ProjectMember) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
-	return ProjectMemberExists(ctx, exec, o.OrgID, o.ProjectID, o.UserID)
+	return ProjectMemberExists(ctx, exec, o.OwnerID, o.ProjectID, o.UserID)
 }

@@ -30,14 +30,14 @@ type User struct {
 	Name          string      `boil:"name" json:"name" toml:"name" yaml:"name"`
 	Username      null.String `boil:"username" json:"username,omitempty" toml:"username" yaml:"username,omitempty"`
 	AvatarURL     null.String `boil:"avatar_url" json:"avatar_url,omitempty" toml:"avatar_url" yaml:"avatar_url,omitempty"`
-	EmailVerified null.Bool   `boil:"email_verified" json:"email_verified,omitempty" toml:"email_verified" yaml:"email_verified,omitempty"`
+	EmailVerified bool        `boil:"email_verified" json:"email_verified" toml:"email_verified" yaml:"email_verified"`
 	GithubID      null.String `boil:"github_id" json:"github_id,omitempty" toml:"github_id" yaml:"github_id,omitempty"`
 	GoogleID      null.String `boil:"google_id" json:"google_id,omitempty" toml:"google_id" yaml:"google_id,omitempty"`
 	GitlabID      null.String `boil:"gitlab_id" json:"gitlab_id,omitempty" toml:"gitlab_id" yaml:"gitlab_id,omitempty"`
-	CreatedAt     null.Time   `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
-	UpdatedAt     null.Time   `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
+	CreatedAt     time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt     time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	LastLoginAt   null.Time   `boil:"last_login_at" json:"last_login_at,omitempty" toml:"last_login_at" yaml:"last_login_at,omitempty"`
-	Status        null.String `boil:"status" json:"status,omitempty" toml:"status" yaml:"status,omitempty"`
+	Status        string      `boil:"status" json:"status" toml:"status" yaml:"status"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -109,30 +109,6 @@ var UserTableColumns = struct {
 
 // Generated where
 
-type whereHelpernull_Bool struct{ field string }
-
-func (w whereHelpernull_Bool) EQ(x null.Bool) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_Bool) NEQ(x null.Bool) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_Bool) LT(x null.Bool) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_Bool) LTE(x null.Bool) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_Bool) GT(x null.Bool) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_Bool) GTE(x null.Bool) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelpernull_Bool) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Bool) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 var UserWhere = struct {
 	UserID        whereHelperstring
 	Email         whereHelperstring
@@ -140,14 +116,14 @@ var UserWhere = struct {
 	Name          whereHelperstring
 	Username      whereHelpernull_String
 	AvatarURL     whereHelpernull_String
-	EmailVerified whereHelpernull_Bool
+	EmailVerified whereHelperbool
 	GithubID      whereHelpernull_String
 	GoogleID      whereHelpernull_String
 	GitlabID      whereHelpernull_String
-	CreatedAt     whereHelpernull_Time
-	UpdatedAt     whereHelpernull_Time
+	CreatedAt     whereHelpertime_Time
+	UpdatedAt     whereHelpertime_Time
 	LastLoginAt   whereHelpernull_Time
-	Status        whereHelpernull_String
+	Status        whereHelperstring
 }{
 	UserID:        whereHelperstring{field: "\"users\".\"user_id\""},
 	Email:         whereHelperstring{field: "\"users\".\"email\""},
@@ -155,14 +131,14 @@ var UserWhere = struct {
 	Name:          whereHelperstring{field: "\"users\".\"name\""},
 	Username:      whereHelpernull_String{field: "\"users\".\"username\""},
 	AvatarURL:     whereHelpernull_String{field: "\"users\".\"avatar_url\""},
-	EmailVerified: whereHelpernull_Bool{field: "\"users\".\"email_verified\""},
+	EmailVerified: whereHelperbool{field: "\"users\".\"email_verified\""},
 	GithubID:      whereHelpernull_String{field: "\"users\".\"github_id\""},
 	GoogleID:      whereHelpernull_String{field: "\"users\".\"google_id\""},
 	GitlabID:      whereHelpernull_String{field: "\"users\".\"gitlab_id\""},
-	CreatedAt:     whereHelpernull_Time{field: "\"users\".\"created_at\""},
-	UpdatedAt:     whereHelpernull_Time{field: "\"users\".\"updated_at\""},
+	CreatedAt:     whereHelpertime_Time{field: "\"users\".\"created_at\""},
+	UpdatedAt:     whereHelpertime_Time{field: "\"users\".\"updated_at\""},
 	LastLoginAt:   whereHelpernull_Time{field: "\"users\".\"last_login_at\""},
-	Status:        whereHelpernull_String{field: "\"users\".\"status\""},
+	Status:        whereHelperstring{field: "\"users\".\"status\""},
 }
 
 // UserRels is where relationship names are stored.
@@ -546,11 +522,11 @@ func (o *User) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.CreatedAt).IsZero() {
-			queries.SetScanner(&o.CreatedAt, currTime)
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
 		}
-		if queries.MustTime(o.UpdatedAt).IsZero() {
-			queries.SetScanner(&o.UpdatedAt, currTime)
+		if o.UpdatedAt.IsZero() {
+			o.UpdatedAt = currTime
 		}
 	}
 
@@ -631,7 +607,7 @@ func (o *User) Update(ctx context.Context, exec boil.ContextExecutor, columns bo
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		queries.SetScanner(&o.UpdatedAt, currTime)
+		o.UpdatedAt = currTime
 	}
 
 	var err error
@@ -767,10 +743,10 @@ func (o *User) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.CreatedAt).IsZero() {
-			queries.SetScanner(&o.CreatedAt, currTime)
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
 		}
-		queries.SetScanner(&o.UpdatedAt, currTime)
+		o.UpdatedAt = currTime
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {

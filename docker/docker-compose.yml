@@ -20,11 +20,24 @@
       postgres
       -c shared_preload_libraries=citus
       -c max_connections=200
-
+      -c logging_collector=on
+      -c log_directory='pg_log'
+      -c log_filename='postgresql-%Y-%m-%d_%H%M%S.log'
+      -c log_statement=all
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scaffold"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     depends_on:
-      - citus-worker1
-      - citus-worker2
-      - citus-worker3
+      citus-worker1:
+        condition: service_healthy
+      citus-worker2:
+        condition: service_healthy
+      citus-worker3:
+        condition: service_healthy
 
   # Citus Worker节点1
   citus-worker1:
@@ -45,6 +58,16 @@
     command: >
       postgres
       -c shared_preload_libraries=citus
+      -c max_connections=100
+      -c logging_collector=on
+      -c log_directory='pg_log'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scaffold"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # Citus Worker节点2
   citus-worker2:
@@ -65,6 +88,16 @@
     command: >
       postgres
       -c shared_preload_libraries=citus
+      -c max_connections=100
+      -c logging_collector=on
+      -c log_directory='pg_log'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scaffold"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # Citus Worker节点3
   citus-worker3:
@@ -85,6 +118,16 @@
     command: >
       postgres
       -c shared_preload_libraries=citus
+      -c max_connections=100
+      -c logging_collector=on
+      -c log_directory='pg_log'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scaffold"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # Redis 服务
   redis:
@@ -101,6 +144,9 @@
       --appendfsync everysec
       --maxmemory 512mb
       --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
     volumes:
       - redis-data:/data
       - ./config/redis.conf:/usr/local/etc/redis/redis.conf
@@ -108,11 +154,11 @@
       - citus-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "-a", "password", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
-
+      start_period: 10s
 volumes:
   coordinator-data:
   worker1-data:

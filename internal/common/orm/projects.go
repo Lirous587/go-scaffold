@@ -25,13 +25,14 @@ import (
 // Project is an object representing the database table.
 type Project struct {
 	ProjectID   string      `boil:"project_id" json:"project_id" toml:"project_id" yaml:"project_id"`
-	OrgID       string      `boil:"org_id" json:"org_id" toml:"org_id" yaml:"org_id"`
+	OwnerID     string      `boil:"owner_id" json:"owner_id" toml:"owner_id" yaml:"owner_id"`
+	TeamID      string      `boil:"team_id" json:"team_id" toml:"team_id" yaml:"team_id"`
 	Name        string      `boil:"name" json:"name" toml:"name" yaml:"name"`
 	Description null.String `boil:"description" json:"description,omitempty" toml:"description" yaml:"description,omitempty"`
 	CreatedBy   string      `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
-	CreatedAt   null.Time   `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
-	UpdatedAt   null.Time   `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
-	Status      null.String `boil:"status" json:"status,omitempty" toml:"status" yaml:"status,omitempty"`
+	CreatedAt   time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt   time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	Status      string      `boil:"status" json:"status" toml:"status" yaml:"status"`
 
 	R *projectR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L projectL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -39,7 +40,8 @@ type Project struct {
 
 var ProjectColumns = struct {
 	ProjectID   string
-	OrgID       string
+	OwnerID     string
+	TeamID      string
 	Name        string
 	Description string
 	CreatedBy   string
@@ -48,7 +50,8 @@ var ProjectColumns = struct {
 	Status      string
 }{
 	ProjectID:   "project_id",
-	OrgID:       "org_id",
+	OwnerID:     "owner_id",
+	TeamID:      "team_id",
 	Name:        "name",
 	Description: "description",
 	CreatedBy:   "created_by",
@@ -59,7 +62,8 @@ var ProjectColumns = struct {
 
 var ProjectTableColumns = struct {
 	ProjectID   string
-	OrgID       string
+	OwnerID     string
+	TeamID      string
 	Name        string
 	Description string
 	CreatedBy   string
@@ -68,7 +72,8 @@ var ProjectTableColumns = struct {
 	Status      string
 }{
 	ProjectID:   "projects.project_id",
-	OrgID:       "projects.org_id",
+	OwnerID:     "projects.owner_id",
+	TeamID:      "projects.team_id",
 	Name:        "projects.name",
 	Description: "projects.description",
 	CreatedBy:   "projects.created_by",
@@ -81,22 +86,24 @@ var ProjectTableColumns = struct {
 
 var ProjectWhere = struct {
 	ProjectID   whereHelperstring
-	OrgID       whereHelperstring
+	OwnerID     whereHelperstring
+	TeamID      whereHelperstring
 	Name        whereHelperstring
 	Description whereHelpernull_String
 	CreatedBy   whereHelperstring
-	CreatedAt   whereHelpernull_Time
-	UpdatedAt   whereHelpernull_Time
-	Status      whereHelpernull_String
+	CreatedAt   whereHelpertime_Time
+	UpdatedAt   whereHelpertime_Time
+	Status      whereHelperstring
 }{
 	ProjectID:   whereHelperstring{field: "\"projects\".\"project_id\""},
-	OrgID:       whereHelperstring{field: "\"projects\".\"org_id\""},
+	OwnerID:     whereHelperstring{field: "\"projects\".\"owner_id\""},
+	TeamID:      whereHelperstring{field: "\"projects\".\"team_id\""},
 	Name:        whereHelperstring{field: "\"projects\".\"name\""},
 	Description: whereHelpernull_String{field: "\"projects\".\"description\""},
 	CreatedBy:   whereHelperstring{field: "\"projects\".\"created_by\""},
-	CreatedAt:   whereHelpernull_Time{field: "\"projects\".\"created_at\""},
-	UpdatedAt:   whereHelpernull_Time{field: "\"projects\".\"updated_at\""},
-	Status:      whereHelpernull_String{field: "\"projects\".\"status\""},
+	CreatedAt:   whereHelpertime_Time{field: "\"projects\".\"created_at\""},
+	UpdatedAt:   whereHelpertime_Time{field: "\"projects\".\"updated_at\""},
+	Status:      whereHelperstring{field: "\"projects\".\"status\""},
 }
 
 // ProjectRels is where relationship names are stored.
@@ -116,10 +123,10 @@ func (*projectR) NewStruct() *projectR {
 type projectL struct{}
 
 var (
-	projectAllColumns            = []string{"project_id", "org_id", "name", "description", "created_by", "created_at", "updated_at", "status"}
-	projectColumnsWithoutDefault = []string{"org_id", "name", "created_by"}
+	projectAllColumns            = []string{"project_id", "owner_id", "team_id", "name", "description", "created_by", "created_at", "updated_at", "status"}
+	projectColumnsWithoutDefault = []string{"owner_id", "team_id", "name", "created_by"}
 	projectColumnsWithDefault    = []string{"project_id", "description", "created_at", "updated_at", "status"}
-	projectPrimaryKeyColumns     = []string{"org_id", "project_id"}
+	projectPrimaryKeyColumns     = []string{"owner_id", "project_id"}
 	projectGeneratedColumns      = []string{}
 )
 
@@ -441,7 +448,7 @@ func Projects(mods ...qm.QueryMod) projectQuery {
 
 // FindProject retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindProject(ctx context.Context, exec boil.ContextExecutor, orgID string, projectID string, selectCols ...string) (*Project, error) {
+func FindProject(ctx context.Context, exec boil.ContextExecutor, ownerID string, projectID string, selectCols ...string) (*Project, error) {
 	projectObj := &Project{}
 
 	sel := "*"
@@ -449,10 +456,10 @@ func FindProject(ctx context.Context, exec boil.ContextExecutor, orgID string, p
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"projects\" where \"org_id\"=$1 AND \"project_id\"=$2", sel,
+		"select %s from \"projects\" where \"owner_id\"=$1 AND \"project_id\"=$2", sel,
 	)
 
-	q := queries.Raw(query, orgID, projectID)
+	q := queries.Raw(query, ownerID, projectID)
 
 	err := q.Bind(ctx, exec, projectObj)
 	if err != nil {
@@ -480,11 +487,11 @@ func (o *Project) Insert(ctx context.Context, exec boil.ContextExecutor, columns
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.CreatedAt).IsZero() {
-			queries.SetScanner(&o.CreatedAt, currTime)
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
 		}
-		if queries.MustTime(o.UpdatedAt).IsZero() {
-			queries.SetScanner(&o.UpdatedAt, currTime)
+		if o.UpdatedAt.IsZero() {
+			o.UpdatedAt = currTime
 		}
 	}
 
@@ -565,7 +572,7 @@ func (o *Project) Update(ctx context.Context, exec boil.ContextExecutor, columns
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		queries.SetScanner(&o.UpdatedAt, currTime)
+		o.UpdatedAt = currTime
 	}
 
 	var err error
@@ -701,10 +708,10 @@ func (o *Project) Upsert(ctx context.Context, exec boil.ContextExecutor, updateO
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.CreatedAt).IsZero() {
-			queries.SetScanner(&o.CreatedAt, currTime)
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
 		}
-		queries.SetScanner(&o.UpdatedAt, currTime)
+		o.UpdatedAt = currTime
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
@@ -834,7 +841,7 @@ func (o *Project) Delete(ctx context.Context, exec boil.ContextExecutor) (int64,
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), projectPrimaryKeyMapping)
-	sql := "DELETE FROM \"projects\" WHERE \"org_id\"=$1 AND \"project_id\"=$2"
+	sql := "DELETE FROM \"projects\" WHERE \"owner_id\"=$1 AND \"project_id\"=$2"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -931,7 +938,7 @@ func (o ProjectSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) 
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *Project) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindProject(ctx, exec, o.OrgID, o.ProjectID)
+	ret, err := FindProject(ctx, exec, o.OwnerID, o.ProjectID)
 	if err != nil {
 		return err
 	}
@@ -970,16 +977,16 @@ func (o *ProjectSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor)
 }
 
 // ProjectExists checks if the Project row exists.
-func ProjectExists(ctx context.Context, exec boil.ContextExecutor, orgID string, projectID string) (bool, error) {
+func ProjectExists(ctx context.Context, exec boil.ContextExecutor, ownerID string, projectID string) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"projects\" where \"org_id\"=$1 AND \"project_id\"=$2 limit 1)"
+	sql := "select exists(select 1 from \"projects\" where \"owner_id\"=$1 AND \"project_id\"=$2 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, orgID, projectID)
+		fmt.Fprintln(writer, ownerID, projectID)
 	}
-	row := exec.QueryRowContext(ctx, sql, orgID, projectID)
+	row := exec.QueryRowContext(ctx, sql, ownerID, projectID)
 
 	err := row.Scan(&exists)
 	if err != nil {
@@ -991,5 +998,5 @@ func ProjectExists(ctx context.Context, exec boil.ContextExecutor, orgID string,
 
 // Exists checks if the Project row exists.
 func (o *Project) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
-	return ProjectExists(ctx, exec, o.OrgID, o.ProjectID)
+	return ProjectExists(ctx, exec, o.OwnerID, o.ProjectID)
 }

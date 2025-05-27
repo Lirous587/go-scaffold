@@ -24,79 +24,89 @@ import (
 
 // UsageStat is an object representing the database table.
 type UsageStat struct {
-	OrgID        string    `boil:"org_id" json:"org_id" toml:"org_id" yaml:"org_id"`
+	UserID       string    `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
 	MetricName   string    `boil:"metric_name" json:"metric_name" toml:"metric_name" yaml:"metric_name"`
-	CurrentValue null.Int  `boil:"current_value" json:"current_value,omitempty" toml:"current_value" yaml:"current_value,omitempty"`
+	CurrentValue int       `boil:"current_value" json:"current_value" toml:"current_value" yaml:"current_value"`
 	PeriodStart  time.Time `boil:"period_start" json:"period_start" toml:"period_start" yaml:"period_start"`
-	UpdatedAt    null.Time `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
+	PeriodEnd    null.Time `boil:"period_end" json:"period_end,omitempty" toml:"period_end" yaml:"period_end,omitempty"`
+	UpdatedAt    time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 
 	R *usageStatR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L usageStatL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var UsageStatColumns = struct {
-	OrgID        string
+	UserID       string
 	MetricName   string
 	CurrentValue string
 	PeriodStart  string
+	PeriodEnd    string
 	UpdatedAt    string
 }{
-	OrgID:        "org_id",
+	UserID:       "user_id",
 	MetricName:   "metric_name",
 	CurrentValue: "current_value",
 	PeriodStart:  "period_start",
+	PeriodEnd:    "period_end",
 	UpdatedAt:    "updated_at",
 }
 
 var UsageStatTableColumns = struct {
-	OrgID        string
+	UserID       string
 	MetricName   string
 	CurrentValue string
 	PeriodStart  string
+	PeriodEnd    string
 	UpdatedAt    string
 }{
-	OrgID:        "usage_stats.org_id",
+	UserID:       "usage_stats.user_id",
 	MetricName:   "usage_stats.metric_name",
 	CurrentValue: "usage_stats.current_value",
 	PeriodStart:  "usage_stats.period_start",
+	PeriodEnd:    "usage_stats.period_end",
 	UpdatedAt:    "usage_stats.updated_at",
 }
 
 // Generated where
 
-type whereHelpertime_Time struct{ field string }
+type whereHelpernull_Time struct{ field string }
 
-func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.EQ, x)
+func (w whereHelpernull_Time) EQ(x null.Time) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
 }
-func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+func (w whereHelpernull_Time) NEQ(x null.Time) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
 }
-func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
+func (w whereHelpernull_Time) LT(x null.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LT, x)
 }
-func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
+func (w whereHelpernull_Time) LTE(x null.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LTE, x)
 }
-func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
+func (w whereHelpernull_Time) GT(x null.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GT, x)
 }
-func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
+func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
+func (w whereHelpernull_Time) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
 var UsageStatWhere = struct {
-	OrgID        whereHelperstring
+	UserID       whereHelperstring
 	MetricName   whereHelperstring
-	CurrentValue whereHelpernull_Int
+	CurrentValue whereHelperint
 	PeriodStart  whereHelpertime_Time
-	UpdatedAt    whereHelpernull_Time
+	PeriodEnd    whereHelpernull_Time
+	UpdatedAt    whereHelpertime_Time
 }{
-	OrgID:        whereHelperstring{field: "\"usage_stats\".\"org_id\""},
+	UserID:       whereHelperstring{field: "\"usage_stats\".\"user_id\""},
 	MetricName:   whereHelperstring{field: "\"usage_stats\".\"metric_name\""},
-	CurrentValue: whereHelpernull_Int{field: "\"usage_stats\".\"current_value\""},
+	CurrentValue: whereHelperint{field: "\"usage_stats\".\"current_value\""},
 	PeriodStart:  whereHelpertime_Time{field: "\"usage_stats\".\"period_start\""},
-	UpdatedAt:    whereHelpernull_Time{field: "\"usage_stats\".\"updated_at\""},
+	PeriodEnd:    whereHelpernull_Time{field: "\"usage_stats\".\"period_end\""},
+	UpdatedAt:    whereHelpertime_Time{field: "\"usage_stats\".\"updated_at\""},
 }
 
 // UsageStatRels is where relationship names are stored.
@@ -116,10 +126,10 @@ func (*usageStatR) NewStruct() *usageStatR {
 type usageStatL struct{}
 
 var (
-	usageStatAllColumns            = []string{"org_id", "metric_name", "current_value", "period_start", "updated_at"}
-	usageStatColumnsWithoutDefault = []string{"org_id", "metric_name", "period_start"}
-	usageStatColumnsWithDefault    = []string{"current_value", "updated_at"}
-	usageStatPrimaryKeyColumns     = []string{"org_id", "metric_name", "period_start"}
+	usageStatAllColumns            = []string{"user_id", "metric_name", "current_value", "period_start", "period_end", "updated_at"}
+	usageStatColumnsWithoutDefault = []string{"user_id", "metric_name", "period_start"}
+	usageStatColumnsWithDefault    = []string{"current_value", "period_end", "updated_at"}
+	usageStatPrimaryKeyColumns     = []string{"user_id", "metric_name", "period_start"}
 	usageStatGeneratedColumns      = []string{}
 )
 
@@ -441,7 +451,7 @@ func UsageStats(mods ...qm.QueryMod) usageStatQuery {
 
 // FindUsageStat retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindUsageStat(ctx context.Context, exec boil.ContextExecutor, orgID string, metricName string, periodStart time.Time, selectCols ...string) (*UsageStat, error) {
+func FindUsageStat(ctx context.Context, exec boil.ContextExecutor, userID string, metricName string, periodStart time.Time, selectCols ...string) (*UsageStat, error) {
 	usageStatObj := &UsageStat{}
 
 	sel := "*"
@@ -449,10 +459,10 @@ func FindUsageStat(ctx context.Context, exec boil.ContextExecutor, orgID string,
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"usage_stats\" where \"org_id\"=$1 AND \"metric_name\"=$2 AND \"period_start\"=$3", sel,
+		"select %s from \"usage_stats\" where \"user_id\"=$1 AND \"metric_name\"=$2 AND \"period_start\"=$3", sel,
 	)
 
-	q := queries.Raw(query, orgID, metricName, periodStart)
+	q := queries.Raw(query, userID, metricName, periodStart)
 
 	err := q.Bind(ctx, exec, usageStatObj)
 	if err != nil {
@@ -480,8 +490,8 @@ func (o *UsageStat) Insert(ctx context.Context, exec boil.ContextExecutor, colum
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.UpdatedAt).IsZero() {
-			queries.SetScanner(&o.UpdatedAt, currTime)
+		if o.UpdatedAt.IsZero() {
+			o.UpdatedAt = currTime
 		}
 	}
 
@@ -562,7 +572,7 @@ func (o *UsageStat) Update(ctx context.Context, exec boil.ContextExecutor, colum
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		queries.SetScanner(&o.UpdatedAt, currTime)
+		o.UpdatedAt = currTime
 	}
 
 	var err error
@@ -698,7 +708,7 @@ func (o *UsageStat) Upsert(ctx context.Context, exec boil.ContextExecutor, updat
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		queries.SetScanner(&o.UpdatedAt, currTime)
+		o.UpdatedAt = currTime
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
@@ -828,7 +838,7 @@ func (o *UsageStat) Delete(ctx context.Context, exec boil.ContextExecutor) (int6
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), usageStatPrimaryKeyMapping)
-	sql := "DELETE FROM \"usage_stats\" WHERE \"org_id\"=$1 AND \"metric_name\"=$2 AND \"period_start\"=$3"
+	sql := "DELETE FROM \"usage_stats\" WHERE \"user_id\"=$1 AND \"metric_name\"=$2 AND \"period_start\"=$3"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -925,7 +935,7 @@ func (o UsageStatSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *UsageStat) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindUsageStat(ctx, exec, o.OrgID, o.MetricName, o.PeriodStart)
+	ret, err := FindUsageStat(ctx, exec, o.UserID, o.MetricName, o.PeriodStart)
 	if err != nil {
 		return err
 	}
@@ -964,16 +974,16 @@ func (o *UsageStatSlice) ReloadAll(ctx context.Context, exec boil.ContextExecuto
 }
 
 // UsageStatExists checks if the UsageStat row exists.
-func UsageStatExists(ctx context.Context, exec boil.ContextExecutor, orgID string, metricName string, periodStart time.Time) (bool, error) {
+func UsageStatExists(ctx context.Context, exec boil.ContextExecutor, userID string, metricName string, periodStart time.Time) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"usage_stats\" where \"org_id\"=$1 AND \"metric_name\"=$2 AND \"period_start\"=$3 limit 1)"
+	sql := "select exists(select 1 from \"usage_stats\" where \"user_id\"=$1 AND \"metric_name\"=$2 AND \"period_start\"=$3 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, orgID, metricName, periodStart)
+		fmt.Fprintln(writer, userID, metricName, periodStart)
 	}
-	row := exec.QueryRowContext(ctx, sql, orgID, metricName, periodStart)
+	row := exec.QueryRowContext(ctx, sql, userID, metricName, periodStart)
 
 	err := row.Scan(&exists)
 	if err != nil {
@@ -985,5 +995,5 @@ func UsageStatExists(ctx context.Context, exec boil.ContextExecutor, orgID strin
 
 // Exists checks if the UsageStat row exists.
 func (o *UsageStat) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
-	return UsageStatExists(ctx, exec, o.OrgID, o.MetricName, o.PeriodStart)
+	return UsageStatExists(ctx, exec, o.UserID, o.MetricName, o.PeriodStart)
 }

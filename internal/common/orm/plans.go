@@ -25,79 +25,95 @@ import (
 
 // Plan is an object representing the database table.
 type Plan struct {
-	PlanType     string            `boil:"plan_type" json:"plan_type" toml:"plan_type" yaml:"plan_type"`
-	Name         string            `boil:"name" json:"name" toml:"name" yaml:"name"`
-	MaxMembers   null.Int          `boil:"max_members" json:"max_members,omitempty" toml:"max_members" yaml:"max_members,omitempty"`
-	MaxProjects  null.Int          `boil:"max_projects" json:"max_projects,omitempty" toml:"max_projects" yaml:"max_projects,omitempty"`
-	PriceMonthly types.NullDecimal `boil:"price_monthly" json:"price_monthly,omitempty" toml:"price_monthly" yaml:"price_monthly,omitempty"`
-	Features     null.JSON         `boil:"features" json:"features,omitempty" toml:"features" yaml:"features,omitempty"`
+	PlanType           string        `boil:"plan_type" json:"plan_type" toml:"plan_type" yaml:"plan_type"`
+	Name               string        `boil:"name" json:"name" toml:"name" yaml:"name"`
+	MaxTeams           int           `boil:"max_teams" json:"max_teams" toml:"max_teams" yaml:"max_teams"`
+	MaxMembersPerTeam  int           `boil:"max_members_per_team" json:"max_members_per_team" toml:"max_members_per_team" yaml:"max_members_per_team"`
+	MaxProjectsPerTeam int           `boil:"max_projects_per_team" json:"max_projects_per_team" toml:"max_projects_per_team" yaml:"max_projects_per_team"`
+	MaxInvitedUsers    int           `boil:"max_invited_users" json:"max_invited_users" toml:"max_invited_users" yaml:"max_invited_users"`
+	MaxAPICallsMonthly int           `boil:"max_api_calls_monthly" json:"max_api_calls_monthly" toml:"max_api_calls_monthly" yaml:"max_api_calls_monthly"`
+	PriceMonthly       types.Decimal `boil:"price_monthly" json:"price_monthly" toml:"price_monthly" yaml:"price_monthly"`
+	Features           null.JSON     `boil:"features" json:"features,omitempty" toml:"features" yaml:"features,omitempty"`
+	CreatedAt          time.Time     `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 
 	R *planR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L planL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var PlanColumns = struct {
-	PlanType     string
-	Name         string
-	MaxMembers   string
-	MaxProjects  string
-	PriceMonthly string
-	Features     string
+	PlanType           string
+	Name               string
+	MaxTeams           string
+	MaxMembersPerTeam  string
+	MaxProjectsPerTeam string
+	MaxInvitedUsers    string
+	MaxAPICallsMonthly string
+	PriceMonthly       string
+	Features           string
+	CreatedAt          string
 }{
-	PlanType:     "plan_type",
-	Name:         "name",
-	MaxMembers:   "max_members",
-	MaxProjects:  "max_projects",
-	PriceMonthly: "price_monthly",
-	Features:     "features",
+	PlanType:           "plan_type",
+	Name:               "name",
+	MaxTeams:           "max_teams",
+	MaxMembersPerTeam:  "max_members_per_team",
+	MaxProjectsPerTeam: "max_projects_per_team",
+	MaxInvitedUsers:    "max_invited_users",
+	MaxAPICallsMonthly: "max_api_calls_monthly",
+	PriceMonthly:       "price_monthly",
+	Features:           "features",
+	CreatedAt:          "created_at",
 }
 
 var PlanTableColumns = struct {
-	PlanType     string
-	Name         string
-	MaxMembers   string
-	MaxProjects  string
-	PriceMonthly string
-	Features     string
+	PlanType           string
+	Name               string
+	MaxTeams           string
+	MaxMembersPerTeam  string
+	MaxProjectsPerTeam string
+	MaxInvitedUsers    string
+	MaxAPICallsMonthly string
+	PriceMonthly       string
+	Features           string
+	CreatedAt          string
 }{
-	PlanType:     "plans.plan_type",
-	Name:         "plans.name",
-	MaxMembers:   "plans.max_members",
-	MaxProjects:  "plans.max_projects",
-	PriceMonthly: "plans.price_monthly",
-	Features:     "plans.features",
+	PlanType:           "plans.plan_type",
+	Name:               "plans.name",
+	MaxTeams:           "plans.max_teams",
+	MaxMembersPerTeam:  "plans.max_members_per_team",
+	MaxProjectsPerTeam: "plans.max_projects_per_team",
+	MaxInvitedUsers:    "plans.max_invited_users",
+	MaxAPICallsMonthly: "plans.max_api_calls_monthly",
+	PriceMonthly:       "plans.price_monthly",
+	Features:           "plans.features",
+	CreatedAt:          "plans.created_at",
 }
 
 // Generated where
 
-type whereHelpernull_Int struct{ field string }
+type whereHelperstring struct{ field string }
 
-func (w whereHelpernull_Int) EQ(x null.Int) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
+func (w whereHelperstring) EQ(x string) qm.QueryMod      { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperstring) NEQ(x string) qm.QueryMod     { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperstring) LT(x string) qm.QueryMod      { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperstring) LTE(x string) qm.QueryMod     { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperstring) GT(x string) qm.QueryMod      { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperstring) GTE(x string) qm.QueryMod     { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperstring) LIKE(x string) qm.QueryMod    { return qm.Where(w.field+" LIKE ?", x) }
+func (w whereHelperstring) NLIKE(x string) qm.QueryMod   { return qm.Where(w.field+" NOT LIKE ?", x) }
+func (w whereHelperstring) ILIKE(x string) qm.QueryMod   { return qm.Where(w.field+" ILIKE ?", x) }
+func (w whereHelperstring) NILIKE(x string) qm.QueryMod  { return qm.Where(w.field+" NOT ILIKE ?", x) }
+func (w whereHelperstring) SIMILAR(x string) qm.QueryMod { return qm.Where(w.field+" SIMILAR TO ?", x) }
+func (w whereHelperstring) NSIMILAR(x string) qm.QueryMod {
+	return qm.Where(w.field+" NOT SIMILAR TO ?", x)
 }
-func (w whereHelpernull_Int) NEQ(x null.Int) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_Int) LT(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_Int) LTE(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_Int) GT(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_Int) GTE(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-func (w whereHelpernull_Int) IN(slice []int) qm.QueryMod {
+func (w whereHelperstring) IN(slice []string) qm.QueryMod {
 	values := make([]interface{}, 0, len(slice))
 	for _, value := range slice {
 		values = append(values, value)
 	}
 	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
 }
-func (w whereHelpernull_Int) NIN(slice []int) qm.QueryMod {
+func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 	values := make([]interface{}, 0, len(slice))
 	for _, value := range slice {
 		values = append(values, value)
@@ -105,33 +121,48 @@ func (w whereHelpernull_Int) NIN(slice []int) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
-func (w whereHelpernull_Int) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Int) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+type whereHelperint struct{ field string }
 
-type whereHelpertypes_NullDecimal struct{ field string }
+func (w whereHelperint) EQ(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperint) NEQ(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperint) LT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperint) LTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperint) GT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperint) GTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperint) IN(slice []int) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperint) NIN(slice []int) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
 
-func (w whereHelpertypes_NullDecimal) EQ(x types.NullDecimal) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
+type whereHelpertypes_Decimal struct{ field string }
+
+func (w whereHelpertypes_Decimal) EQ(x types.Decimal) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
 }
-func (w whereHelpertypes_NullDecimal) NEQ(x types.NullDecimal) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
+func (w whereHelpertypes_Decimal) NEQ(x types.Decimal) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
 }
-func (w whereHelpertypes_NullDecimal) LT(x types.NullDecimal) qm.QueryMod {
+func (w whereHelpertypes_Decimal) LT(x types.Decimal) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LT, x)
 }
-func (w whereHelpertypes_NullDecimal) LTE(x types.NullDecimal) qm.QueryMod {
+func (w whereHelpertypes_Decimal) LTE(x types.Decimal) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LTE, x)
 }
-func (w whereHelpertypes_NullDecimal) GT(x types.NullDecimal) qm.QueryMod {
+func (w whereHelpertypes_Decimal) GT(x types.Decimal) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GT, x)
 }
-func (w whereHelpertypes_NullDecimal) GTE(x types.NullDecimal) qm.QueryMod {
+func (w whereHelpertypes_Decimal) GTE(x types.Decimal) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelpertypes_NullDecimal) IsNull() qm.QueryMod { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpertypes_NullDecimal) IsNotNull() qm.QueryMod {
-	return qmhelper.WhereIsNotNull(w.field)
 }
 
 type whereHelpernull_JSON struct{ field string }
@@ -158,20 +189,49 @@ func (w whereHelpernull_JSON) GTE(x null.JSON) qm.QueryMod {
 func (w whereHelpernull_JSON) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
 func (w whereHelpernull_JSON) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
+type whereHelpertime_Time struct{ field string }
+
+func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
 var PlanWhere = struct {
-	PlanType     whereHelperstring
-	Name         whereHelperstring
-	MaxMembers   whereHelpernull_Int
-	MaxProjects  whereHelpernull_Int
-	PriceMonthly whereHelpertypes_NullDecimal
-	Features     whereHelpernull_JSON
+	PlanType           whereHelperstring
+	Name               whereHelperstring
+	MaxTeams           whereHelperint
+	MaxMembersPerTeam  whereHelperint
+	MaxProjectsPerTeam whereHelperint
+	MaxInvitedUsers    whereHelperint
+	MaxAPICallsMonthly whereHelperint
+	PriceMonthly       whereHelpertypes_Decimal
+	Features           whereHelpernull_JSON
+	CreatedAt          whereHelpertime_Time
 }{
-	PlanType:     whereHelperstring{field: "\"plans\".\"plan_type\""},
-	Name:         whereHelperstring{field: "\"plans\".\"name\""},
-	MaxMembers:   whereHelpernull_Int{field: "\"plans\".\"max_members\""},
-	MaxProjects:  whereHelpernull_Int{field: "\"plans\".\"max_projects\""},
-	PriceMonthly: whereHelpertypes_NullDecimal{field: "\"plans\".\"price_monthly\""},
-	Features:     whereHelpernull_JSON{field: "\"plans\".\"features\""},
+	PlanType:           whereHelperstring{field: "\"plans\".\"plan_type\""},
+	Name:               whereHelperstring{field: "\"plans\".\"name\""},
+	MaxTeams:           whereHelperint{field: "\"plans\".\"max_teams\""},
+	MaxMembersPerTeam:  whereHelperint{field: "\"plans\".\"max_members_per_team\""},
+	MaxProjectsPerTeam: whereHelperint{field: "\"plans\".\"max_projects_per_team\""},
+	MaxInvitedUsers:    whereHelperint{field: "\"plans\".\"max_invited_users\""},
+	MaxAPICallsMonthly: whereHelperint{field: "\"plans\".\"max_api_calls_monthly\""},
+	PriceMonthly:       whereHelpertypes_Decimal{field: "\"plans\".\"price_monthly\""},
+	Features:           whereHelpernull_JSON{field: "\"plans\".\"features\""},
+	CreatedAt:          whereHelpertime_Time{field: "\"plans\".\"created_at\""},
 }
 
 // PlanRels is where relationship names are stored.
@@ -191,9 +251,9 @@ func (*planR) NewStruct() *planR {
 type planL struct{}
 
 var (
-	planAllColumns            = []string{"plan_type", "name", "max_members", "max_projects", "price_monthly", "features"}
+	planAllColumns            = []string{"plan_type", "name", "max_teams", "max_members_per_team", "max_projects_per_team", "max_invited_users", "max_api_calls_monthly", "price_monthly", "features", "created_at"}
 	planColumnsWithoutDefault = []string{"plan_type", "name"}
-	planColumnsWithDefault    = []string{"max_members", "max_projects", "price_monthly", "features"}
+	planColumnsWithDefault    = []string{"max_teams", "max_members_per_team", "max_projects_per_team", "max_invited_users", "max_api_calls_monthly", "price_monthly", "features", "created_at"}
 	planPrimaryKeyColumns     = []string{"plan_type"}
 	planGeneratedColumns      = []string{}
 )
@@ -552,6 +612,13 @@ func (o *Plan) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 	}
 
 	var err error
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
+		}
+	}
 
 	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
 		return err
@@ -756,6 +823,13 @@ func (o PlanSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, col
 func (o *Plan) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns, opts ...UpsertOptionFunc) error {
 	if o == nil {
 		return errors.New("orm: no plans provided for upsert")
+	}
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
+		}
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
