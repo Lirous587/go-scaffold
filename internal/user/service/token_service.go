@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"os"
 	"scaffold/internal/common/jwt"
+	"scaffold/internal/common/utils"
 	"scaffold/internal/user/domain"
 	"strconv"
 	"time"
@@ -60,21 +61,26 @@ func (t tokenService) ValidateAccessToken(token string) (claim domain.JwtPayload
 	return claims.PayLoad, false, nil
 }
 
-func (t tokenService) GenerateRefreshToken(userID string) (string, error) {
-	return t.tokenCache.GenRefreshToken(userID)
-}
-
-func (t tokenService) RefreshAccessToken(userID, refreshToken string) (string, error) {
-	if err := t.tokenCache.ValidateRefreshToken(userID, refreshToken); err != nil {
+func (t tokenService) RefreshAccessToken(payload domain.JwtPayload, refreshToken string) (string, error) {
+	if err := t.tokenCache.ValidateRefreshToken(payload, refreshToken); err != nil {
 		return "", err
 	}
 	// 为后续扩展jwt字段保留空间
-	user, err := t.userRepo.FindByID(userID)
+	user, err := t.userRepo.FindByID(payload.UserID)
 	if err != nil {
 		return "", err
 	}
-	payload := domain.JwtPayload{
-		UserID: user.ID,
+	newPayload := domain.JwtPayload{
+		UserID:     user.ID,
+		RandomCode: utils.GenRandomCodeForJWT(),
 	}
-	return t.GenerateAccessToken(payload)
+	return t.GenerateAccessToken(newPayload)
+}
+
+func (t tokenService) GenerateRefreshToken(payload domain.JwtPayload) (string, error) {
+	return t.tokenCache.GenRefreshToken(payload)
+}
+
+func (t tokenService) ResetRefreshTokenExpiry(payload domain.JwtPayload) error {
+	return t.tokenCache.ResetRefreshTokenExpiry(payload)
 }

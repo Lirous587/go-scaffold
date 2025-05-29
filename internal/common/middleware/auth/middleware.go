@@ -1,6 +1,7 @@
 ﻿package auth
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"scaffold/internal/common/response"
 	"scaffold/internal/user/adapters"
@@ -43,24 +44,25 @@ func Validate() gin.HandlerFunc {
 		// 1. 从请求头解析 Token
 		tokenStr, err := parseTokenFromHeader(c)
 		if err != nil {
-			response.Error(c, domain.ErrTokenExpired)
+			response.Error(c, err)
 			return
 		}
 
 		// 2. 解析 Token
 		payload, isExpire, err := tokenServer.ValidateAccessToken(tokenStr)
 		if err != nil {
+			fmt.Println(err)
 			if isExpire {
 				response.Error(c, domain.ErrTokenExpired)
 			} else {
 				response.Error(c, domain.ErrTokenInvalid)
 			}
 			return
-
 		}
 
 		// 3. 将用户 相关信息存入上下文
 		c.Set("user_id", payload.UserID)
+		//c.Set("random_code", payload.RandomCode)
 
 		c.Next()
 	}

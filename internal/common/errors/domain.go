@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -51,7 +52,6 @@ func (e *DomainError) WithCause(cause error) *DomainError {
 	return e
 }
 
-// 错误构造函数
 func New(errorType ErrorType, code, message string) *DomainError {
 	return &DomainError{
 		Type:    errorType,
@@ -94,7 +94,8 @@ func NewRateLimit(code, message string) *DomainError {
 
 // 类型检查函数
 func IsType(err error, errorType ErrorType) bool {
-	domainErr, ok := err.(*DomainError)
+	var domainErr *DomainError
+	ok := errors.As(err, &domainErr)
 	return ok && domainErr.Type == errorType
 }
 

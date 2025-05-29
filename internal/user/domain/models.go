@@ -21,7 +21,8 @@ type User struct {
 }
 
 type JwtPayload struct {
-	UserID string `json:"user_id"`
+	UserID     string `json:"user_id"`
+	RandomCode string `json:"random_code"`
 }
 
 type User2Token struct {

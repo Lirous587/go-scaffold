@@ -36,7 +36,7 @@ func GenToken[T any](payload T, secret string, duration time.Duration) (string, 
 	return token.SignedString([]byte(secret))
 }
 
-func ParseToken[T any](tokenString string, secret string) (myClaims *MyClaims[T], err error) {
+func ParseToken[T any](tokenString string, secret string) (myClaims MyClaims[T], err error) {
 	token, err := jwt.ParseWithClaims(tokenString, &MyClaims[T]{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
@@ -45,15 +45,15 @@ func ParseToken[T any](tokenString string, secret string) (myClaims *MyClaims[T]
 		// 对于 JWT v5，直接判断错误类型
 		switch {
 		case errors.Is(err, jwt.ErrTokenExpired):
-			return nil, ErrTokenExpired
+			return MyClaims[T]{}, ErrTokenExpired
 		default:
-			return nil, ErrInvalidToken
+			return MyClaims[T]{}, ErrInvalidToken
 		}
 	}
 
 	if claims, ok := token.Claims.(*MyClaims[T]); ok && token.Valid {
-		return claims, nil
+		return *claims, nil
 	}
 
-	return nil, ErrInvalidToken
+	return MyClaims[T]{}, ErrInvalidToken
 }

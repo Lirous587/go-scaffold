@@ -3,7 +3,7 @@ package domain
 // 纯业务逻辑，不依赖传输层
 type UserService interface {
 	AuthenticateWithOAuth(provider string, userInfo *OAuthUserInfo) (*User2Token, error)
-	RefreshUserToken(userID string, refreshToken string) (*User2Token, error)
+	RefreshUserToken(payload JwtPayload, refreshToken string) (*User2Token, error)
 
 	GetUser(userID string) (*User, error)
 	UpdateUserProfile(userID string, updates *UserProfileUpdate) (*User, error)
@@ -18,7 +18,8 @@ type UserService interface {
 type TokenService interface {
 	GenerateAccessToken(payload JwtPayload) (string, error)
 	ValidateAccessToken(token string) (payload JwtPayload, isExpire bool, err error)
-	RefreshAccessToken(userID, refreshToken string) (string, error)
+	RefreshAccessToken(domain JwtPayload, refreshToken string) (string, error)
 
-	GenerateRefreshToken(userID string) (string, error)
+	GenerateRefreshToken(payload JwtPayload) (string, error)
+	ResetRefreshTokenExpiry(domain JwtPayload) error
 }

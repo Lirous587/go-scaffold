@@ -12,6 +12,8 @@ type GithubAuthRequest struct {
 }
 
 type RefreshTokenRequest struct {
+	UserID       string `json:"user_id" binding:"required"`
+	RandomCode   string `json:"random_code" binding:"required"`
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
@@ -38,13 +40,11 @@ type AuthResponse struct {
 	User         *UserResponse `json:"user"`
 	AccessToken  string        `json:"access_token"`
 	RefreshToken string        `json:"refresh_token"`
-	ExpiresAt    time.Time     `json:"expires_at"`
 }
 
 type RefreshTokenResponse struct {
-	AccessToken  string    `json:"access_token"`
-	RefreshToken string    `json:"refresh_token"`
-	ExpiresAt    time.Time `json:"expires_at"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // GitHub API 响应模型

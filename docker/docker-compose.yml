@@ -131,7 +131,7 @@
 
   # Redis 服务
   redis:
-    image: redis:7.2-alpine
+    image: redis:7.4-alpine
     container_name: redis-cache
     ports:
       - "16379:6379"

@@ -32,7 +32,7 @@ type TeamRepository interface {
 }
 
 type TokenCache interface {
-	GenRefreshToken(userID string) (string, error)
-	ValidateRefreshToken(userID string, refreshToken string) error
-	ResetRefreshTokenExpiry(userID string) error
+	GenRefreshToken(domain JwtPayload) (string, error)
+	ValidateRefreshToken(domain JwtPayload, refreshToken string) error
+	ResetRefreshTokenExpiry(domain JwtPayload) error
 }

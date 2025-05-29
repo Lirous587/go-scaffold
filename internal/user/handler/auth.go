@@ -54,19 +54,12 @@ func (h *HttpHandler) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		response.Error(ctx, domain.ErrRefreshTokenInvalid)
-		return
+	payload := domain.JwtPayload{
+		UserID:     req.UserID,
+		RandomCode: req.RandomCode,
 	}
 
-	userIDStr, ok := userID.(string)
-	if !ok {
-		response.Error(ctx, domain.ErrRefreshTokenInvalid)
-		return
-	}
-
-	session, err := h.userService.RefreshUserToken(userIDStr, req.RefreshToken)
+	session, err := h.userService.RefreshUserToken(payload, req.RefreshToken)
 	if err != nil {
 		response.Error(ctx, err)
 		return
@@ -74,6 +67,19 @@ func (h *HttpHandler) RefreshToken(ctx *gin.Context) {
 
 	res := DomainSessionToRefreshResponse(session)
 	response.Success(ctx, res)
+}
+
+func (h *HttpHandler) getUserID(ctx *gin.Context) (string, error) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		return "", domain.ErrTokenInvalid
+	}
+
+	userIDStr, ok := userID.(string)
+	if !ok {
+		return "", domain.ErrTokenInvalid
+	}
+	return userIDStr, nil
 }
 
 // GitHub API 调用逻辑 - 返回包装好的领域错误

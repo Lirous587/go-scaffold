@@ -52,6 +52,7 @@ func printBusinessStack(err error) {
 			!strings.Contains(currentLine, "github.com/gin-gonic") &&
 			!strings.Contains(currentLine, "net/http") &&
 			!strings.Contains(currentLine, "net/http") &&
+			!strings.Contains(currentLine, "internal/common/server") &&
 			strings.Contains(nextLine, ".go:") {
 			log.Println(currentLine)
 			log.Println(nextLine)
@@ -92,8 +93,14 @@ func logHandler() gin.HandlerFunc {
 
 		ctx.Next()
 
-		cost := time.Since(start).Milliseconds()
 		statusCode := ctx.Writer.Status()
+		// 忽略404
+		if statusCode == 404 {
+			return
+		}
+
+		cost := time.Since(start).Milliseconds()
+
 		var errMsg string
 		if len(ctx.Errors) > 0 {
 			errMsg = ctx.Errors.String()
@@ -120,11 +127,16 @@ func metricsHandler(metricsClient metrics.Client) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		start := time.Now()
 		ctx.Next()
-		duration := time.Since(start).Seconds()
 
+		statusCode := ctx.Writer.Status()
+		// 忽略404
+		if statusCode == 404 {
+			return
+		}
+
+		cost := time.Since(start).Seconds()
 		method := ctx.Request.Method
 		path := ctx.FullPath()
-		statusCode := ctx.Writer.Status()
 
 		// action 细化
 		action := method + " " + path
@@ -143,6 +155,6 @@ func metricsHandler(metricsClient metrics.Client) gin.HandlerFunc {
 		}
 
 		metricsClient.Inc(action, status, 1)
-		metricsClient.ObserveDuration(action, status, duration)
+		metricsClient.ObserveDuration(action, status, cost)
 	}
 }

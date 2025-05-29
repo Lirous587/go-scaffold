@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"os"
+	"scaffold/internal/common/utils"
 	"time"
 
 	"github.com/pkg/errors"
@@ -50,7 +51,8 @@ func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OA
 
 	// 3. 生成 Token
 	payload := domain.JwtPayload{
-		UserID: user.ID,
+		UserID:     user.ID,
+		RandomCode: utils.GenRandomCodeForJWT(),
 	}
 
 	accessToken, err := s.tokenService.GenerateAccessToken(payload)
@@ -58,7 +60,7 @@ func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OA
 		return nil, errors.WithStack(err)
 	}
 
-	refreshToken, err := s.tokenService.GenerateRefreshToken(user.ID)
+	refreshToken, err := s.tokenService.GenerateRefreshToken(payload)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -69,10 +71,15 @@ func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OA
 	}, nil
 }
 
-func (s *userService) RefreshUserToken(userID string, refreshToken string) (*domain.User2Token, error) {
+func (s *userService) RefreshUserToken(payload domain.JwtPayload, refreshToken string) (*domain.User2Token, error) {
 	//1 . 生成新的 access token
-	accessToken, err := s.tokenService.RefreshAccessToken(userID, refreshToken)
+	accessToken, err := s.tokenService.RefreshAccessToken(payload, refreshToken)
 	if err != nil {
+		return nil, err
+	}
+
+	//2. 刷新refresh token的时间
+	if err := s.tokenService.ResetRefreshTokenExpiry(payload); err != nil {
 		return nil, err
 	}
 
