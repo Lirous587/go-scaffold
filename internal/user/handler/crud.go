@@ -2,24 +2,16 @@
 
 import (
 	"github.com/gin-gonic/gin"
-	"scaffold/internal/common/response"
-	"scaffold/internal/user/domain"
+	"scaffold/internal/common/reskit/response"
 )
 
 func (h *HttpHandler) GetProfile(ctx *gin.Context) {
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		response.Error(ctx, domain.ErrRefreshTokenInvalid)
-		return
+	userID, err := h.getUserID(ctx)
+	if err != nil {
+		response.Error(ctx, err)
 	}
 
-	userIDStr, ok := userID.(string)
-	if !ok {
-		response.Error(ctx, domain.ErrRefreshTokenInvalid)
-		return
-	}
-
-	user, err := h.userService.GetUser(userIDStr)
+	user, err := h.userService.GetUser(userID)
 	if err != nil {
 		response.Error(ctx, err)
 		return
@@ -30,16 +22,9 @@ func (h *HttpHandler) GetProfile(ctx *gin.Context) {
 }
 
 func (h *HttpHandler) UpdateProfile(ctx *gin.Context) {
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		response.Error(ctx, domain.ErrRefreshTokenInvalid)
-		return
-	}
-
-	userIDStr, ok := userID.(string)
-	if !ok {
-		response.Error(ctx, domain.ErrRefreshTokenInvalid)
-		return
+	userID, err := h.getUserID(ctx)
+	if err != nil {
+		response.Error(ctx, err)
 	}
 
 	req := new(UserProfileUpdateRequest)
@@ -49,7 +34,7 @@ func (h *HttpHandler) UpdateProfile(ctx *gin.Context) {
 	}
 
 	updates := HTTPUserUpdateToDomain(req)
-	user, err := h.userService.UpdateUserProfile(userIDStr, updates)
+	user, err := h.userService.UpdateUserProfile(userID, updates)
 	if err != nil {
 		response.Error(ctx, err)
 		return

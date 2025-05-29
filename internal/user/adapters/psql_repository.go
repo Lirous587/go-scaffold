@@ -5,7 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 	"os"
+	"scaffold/internal/common/reskit/codes"
 	"strings"
 	"time"
 
@@ -46,8 +48,8 @@ func (r *PSQLUserRepository) FindByID(userID string) (*domain.User, error) {
 	ctx := context.Background()
 	ormUser, err := orm.Users(orm.UserWhere.UserID.EQ(userID)).One(ctx, r.db)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, domain.ErrUserNotFound
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, codes.ErrUserNotFound
 		}
 		return nil, fmt.Errorf("database error: %w", err)
 	}
@@ -58,8 +60,8 @@ func (r *PSQLUserRepository) FindByEmail(email string) (*domain.User, error) {
 	ctx := context.Background()
 	ormUser, err := orm.Users(orm.UserWhere.Email.EQ(email)).One(ctx, r.db)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, domain.ErrUserNotFound
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, codes.ErrUserNotFound
 		}
 		return nil, fmt.Errorf("database error: %w", err)
 	}
@@ -108,12 +110,12 @@ func (r *PSQLUserRepository) FindByOAuthID(provider, oauthID string) (*domain.Us
 			orm.UserWhere.GitlabID.EQ(null.StringFrom(oauthID)),
 		).One(ctx, r.db)
 	default:
-		return nil, domain.ErrInvalidOAuthProvider
+		return nil, codes.ErrOAuthInvalidCode
 	}
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, domain.ErrUserNotFound
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, codes.ErrUserNotFound
 		}
 		return nil, fmt.Errorf("database error: %w", err)
 	}

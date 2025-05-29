@@ -2,12 +2,13 @@
 
 import (
 	"os"
+	"scaffold/internal/common/reskit/codes"
+	"scaffold/internal/common/reskit/response"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"resty.dev/v3"
 
-	"scaffold/internal/common/response"
 	"scaffold/internal/user/domain"
 )
 
@@ -31,14 +32,14 @@ func (h *HttpHandler) GithubAuth(ctx *gin.Context) {
 	// 1. 获取 GitHub 用户信息
 	userInfo, err := h.getGithubUserInfo(req.Code)
 	if err != nil {
-		response.Error(ctx, err) // 直接传递已包装的领域错误
+		response.ValidationError(ctx, err)
 		return
 	}
 
 	// 2. 调用业务逻辑
 	session, err := h.userService.AuthenticateWithOAuth("github", userInfo)
 	if err != nil {
-		response.Error(ctx, err)
+		response.ValidationError(ctx, err)
 		return
 	}
 
@@ -72,12 +73,12 @@ func (h *HttpHandler) RefreshToken(ctx *gin.Context) {
 func (h *HttpHandler) getUserID(ctx *gin.Context) (string, error) {
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		return "", domain.ErrTokenInvalid
+		return "", codes.ErrTokenExpired
 	}
 
 	userIDStr, ok := userID.(string)
 	if !ok {
-		return "", domain.ErrTokenInvalid
+		return "", codes.ErrTokenExpired
 	}
 	return userIDStr, nil
 }
@@ -86,12 +87,12 @@ func (h *HttpHandler) getUserID(ctx *gin.Context) (string, error) {
 func (h *HttpHandler) getGithubUserInfo(code string) (*domain.OAuthUserInfo, error) {
 	accessToken, err := h.getGithubAccessToken(code)
 	if err != nil {
-		return nil, domain.NewGitHubAPIError("get_access_token", err)
+		return nil, codes.ErrGitHubAPIError.WithSlug("get_access_token 获取失败").WithCause(err)
 	}
 
 	userInfo, err := h.fetchGithubUserInfo(accessToken)
 	if err != nil {
-		return nil, domain.NewGitHubAPIError("get_user_info", err)
+		return nil, codes.ErrGitHubAPIError.WithSlug("get_user_info 获取失败").WithCause(err)
 	}
 
 	return userInfo, nil
@@ -102,7 +103,9 @@ func (h *HttpHandler) getGithubAccessToken(code string) (string, error) {
 	clientSecret := os.Getenv("GITHUB_CLIENT_SECRET")
 
 	if clientID == "" || clientSecret == "" {
-		return "", domain.ErrInvalidOAuthCode.WithDetail("reason", "missing_credentials")
+		return "", codes.ErrOAuthInvalidCode.WithDetail(map[string]any{
+			"reason": "missing_credentials",
+		})
 	}
 
 	client := resty.New()
@@ -123,7 +126,9 @@ func (h *HttpHandler) getGithubAccessToken(code string) (string, error) {
 	}
 
 	if result.AccessToken == "" {
-		return "", domain.ErrInvalidOAuthCode.WithDetail("reason", "empty_access_token")
+		return "", codes.ErrOAuthInvalidCode.WithDetail(map[string]any{
+			"reason": "empty_access_token",
+		})
 	}
 
 	return result.AccessToken, nil

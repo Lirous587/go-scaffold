@@ -1,9 +1,9 @@
 ﻿package auth
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
-	"scaffold/internal/common/response"
+	"scaffold/internal/common/reskit/codes"
+	"scaffold/internal/common/reskit/response"
 	"scaffold/internal/user/adapters"
 	"scaffold/internal/user/domain"
 	"scaffold/internal/user/service"
@@ -51,11 +51,10 @@ func Validate() gin.HandlerFunc {
 		// 2. 解析 Token
 		payload, isExpire, err := tokenServer.ValidateAccessToken(tokenStr)
 		if err != nil {
-			fmt.Println(err)
 			if isExpire {
-				response.Error(c, domain.ErrTokenExpired)
+				response.Error(c, codes.ErrTokenExpired)
 			} else {
-				response.Error(c, domain.ErrTokenInvalid)
+				response.Error(c, codes.ErrTokenInvalid)
 			}
 			return
 		}

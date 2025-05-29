@@ -1,4 +1,4 @@
-package errors
+package codes
 
 import (
 	"errors"
@@ -16,6 +16,7 @@ type HTTPErrorResponse struct {
 type HTTPError struct {
 	StatusCode int
 	Response   HTTPErrorResponse
+	Cause      error
 }
 
 // MapToHTTP 将领域错误映射为HTTP错误
@@ -30,10 +31,16 @@ func MapToHTTP(err error) HTTPError {
 		}
 	}
 
-	var domainErr *DomainError
-	ok := errors.As(err, &domainErr)
-	if !ok {
-		// 不是领域错误，返回通用服务器错误
+	var errCode ErrCode
+	var errCode2 ErrCodeWithDetail
+	var errCode3 ErrCodeWithCause
+
+	ok1 := errors.As(err, &errCode)
+	ok2 := errors.As(err, &errCode2)
+	ok3 := errors.As(err, &errCode3)
+
+	if !ok1 && !ok2 && !ok3 {
+		// 不是自定义错误，返回通用服务器错误
 		return HTTPError{
 			StatusCode: http.StatusInternalServerError,
 			Response: HTTPErrorResponse{
@@ -42,14 +49,35 @@ func MapToHTTP(err error) HTTPError {
 			},
 		}
 	}
+	if ok1 {
+		return HTTPError{
+			StatusCode: mapTypeToHTTPStatus(errCode.Type),
+			Response: HTTPErrorResponse{
+				Code:    errCode.Code,
+				Message: errCode.Msg,
+			},
+		}
+	}
+
+	if ok2 {
+		return HTTPError{
+			StatusCode: mapTypeToHTTPStatus(errCode2.Type),
+			Response: HTTPErrorResponse{
+				Code:    errCode2.Code,
+				Message: errCode2.Msg,
+				Details: errCode3.Detail,
+			},
+		}
+	}
 
 	return HTTPError{
-		StatusCode: mapTypeToHTTPStatus(domainErr.Type),
+		StatusCode: mapTypeToHTTPStatus(errCode3.Type),
 		Response: HTTPErrorResponse{
-			Code:    mapTypeToHTTPCode(domainErr.Type),
-			Message: domainErr.Message,
-			Details: domainErr.Details,
+			Code:    errCode3.Code,
+			Message: errCode3.Msg,
+			Details: errCode3.Detail,
 		},
+		Cause: errCode3.Cause,
 	}
 }
 
@@ -72,27 +100,5 @@ func mapTypeToHTTPStatus(errorType ErrorType) int {
 		return http.StatusBadGateway
 	default: // ErrorTypeInternal
 		return http.StatusInternalServerError
-	}
-}
-
-// mapTypeToHTTPCode 映射错误类型到业务错误码
-func mapTypeToHTTPCode(errorType ErrorType) int {
-	switch errorType {
-	case ErrorTypeValidation:
-		return 4000
-	case ErrorTypeUnauthorized:
-		return 4010
-	case ErrorTypeForbidden:
-		return 4030
-	case ErrorTypeNotFound:
-		return 4040
-	case ErrorTypeAlreadyExists:
-		return 4090
-	case ErrorTypeRateLimit:
-		return 4290
-	case ErrorTypeExternal:
-		return 5020
-	default: // ErrorTypeInternal
-		return 5000
 	}
 }

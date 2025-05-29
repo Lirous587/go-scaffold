@@ -1,13 +1,14 @@
 package response
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	"scaffold/internal/common/reskit/codes"
 
-	commonErrors "scaffold/internal/common/errors"
 	"scaffold/internal/common/validator/i18n"
 )
 
-// successResponse 成功响应结构
 type successResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -20,7 +21,7 @@ func Success(c *gin.Context, data interface{}) {
 	if c.Writer.Written() {
 		return
 	}
-	
+
 	c.JSON(200, successResponse{
 		Code:    2000,
 		Message: "Success",
@@ -30,38 +31,44 @@ func Success(c *gin.Context, data interface{}) {
 
 // Error 返回错误响应
 func Error(c *gin.Context, err error) {
-	// 记录错误到 Gin 的错误列表（用于日志中间件）
-	c.Error(err)
-
 	// 如果已经响应过，直接返回
 	if c.Writer.Written() {
 		return
 	}
 
 	// 映射错误
-	httpErr := commonErrors.MapToHTTP(err)
+	httpErr := codes.MapToHTTP(err)
+
+	// 将需要日志记录的错误到Gin的错误列表 让后续中间件去记录
+	if httpErr.Cause != nil {
+		msg := httpErr.Response.Message
+		if httpErr.Response.Details != nil {
+			msg = fmt.Sprintf("%s | details: %v", msg, httpErr.Response.Details)
+		}
+		_ = c.Error(errors.WithMessage(httpErr.Cause, msg))
+	}
 
 	c.AbortWithStatusJSON(httpErr.StatusCode, httpErr.Response)
 }
 
 // ValidationError 返回验证错误响应
 func ValidationError(c *gin.Context, err error) {
-	// 记录错误
-	c.Error(err)
-
 	// 如果已经响应过，直接返回
 	if c.Writer.Written() {
 		return
 	}
 
+	// 记录错误
+	_ = c.Error(err)
+
 	// 翻译验证错误
 	validationErrors := i18n.TranslateError(err)
 
-	c.AbortWithStatusJSON(400, commonErrors.HTTPErrorResponse{
+	c.AbortWithStatusJSON(400, codes.HTTPErrorResponse{
 		Code:    4000,
 		Message: "Validation failed",
 		Details: map[string]interface{}{
-			"validation_errors": validationErrors,
+			"errors": validationErrors,
 		},
 	})
 }

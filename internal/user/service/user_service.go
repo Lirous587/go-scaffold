@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"os"
+	"scaffold/internal/common/reskit/codes"
 	"scaffold/internal/common/utils"
 	"time"
 
@@ -108,7 +109,7 @@ func (s *userService) UpdateUserProfile(userID string, updates *domain.UserProfi
 		if exists, err := s.userRepo.UsernameExists(*updates.Username); err != nil {
 			return nil, err
 		} else if exists {
-			return nil, domain.ErrUserAlreadyExists
+			return nil, codes.ErrUserAlreadyExists
 		}
 		user.Username = *updates.Username
 	}
@@ -143,7 +144,7 @@ func (s *userService) findOrCreateUserByOAuth(provider string, userInfo *domain.
 		return user, false, nil
 	}
 
-	if !errors.Is(err, domain.ErrUserNotFound) {
+	if !errors.Is(err, codes.ErrUserNotFound) {
 		return nil, false, errors.WithStack(err)
 	}
 
@@ -156,7 +157,7 @@ func (s *userService) findOrCreateUserByOAuth(provider string, userInfo *domain.
 			return user, false, err
 		}
 
-		if !errors.Is(err, domain.ErrUserNotFound) {
+		if !errors.Is(err, codes.ErrUserNotFound) {
 			return nil, false, errors.WithStack(err)
 		}
 	}
