@@ -4,21 +4,7 @@
 package orm
 
 var TableNames = struct {
-	Plans             string
-	ProjectMembers    string
-	Projects          string
-	TeamMembers       string
-	Teams             string
-	UsageStats        string
-	UserSubscriptions string
-	Users             string
+	Users string
 }{
-	Plans:             "plans",
-	ProjectMembers:    "project_members",
-	Projects:          "projects",
-	TeamMembers:       "team_members",
-	Teams:             "teams",
-	UsageStats:        "usage_stats",
-	UserSubscriptions: "user_subscriptions",
-	Users:             "users",
+	Users: "users",
 }

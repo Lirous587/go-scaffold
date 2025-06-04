@@ -25,7 +25,6 @@
 - [Zap](https://github.com/uber-go/zap) - 高性能、结构化日志
 - [Wire](https://github.com/google/wire) - Wire 依赖注入
 - [JWT](https://github.com/golang-jwt/jwt) - JWT 鉴权管理
-- [go-gomail](https://github.com/go-gomail/gomail) - go-gomail 邮箱库
 
 ## 📁 项目结构
 
@@ -61,7 +60,7 @@ scaffold/
 ### 前置要求
 
 - Go 1.18+
-- MySQL 5.7+ 或 PostgreSQL 10+
+- PostgreSQL 10+
 - Redis 6.0+
 
 ### 快速开始
@@ -153,7 +152,6 @@ go run main.go
 - [Zap](https://github.com/uber-go/zap)
 - [Wire](https://github.com/google/wire)
 - [JWT](https://github.com/golang-jwt/jwt)
-- [go-gomail](https://github.com/go-gomail/gomail)
 
 ---
 
