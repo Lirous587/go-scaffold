@@ -17,20 +17,6 @@ type UserRepository interface {
 	GenerateUniqueUsername(preferred string) (string, error)
 }
 
-type TeamRepository interface {
-	// 团队 CRUD
-	CreateTeam(team *Team) (*Team, error)
-	FindTeamByID(teamID string) (*Team, error)
-	FindTeamsByOwner(ownerID string) ([]*Team, error)
-	UpdateTeam(team *Team) (*Team, error)
-
-	// 团队成员管理
-	AddTeamMember(member *TeamMember) error
-	RemoveTeamMember(teamID, userID string) error
-	FindTeamMembers(teamID string) ([]*TeamMember, error)
-	FindUserTeams(userID string) ([]*Team, error)
-}
-
 type TokenCache interface {
 	GenRefreshToken(domain JwtPayload) (string, error)
 	ValidateRefreshToken(domain JwtPayload, refreshToken string) error

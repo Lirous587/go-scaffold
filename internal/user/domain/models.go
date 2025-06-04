@@ -46,28 +46,3 @@ type UserProfileUpdate struct {
 	Username *string `json:"username,omitempty"`
 	Avatar   *string `json:"avatar,omitempty"`
 }
-
-// 团队（为后续微服务做准备）
-type Team struct {
-	ID          string    `json:"id"`
-	OwnerID     string    `json:"owner_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description,omitempty"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
-
-type TeamMember struct {
-	TeamID   string    `json:"team_id"`
-	UserID   string    `json:"user_id"`
-	Role     string    `json:"role"`
-	JoinedAt time.Time `json:"joined_at"`
-	Status   string    `json:"status"`
-}
-
-// 团队创建请求（值对象）
-type TeamCreateRequest struct {
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description,omitempty"`
-}

@@ -1,7 +1,6 @@
 ﻿package service
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 	"os"
 	"scaffold/internal/common/reskit/codes"
@@ -118,21 +117,6 @@ func (s *userService) UpdateUserProfile(userID string, updates *domain.UserProfi
 	}
 
 	return s.userRepo.Update(user)
-}
-
-func (s *userService) CreateTeam(ownerID string, teamInfo *domain.TeamCreateRequest) (*domain.Team, error) {
-	// TODO: 实现团队创建逻辑
-	return nil, fmt.Errorf("not implemented")
-}
-
-func (s *userService) GetUserTeams(userID string) ([]*domain.Team, error) {
-	// TODO: 实现获取用户团队逻辑
-	return nil, fmt.Errorf("not implemented")
-}
-
-func (s *userService) JoinTeam(userID, teamID string) error {
-	// TODO: 实现加入团队逻辑
-	return fmt.Errorf("not implemented")
 }
 
 // 私有辅助方法
