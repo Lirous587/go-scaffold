@@ -1,0 +1,16 @@
+﻿package service
+
+import (
+	"scaffold/internal/{{.Domain}}/domain"
+)
+
+type service struct {
+	repo     domain.{{.DomainTitle}}Repository
+}
+
+func New{{.DomainTitle}}Service(repo domain.{{.DomainTitle}}Repository) domain.{{.DomainTitle}}Service {
+	return &service{
+		repo:     repo,
+	}
+}
+

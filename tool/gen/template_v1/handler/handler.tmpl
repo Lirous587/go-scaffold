@@ -1,0 +1,15 @@
+﻿package handler
+
+import (
+    "scaffold/internal/{{.Domain}}/domain"
+)
+
+type HttpHandler struct {
+    service domain.{{.DomainTitle}}Service
+}
+
+func NewHttpHandler(service domain.{{.DomainTitle}}Service) *HttpHandler {
+    return &HttpHandler{
+        service: service,
+    }
+}

@@ -7,18 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 	"scaffold/internal/{{.Domain}}/adapters"
-	"scaffold/internal/{{.Domain}}/infrastructure"
+	"scaffold/internal/{{.Domain}}/handler"
+	"scaffold/internal/{{.Domain}}/service"
 )
 
-func InitV1(r *gin.RouterGroup) bool {
+func InitV1(r *gin.RouterGroup) func() {
 	wire.Build(
 		RegisterV1,
-		NewController,
-		NewService,
-		adapters.NewPSQLRepository,
-		adapters.NewRedisCache,
-		wire.Bind(new(infrastructure.{{.DomainTitle}}Repository), new(*adapters.PSQLRepository)),
-		wire.Bind(new(infrastructure.{{.DomainTitle}}Cache), new(*adapters.RedisCache)),
+		handler.NewHttpHandler,
+		service.New{{.DomainTitle}}Service,
+		adapters.NewPSQL{{.DomainTitle}}Repository,
 	)
-	return true
+
+	return nil
 }
+

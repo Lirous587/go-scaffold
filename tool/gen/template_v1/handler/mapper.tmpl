@@ -1,0 +1,19 @@
+﻿package handler
+
+import (
+    "scaffold/internal/{{.Domain}}/domain"
+)
+
+type {{.DomainTitle}}Response struct{
+}
+
+func Domain{{.DomainTitle}}ToResponse({{.Domain}} *domain.{{.DomainTitle}}) *{{.DomainTitle}}Response {
+    if {{.Domain}} == nil {
+        return nil
+    }
+
+    return &{{.DomainTitle}}Response{
+
+    }
+}
+

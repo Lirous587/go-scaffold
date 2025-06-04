@@ -2,14 +2,15 @@ package {{.Domain}}
 
 import (
 	"github.com/gin-gonic/gin"
+	"scaffold/internal/{{.Domain}}/handler"
 )
 
-func RegisterV1(r *gin.RouterGroup, ctrl *Controller) bool {
-	g := r.Group("/v1/{{.Domain}}")
+func RegisterV1(r *gin.RouterGroup, handler *handler.HttpHandler) func() {
+	// g := r.Group("/v1/{{.Domain}}")
 	{
-        g.POST("/", ctrl.Create{{.DomainTitle}})
-        g.DELETE("/:id", ctrl.Delete{{.DomainTitle}})
-		g.PUT("/:id", ctrl.Update{{.DomainTitle}})
+        // g.POST("/", handler.Create{{.DomainTitle}})
+		// g.DELETE("/:id", handler.Delete{{.DomainTitle}})
+		// g.PUT("/:id", handler.Update{{.DomainTitle}})
 	}
-	return true
+	return nil
 }

@@ -1,0 +1,43 @@
+package adapters
+
+import (
+	"scaffold/internal/common/orm"
+	"scaffold/internal/{{.Domain}}/domain"
+)
+
+func domain{{.DomainTitle}}ToORM({{.Domain}} *domain.{{.DomainTitle}}) *orm.{{.DomainTitle}} {
+	if {{.Domain}} == nil {
+		return nil
+	}
+
+	orm{{.DomainTitle}} := &orm.{{.DomainTitle}}{
+		// 非null项
+		// aa:            {{.Domain}}.aa,
+	}
+
+	// 处理null项
+	// if {{.Domain}}.xx != "" {
+	//  	orm{{.DomainTitle}}.xx = null.StringFrom({{.Domain}}.xx)
+	// }
+
+	return orm{{.DomainTitle}}
+}
+
+func orm{{.DomainTitle}}ToDomain(orm{{.DomainTitle}} *orm.{{.DomainTitle}}) *domain.{{.DomainTitle}} {
+	if orm{{.DomainTitle}} == nil {
+		return nil
+	}
+
+	{{.Domain}} := &domain.{{.DomainTitle}}{
+		// 非null项
+		// aa:            orm{{.DomainTitle}}.aa,
+	}
+
+	// 处理null项
+	// if orm{{.DomainTitle}}.xx.Valid {
+ 	//  	{{.Domain}}.xx = orm{{.DomainTitle}}.xx.String
+	// }
+
+
+	return {{.Domain}}
+}

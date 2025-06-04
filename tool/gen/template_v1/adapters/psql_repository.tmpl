@@ -6,15 +6,14 @@ import (
 	"fmt"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"os"
-	"scaffold/internal/common/orm"
-	"scaffold/internal/{{.Domain}}/model"
+	"scaffold/internal/{{.Domain}}/domain"
 )
 
-type PSQLRepository struct {
+type PSQL{{.DomainTitle}}Repository struct {
 	db *sql.DB
 }
 
-func NewPSQLRepository() *PSQLRepository {
+func NewPSQL{{.DomainTitle}}Repository() domain.{{.DomainTitle}}Repository {
 	host := os.Getenv("PSQL_HOST")
 	port := os.Getenv("PSQL_PORT")
 	user := os.Getenv("PSQL_USERNAME")
@@ -37,60 +36,17 @@ func NewPSQLRepository() *PSQLRepository {
 		panic(fmt.Sprintf("无法连接到数据库: %v", err))
 	}
 
-	return &PSQLRepository{
+	return &PSQL{{.DomainTitle}}Repository{
 		db: db,
 	}
 }
 
-func (P *PSQLRepository) Create{{.DomainTitle}}(req *model.Create{{.DomainTitle}}Req) (*model.{{.DomainTitle}},error)  {
+func (repo *PSQL{{.DomainTitle}}Repository) Create{{.DomainTitle}}({{.Domain}} *domain.{{.DomainTitle}}) (*domain.{{.DomainTitle}},error)  {
 	ctx := context.Background()
-	entity := &orm.{{.DomainTitle}}{
-		// Name:        req.Name,
-		// Unique:      req.Unique,
-		// Description: req.Description,
-		// Status:      req.Status,
-		// Remark:     	req.Remark
-	}
+	orm{{.DomainTitle}} := domain{{.DomainTitle}}ToORM({{.Domain}})
 
-	if err := entity.Insert(ctx, P.db, boil.Infer()); err != nil {
+	if err := orm{{.DomainTitle}}.Insert(ctx, repo.db, boil.Infer()); err != nil {
 		return nil, err
 	}
-
-	return &model.{{.DomainTitle}}{
-		// ID:          entity.ID,
-		// Name:        entity.Name,
-		// Unique:      entity.Unique,
-		// Description: entity.Description
-		// Status:      entity.Status,
-		// Remark:      entity.Remark,
-		}, nil
+	return orm{{.DomainTitle}}ToDomain(orm{{.DomainTitle}}), nil
 }
-
-func (P *PSQLRepository) Delete{{.DomainTitle}}(id int) error {
-	ctx := context.Background()
-	entity, err := orm.{{.DomainTitle}}s(orm.{{.DomainTitle}}Where.ID.EQ(int(id))).One(ctx, P.db)
-	if err != nil {
-		return err
-	}
-
-	_, err = entity.Delete(ctx, P.db)
-	return err
-}
-
-func (P *PSQLRepository) Update{{.DomainTitle}}(id int, req *model.Update{{.DomainTitle}}Req) error  {
-	ctx := context.Background()
-	entity, err := orm.{{.DomainTitle}}s(orm.{{.DomainTitle}}Where.ID.EQ(int(id))).One(ctx, P.db)
-	if err != nil {
-		return err
-	}
-
-	// entity.Name = req.Name
-	// entity.Unique = req.Unique
-	// entity.Description = req.Description
-	// entity.Status = req.Status
-	// entity.Remark = req.Remark
-
-	_, err = entity.Update(ctx, P.db, boil.Infer())
-	return err
-}
-
