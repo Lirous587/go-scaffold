@@ -2,7 +2,7 @@
   # Citus Coordinator节点
   citus-coordinator:
     image: citusdata/citus:12.1
-    container_name: citus-coordinator
+    container_name: ${COMPOSE_PROJECT_NAME}-citus-coordinator
     environment:
       POSTGRES_DB: scaffold
       POSTGRES_USER: postgres
@@ -42,7 +42,7 @@
   # Citus Worker节点1
   citus-worker1:
     image: citusdata/citus:12.1
-    container_name: citus-worker1
+    container_name: ${COMPOSE_PROJECT_NAME}-citus-worker1
     environment:
       POSTGRES_DB: scaffold
       POSTGRES_USER: postgres
@@ -72,7 +72,7 @@
   # Citus Worker节点2
   citus-worker2:
     image: citusdata/citus:12.1
-    container_name: citus-worker2
+    container_name: ${COMPOSE_PROJECT_NAME}-citus-worker2
     environment:
       POSTGRES_DB: scaffold
       POSTGRES_USER: postgres
@@ -102,7 +102,7 @@
   # Citus Worker节点3
   citus-worker3:
     image: citusdata/citus:12.1
-    container_name: citus-worker3
+    container_name: ${COMPOSE_PROJECT_NAME}-citus-worker3
     environment:
       POSTGRES_DB: scaffold
       POSTGRES_USER: postgres
@@ -132,21 +132,12 @@
   # Redis 服务
   redis:
     image: redis:7.4-alpine
-    container_name: redis-cache
+    container_name: ${COMPOSE_PROJECT_NAME}-redis
     ports:
       - "16379:6379"
     environment:
       REDIS_PASSWORD: password
-    command: >
-      redis-server
-      --requirepass password
-      --appendonly yes
-      --appendfsync everysec
-      --maxmemory 512mb
-      --maxmemory-policy allkeys-lru
-      --save 900 1
-      --save 300 10
-      --save 60 10000
+    command: redis-server /usr/local/etc/redis/redis.conf
     volumes:
       - redis-data:/data
       - ./config/redis.conf:/usr/local/etc/redis/redis.conf
