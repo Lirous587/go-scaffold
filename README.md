@@ -116,8 +116,10 @@ go mod tidy
 8. 修改配置
 将 `.copy.env` 重命名为 `.env`，配置 `.env`
 
-9. 运行服务
+10. 配置依赖
+修改 `docker` 目录下的 `.env` 配置文件，将 `COMPOSE_PROJECT_NAME` 修改为对的项目名称以防止冲突，除此之外还需修改端口映射和网段以防止占用问题
 
+11. 运行服务
 ```bash
 go run main.go
 # 或者运行 air
