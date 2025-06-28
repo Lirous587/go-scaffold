@@ -1,13 +1,34 @@
-﻿services:
+﻿x-citus-base: &citus-base
+  image: citusdata/citus:12.1
+  environment:
+    POSTGRES_DB: ${POSTGRES_DB}
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  networks:
+    - citus-network
+  restart: unless-stopped
+  healthcheck:
+    test: [ "CMD-SHELL", "PGPASSWORD=${POSTGRES_PASSWORD} pg_isready -U postgres -d ${POSTGRES_DB}" ]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 30s
+
+x-citus-worker: &citus-worker
+  <<: *citus-base
+  command: >
+    postgres
+    -c shared_preload_libraries=citus
+    -c max_connections=100
+    -c logging_collector=on
+    -c log_directory='pg_log'
+
+
+services:
   # Citus Coordinator节点
   citus-coordinator:
-    image: citusdata/citus:12.1
+    <<: *citus-base
     container_name: ${COMPOSE_PROJECT_NAME}-citus-coordinator
-    environment:
-      POSTGRES_DB: scaffold
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "15432:5432"
     volumes:
@@ -24,9 +45,8 @@
       -c log_directory='pg_log'
       -c log_filename='postgresql-%Y-%m-%d_%H%M%S.log'
       -c log_statement=all
-    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d scaffold"]
+      test: [ "CMD-SHELL", "PGPASSWORD=${POSTGRES_PASSWORD} pg_isready -U postgres -d ${POSTGRES_DB}" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -39,15 +59,10 @@
       citus-worker3:
         condition: service_healthy
 
-  # Citus Worker节点1
+  # Worker 节点们
   citus-worker1:
-    image: citusdata/citus:12.1
+    <<: *citus-worker
     container_name: ${COMPOSE_PROJECT_NAME}-citus-worker1
-    environment:
-      POSTGRES_DB: scaffold
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "15433:5432"
     volumes:
@@ -55,29 +70,10 @@
     networks:
       citus-network:
         ipv4_address: 172.20.0.11
-    command: >
-      postgres
-      -c shared_preload_libraries=citus
-      -c max_connections=100
-      -c logging_collector=on
-      -c log_directory='pg_log'
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d scaffold"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
 
-  # Citus Worker节点2
   citus-worker2:
-    image: citusdata/citus:12.1
+    <<: *citus-worker
     container_name: ${COMPOSE_PROJECT_NAME}-citus-worker2
-    environment:
-      POSTGRES_DB: scaffold
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "15434:5432"
     volumes:
@@ -85,29 +81,10 @@
     networks:
       citus-network:
         ipv4_address: 172.20.0.12
-    command: >
-      postgres
-      -c shared_preload_libraries=citus
-      -c max_connections=100
-      -c logging_collector=on
-      -c log_directory='pg_log'
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d scaffold"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
 
-  # Citus Worker节点3
   citus-worker3:
-    image: citusdata/citus:12.1
+    <<: *citus-worker
     container_name: ${COMPOSE_PROJECT_NAME}-citus-worker3
-    environment:
-      POSTGRES_DB: scaffold
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "15435:5432"
     volumes:
@@ -115,29 +92,16 @@
     networks:
       citus-network:
         ipv4_address: 172.20.0.13
-    command: >
-      postgres
-      -c shared_preload_libraries=citus
-      -c max_connections=100
-      -c logging_collector=on
-      -c log_directory='pg_log'
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d scaffold"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
 
   # Redis 服务
   redis:
-    image: redis:7.4-alpine
+    image: redis/redis-stack
     container_name: ${COMPOSE_PROJECT_NAME}-redis
     ports:
       - "16379:6379"
     environment:
-      REDIS_PASSWORD: password
-    command: redis-server /usr/local/etc/redis/redis.conf
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis-data:/data
       - ./config/redis.conf:/usr/local/etc/redis/redis.conf
@@ -145,11 +109,12 @@
       - citus-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "password", "ping"]
+      test: [ "CMD", "redis-cli", "-a", "$${REDIS_PASSWORD}", "ping" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
+
 volumes:
   coordinator-data:
   worker1-data:
