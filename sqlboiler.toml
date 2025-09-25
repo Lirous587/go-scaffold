@@ -9,7 +9,7 @@ add-soft-deletes = true
 
 # sqlboiler psql --add-soft-deletes
 [psql]
-dbname = "blog-v4"
+dbname = "scaffold"
 host = "127.0.0.1"
 port = 15442
 user = "postgres"
