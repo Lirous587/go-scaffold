@@ -7,12 +7,12 @@ import (
 	"regexp"
 )
 
+var hexColorPattern = regexp.MustCompile(`^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$`)
+
 // 自定义十六进制颜色
 func validateHexColor(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
-	pattern := `^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$`
-	matched, _ := regexp.MatchString(pattern, value)
-	return matched
+	return hexColorPattern.MatchString(value)
 }
 
 // 十六进制颜色验证翻译

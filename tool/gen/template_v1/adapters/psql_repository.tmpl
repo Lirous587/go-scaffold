@@ -1,52 +1,25 @@
 ﻿package adapters
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"github.com/volatiletech/sqlboiler/v4/boil"
-	"os"
-	"scaffold/internal/{{.Domain}}/domain"
+	"{{.Module}}/internal/{{.Domain}}/domain"
 )
 
 type PSQL{{.DomainTitle}}Repository struct {
-	db *sql.DB
 }
 
 func NewPSQL{{.DomainTitle}}Repository() domain.{{.DomainTitle}}Repository {
-	host := os.Getenv("PSQL_HOST")
-	port := os.Getenv("PSQL_PORT")
-	user := os.Getenv("PSQL_USERNAME")
-	password := os.Getenv("PSQL_PASSWORD")
-	dbname := os.Getenv("PSQL_DB_NAME")
-	sslmode := os.Getenv("PSQL_SSL_MODE")
-
-	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		host, port, user, password, dbname, sslmode,
-	)
-
-	db, err := sql.Open("postgres", dsn)
-	if err != nil {
-		panic(err)
-	}
-
-	// 测试连接
-	if err := db.Ping(); err != nil {
-		panic(fmt.Sprintf("无法连接到数据库: %v", err))
-	}
-
-	return &PSQL{{.DomainTitle}}Repository{
-		db: db,
-	}
+	return &PSQL{{.DomainTitle}}Repository{}
 }
 
-func (repo *PSQL{{.DomainTitle}}Repository) Create{{.DomainTitle}}({{.Domain}} *domain.{{.DomainTitle}}) (*domain.{{.DomainTitle}},error)  {
-	ctx := context.Background()
+func (repo *PSQL{{.DomainTitle}}Repository) Create({{.Domain}} *domain.{{.DomainTitle}}) (*domain.{{.DomainTitle}},error)  {
 	orm{{.DomainTitle}} := domain{{.DomainTitle}}ToORM({{.Domain}})
 
-	if err := orm{{.DomainTitle}}.Insert(ctx, repo.db, boil.Infer()); err != nil {
+	if err := orm{{.DomainTitle}}.InsertG(boil.Infer()); err != nil {
 		return nil, err
 	}
+
 	return orm{{.DomainTitle}}ToDomain(orm{{.DomainTitle}}), nil
 }

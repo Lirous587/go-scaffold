@@ -1,9 +1,9 @@
 package user
 
 import (
-	"github.com/gin-gonic/gin"
 	"scaffold/internal/common/middleware/auth"
 	"scaffold/internal/user/handler"
+	"github.com/gin-gonic/gin"
 )
 
 func RegisterV1(r *gin.RouterGroup, handler *handler.HttpHandler) func() {
@@ -18,9 +18,8 @@ func RegisterV1(r *gin.RouterGroup, handler *handler.HttpHandler) func() {
 		protected := userGroup.Group("")
 		protected.Use(auth.Validate())
 		{
-			protected.POST("/auth")
+			protected.POST("/auth", handler.ValidateAuth)
 			protected.GET("/profile", handler.GetProfile)
-			protected.PUT("/profile", handler.UpdateProfile)
 		}
 	}
 	return nil

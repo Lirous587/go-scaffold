@@ -1,8 +1,8 @@
 package adapters
 
 import (
-	"scaffold/internal/common/orm"
-	"scaffold/internal/{{.Domain}}/domain"
+	"{{.Module}}/internal/common/orm"
+	"{{.Module}}/internal/{{.Domain}}/domain"
 )
 
 func domain{{.DomainTitle}}ToORM({{.Domain}} *domain.{{.DomainTitle}}) *orm.{{.DomainTitle}} {

@@ -7,12 +7,12 @@ import (
 	"regexp"
 )
 
+var chineseMobilePattern = regexp.MustCompile(`^1[3-9]\d{9}$`)
+
 // 自定义中国手机号验证
 func validateChineseMobile(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
-	pattern := `^1[3-9]\d{9}$`
-	matched, _ := regexp.MatchString(pattern, value)
-	return matched
+	return chineseMobilePattern.MatchString(value)
 }
 
 // 注册中国手机号验证翻译

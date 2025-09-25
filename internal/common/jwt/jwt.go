@@ -8,7 +8,7 @@ import (
 
 // MyClaims 自定义声明结构体并内嵌 jwt.RegisteredClaims
 type MyClaims[T any] struct {
-	PayLoad T `json:"payLoad"`
+	PayLoad *T `json:"payLoad"`
 	jwt.RegisteredClaims
 }
 
@@ -21,7 +21,7 @@ var (
 	// ErrTokenInvalidAudience = errors.New("token接收者无效")
 )
 
-func GenToken[T any](payload T, secret string, duration time.Duration) (string, error) {
+func GenToken[T any](payload *T, secret string, duration time.Duration) (string, error) {
 	claims := &MyClaims[T]{
 		PayLoad: payload,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -36,7 +36,7 @@ func GenToken[T any](payload T, secret string, duration time.Duration) (string, 
 	return token.SignedString([]byte(secret))
 }
 
-func ParseToken[T any](tokenString string, secret string) (myClaims MyClaims[T], err error) {
+func ParseToken[T any](tokenString string, secret string) (*MyClaims[T], error) {
 	token, err := jwt.ParseWithClaims(tokenString, &MyClaims[T]{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
@@ -45,15 +45,16 @@ func ParseToken[T any](tokenString string, secret string) (myClaims MyClaims[T],
 		// 对于 JWT v5，直接判断错误类型
 		switch {
 		case errors.Is(err, jwt.ErrTokenExpired):
-			return MyClaims[T]{}, ErrTokenExpired
+			return nil, ErrTokenExpired
 		default:
-			return MyClaims[T]{}, ErrInvalidToken
+			return nil, ErrInvalidToken
 		}
 	}
 
+	// 验证成功
 	if claims, ok := token.Claims.(*MyClaims[T]); ok && token.Valid {
-		return *claims, nil
+		return claims, nil
 	}
 
-	return MyClaims[T]{}, ErrInvalidToken
+	return nil, ErrInvalidToken
 }

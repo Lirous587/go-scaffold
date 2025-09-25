@@ -2,23 +2,21 @@ package domain
 
 type UserRepository interface {
 	// 基础 CRUD
-	FindByID(userID string) (*User, error)
+	FindByID(id int64) (*User, error)
 	FindByEmail(email string) (*User, error)
 	Create(user *User) (*User, error)
 	Update(user *User) (*User, error)
 
 	// OAuth 相关
 	FindByOAuthID(provider, oauthID string) (*User, error)
-	UpdateLastLogin(userID string) error
+	UpdateLastLogin(id int64) error
 
 	// 辅助方法
 	EmailExists(email string) (bool, error)
-	UsernameExists(username string) (bool, error)
-	GenerateUniqueUsername(preferred string) (string, error)
 }
 
 type TokenCache interface {
-	GenRefreshToken(domain JwtPayload) (string, error)
-	ValidateRefreshToken(domain JwtPayload, refreshToken string) error
-	ResetRefreshTokenExpiry(domain JwtPayload) error
+	GenRefreshToken(payload *JwtPayload) (string, error)
+	ValidateRefreshToken(refreshToken string) (*JwtPayload, error)
+	RemoveRefreshToken(refreshToken string) error
 }

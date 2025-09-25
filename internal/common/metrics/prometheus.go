@@ -1,4 +1,4 @@
-﻿package metrics
+package metrics
 
 import (
 	"github.com/joho/godotenv"
@@ -48,7 +48,10 @@ var (
 )
 
 func init() {
-	_ = godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
 	path = os.Getenv("PROMETHEUS_PATH")
 	port = os.Getenv("PROMETHEUS_ADDR")
 	if path == "" || port == "" {

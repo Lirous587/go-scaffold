@@ -1,0 +1,33 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "用于构建手脚架",
+        "title": "手脚架api",
+        "termsOfService": "https://Lirous.com",
+        "contact": {
+            "name": "Lirous",
+            "url": "https://Lirous.com",
+            "email": "lirous@lirous.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://github.com/Lirous587/go-scaffold/main/LICENSE"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {},
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}

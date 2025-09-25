@@ -1,6 +1,8 @@
 package server
 
 import (
+	"scaffold/internal/common/metrics"
+	"scaffold/internal/common/validator"
 	"context"
 	"fmt"
 	"github.com/gin-contrib/cors"
@@ -11,8 +13,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"scaffold/internal/common/metrics"
-	"scaffold/internal/common/validator"
 	"strings"
 	"syscall"
 	"time"
@@ -58,8 +58,8 @@ func RunHttpServer(port string, metricsClient metrics.Client, registerRouter fun
 
 	// 创建HTTP服务器
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%s", port),
-		Handler: engine,
+		Addr:		fmt.Sprintf(":%s", port),
+		Handler:	engine,
 	}
 
 	// 启动服务器
@@ -108,6 +108,6 @@ func setCORS(r *gin.Engine) {
 
 	corsCfg.AllowOrigins = allows
 	corsCfg.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
-	corsCfg.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Refresh-Token"}
+	corsCfg.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "X-Refresh-Token"}
 	r.Use(cors.New(corsCfg))
 }

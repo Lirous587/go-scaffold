@@ -17,8 +17,8 @@ import (
 
 var (
 	// 全局翻译器映射
-	trans map[string]ut.Translator
-	uni   *ut.UniversalTranslator
+	trans	map[string]ut.Translator
+	uni	*ut.UniversalTranslator
 )
 
 func init() {
@@ -87,7 +87,7 @@ func TranslateError(err error, lang ...string) ValidatorError {
 	}
 
 	// 确定使用哪种语言
-	language := "zh" // 默认中文
+	language := "zh"	// 默认中文
 	if len(lang) > 0 {
 		language = lang[0]
 	}

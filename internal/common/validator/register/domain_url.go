@@ -9,6 +9,8 @@ import (
 	"regexp"
 )
 
+var urlPattern = regexp.MustCompile(`^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$`)
+
 // 自定义域名url
 func validateDomainURL(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
@@ -22,9 +24,7 @@ func validateDomainURL(fl validator.FieldLevel) bool {
 		return false
 	}
 
-	pattern := `^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$`
-
-	return regexp.MustCompile(pattern).MatchString(u.Host)
+	return urlPattern.MatchString(u.Host)
 }
 
 // 域名url验证翻译

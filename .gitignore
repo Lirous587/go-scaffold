@@ -7,3 +7,6 @@ output/
 logs
 docs
 .env
+.env.docker
+code_stats.ps1
+blog

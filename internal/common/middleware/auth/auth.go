@@ -1,12 +1,12 @@
-﻿package auth
+package auth
 
 import (
-	"github.com/pkg/errors"
 	"scaffold/internal/common/reskit/codes"
 	"scaffold/internal/common/reskit/response"
 	"scaffold/internal/user/adapters"
 	"scaffold/internal/user/domain"
 	"scaffold/internal/user/service"
+	"github.com/pkg/errors"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -21,8 +21,8 @@ func init() {
 }
 
 const (
-	authHeaderKey = "Authorization"
-	bearerPrefix  = "Bearer "
+	authHeaderKey	= "Authorization"
+	bearerPrefix	= "Bearer "
 )
 
 // 解析 Authorization 头部的 Token
@@ -44,12 +44,12 @@ func Validate() gin.HandlerFunc {
 		// 1. 从请求头解析 Token
 		tokenStr, err := parseTokenFromHeader(c)
 		if err != nil {
-			response.Error(c, err)
+			response.Error(c, codes.ErrTokenFormatInvalid)
 			return
 		}
 
-		// 2. 解析 Token
-		payload, isExpire, err := tokenServer.ValidateAccessToken(tokenStr)
+		// 2. 验证token
+		isExpire, err := tokenServer.ValidateAccessToken(tokenStr)
 		if err != nil {
 			if isExpire {
 				response.Error(c, codes.ErrTokenExpired)
@@ -59,9 +59,15 @@ func Validate() gin.HandlerFunc {
 			return
 		}
 
+		// 3. 解析 Token
+		payload, err := tokenServer.ParseAccessToken(tokenStr)
+		if err != nil {
+			response.Error(c, codes.ErrTokenInvalid)
+			return
+		}
+
 		// 3. 将用户 相关信息存入上下文
 		c.Set("user_id", payload.UserID)
-		//c.Set("random_code", payload.RandomCode)
 
 		c.Next()
 	}

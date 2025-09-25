@@ -1,11 +1,11 @@
-﻿package server
+package server
 
 import (
+	"scaffold/internal/common/metrics"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"log"
-	"scaffold/internal/common/metrics"
 	"strings"
 	"time"
 )
@@ -40,7 +40,7 @@ func printBusinessStack(err error) {
 
 	// 记录已打印的栈帧数量
 	framePrinted := 0
-	maxBusinessFrames := 3 // 最多打印栈帧条数
+	maxBusinessFrames := 3	// 最多打印栈帧条数
 
 	// 逐行检查并不做任何修改，保持原始格式
 	for i := 0; i < len(lines)-1 && framePrinted < maxBusinessFrames; i++ {
@@ -75,6 +75,7 @@ func countBusinessFrames(lines []string) int {
 		nextLine := lines[i+1]
 
 		if strings.Contains(currentLine, "internal") &&
+			!strings.Contains(currentLine, "reskit") &&
 			!strings.Contains(currentLine, "github.com/gin-gonic") &&
 			!strings.Contains(currentLine, "net/http") &&
 			strings.Contains(nextLine, ".go:") {

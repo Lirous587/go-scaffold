@@ -1,16 +1,23 @@
 package {{.Domain}}
 
 import (
+    "{{.Module}}/internal/common/middleware/auth"
+    "{{.Module}}/internal/{{.Domain}}/handler"
 	"github.com/gin-gonic/gin"
-	"scaffold/internal/{{.Domain}}/handler"
 )
 
 func RegisterV1(r *gin.RouterGroup, handler *handler.HttpHandler) func() {
 	// g := r.Group("/v1/{{.Domain}}")
 	{
-        // g.POST("/", handler.Create{{.DomainTitle}})
-		// g.DELETE("/:id", handler.Delete{{.DomainTitle}})
-		// g.PUT("/:id", handler.Update{{.DomainTitle}})
+		// g.GET("",handler.List)
 	}
+
+    // protect := g.Use(auth.Validate())
+    {
+        // protect.POST("", handler.Create)
+        // protect.DELETE("/:id", handler.Delete)
+        // protect.PUT("/:id", handler.Update)
+        // protect.GET("",handler.Get)
+    }
 	return nil
 }

@@ -7,10 +7,10 @@
 package user
 
 import (
-	"github.com/gin-gonic/gin"
 	"scaffold/internal/user/adapters"
 	"scaffold/internal/user/handler"
 	"scaffold/internal/user/service"
+	"github.com/gin-gonic/gin"
 )
 
 // Injectors from wire.go:

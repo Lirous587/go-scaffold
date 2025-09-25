@@ -1,9 +1,10 @@
-﻿package handler
+package handler
 
 import (
-	"os"
 	"scaffold/internal/common/reskit/codes"
 	"scaffold/internal/common/reskit/response"
+	"github.com/pkg/errors"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -25,74 +26,63 @@ func NewHttpHandler(userService domain.UserService) *HttpHandler {
 func (h *HttpHandler) GithubAuth(ctx *gin.Context) {
 	req := new(GithubAuthRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
-		response.ValidationError(ctx, err)
+		response.InvalidParams(ctx, err)
 		return
 	}
 
 	// 1. 获取 GitHub 用户信息
 	userInfo, err := h.getGithubUserInfo(req.Code)
 	if err != nil {
-		response.ValidationError(ctx, err)
+		response.InvalidParams(ctx, err)
 		return
 	}
 
 	// 2. 调用业务逻辑
 	session, err := h.userService.AuthenticateWithOAuth("github", userInfo)
 	if err != nil {
-		response.ValidationError(ctx, err)
+		response.Error(ctx, err)
 		return
 	}
-
 	// 3. 转换为响应格式
-	res := Domain2TokenToAuthResponse(session)
+	res := domain2TokenToAuthResponse(session)
 	response.Success(ctx, res)
 }
 
+func (h *HttpHandler) getRefreshToke(ctx *gin.Context) (string, error) {
+	refreshToken := ctx.GetHeader("X-Refresh-Token")
+	if refreshToken == "" {
+		return "", codes.ErrRefreshTokenMissingInHeader
+	}
+	return refreshToken, nil
+}
+
 func (h *HttpHandler) RefreshToken(ctx *gin.Context) {
-	req := new(RefreshTokenRequest)
-	if err := ctx.ShouldBindJSON(req); err != nil {
-		response.ValidationError(ctx, err)
-		return
-	}
-
-	payload := domain.JwtPayload{
-		UserID:     req.UserID,
-		RandomCode: req.RandomCode,
-	}
-
-	session, err := h.userService.RefreshUserToken(payload, req.RefreshToken)
+	refreshToken, err := h.getRefreshToke(ctx)
 	if err != nil {
 		response.Error(ctx, err)
 		return
 	}
 
-	res := DomainSessionToRefreshResponse(session)
+	session, err := h.userService.RefreshUserToken(refreshToken)
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	res := domainSessionToRefreshResponse(session)
 	response.Success(ctx, res)
-}
-
-func (h *HttpHandler) getUserID(ctx *gin.Context) (string, error) {
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		return "", codes.ErrTokenExpired
-	}
-
-	userIDStr, ok := userID.(string)
-	if !ok {
-		return "", codes.ErrTokenExpired
-	}
-	return userIDStr, nil
 }
 
 // GitHub API 调用逻辑 - 返回包装好的领域错误
 func (h *HttpHandler) getGithubUserInfo(code string) (*domain.OAuthUserInfo, error) {
 	accessToken, err := h.getGithubAccessToken(code)
 	if err != nil {
-		return nil, codes.ErrGitHubAPIError.WithSlug("get_access_token 获取失败").WithCause(err)
+		return nil, errors.WithStack(codes.ErrGitHubAPIError.WithSlug("get_access_token 获取失败").WithCause(err))
 	}
 
 	userInfo, err := h.fetchGithubUserInfo(accessToken)
 	if err != nil {
-		return nil, codes.ErrGitHubAPIError.WithSlug("get_user_info 获取失败").WithCause(err)
+		return nil, errors.WithStack(codes.ErrGitHubAPIError.WithSlug("get_user_info 获取失败").WithCause(err))
 	}
 
 	return userInfo, nil
@@ -114,15 +104,15 @@ func (h *HttpHandler) getGithubAccessToken(code string) (string, error) {
 	_, err := client.R().
 		SetHeader("Accept", "application/json").
 		SetFormData(map[string]string{
-			"client_id":     clientID,
-			"client_secret": clientSecret,
-			"code":          code,
+			"client_id":		clientID,
+			"client_secret":	clientSecret,
+			"code":			code,
 		}).
 		SetResult(&result).
 		Post("https://github.com/login/oauth/access_token")
 
 	if err != nil {
-		return "", err // 这里的错误会在上层被包装
+		return "", err
 	}
 
 	if result.AccessToken == "" {
@@ -145,17 +135,33 @@ func (h *HttpHandler) fetchGithubUserInfo(accessToken string) (*domain.OAuthUser
 		Get("https://api.github.com/user")
 
 	if err != nil {
-		return nil, err // 这里的错误会在上层被包装
+		return nil, err	// 这里的错误会在上层被包装
 	}
 
 	return &domain.OAuthUserInfo{
-		Provider: "github",
-		ID:       strconv.FormatInt(githubUser.ID, 10),
-		Login:    githubUser.Login,
-		Name:     githubUser.Name,
-		Email:    githubUser.Email,
-		Avatar:   githubUser.AvatarURL,
+		Provider:	"github",
+		ID:		strconv.FormatInt(githubUser.ID, 10),
+		Login:		githubUser.Login,
+		Name:		githubUser.Name,
+		Email:		githubUser.Email,
+		Avatar:		githubUser.AvatarURL,
 	}, nil
+}
+
+func (h *HttpHandler) getUserID(ctx *gin.Context) (int64, error) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		return 0, codes.ErrTokenExpired
+	}
+
+	userID64, ok := userID.(int64)
+	if !ok {
+		return 0, codes.ErrTokenExpired
+	}
+	if userID64 == 0 {
+		return 0, errors.New("无效的id")
+	}
+	return userID64, nil
 }
 
 func (h *HttpHandler) GetProfile(ctx *gin.Context) {
@@ -170,29 +176,10 @@ func (h *HttpHandler) GetProfile(ctx *gin.Context) {
 		return
 	}
 
-	res := DomainUserToResponse(user)
+	res := domainUserToResponse(user)
 	response.Success(ctx, res)
 }
 
-func (h *HttpHandler) UpdateProfile(ctx *gin.Context) {
-	userID, err := h.getUserID(ctx)
-	if err != nil {
-		response.Error(ctx, err)
-	}
-
-	req := new(UserProfileUpdateRequest)
-	if err := ctx.ShouldBindJSON(req); err != nil {
-		response.ValidationError(ctx, err)
-		return
-	}
-
-	updates := HTTPUserUpdateToDomain(req)
-	user, err := h.userService.UpdateUserProfile(userID, updates)
-	if err != nil {
-		response.Error(ctx, err)
-		return
-	}
-
-	res := DomainUserToResponse(user)
-	response.Success(ctx, res)
+func (h *HttpHandler) ValidateAuth(ctx *gin.Context) {
+	response.Success(ctx)
 }

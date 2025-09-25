@@ -1,15 +1,23 @@
+pkgname = "orm"
 output = "internal/common/orm"
 wipe = true
 no-tests = true
+add-global-variants = true
 add-enum-types = true
+no-context = true
+add-soft-deletes = true
 
+# sqlboiler psql --add-soft-deletes
 [psql]
-#sqlboiler psql --pkgname=orm
-dbname = "scaffold"
+dbname = "blog-v4"
 host = "127.0.0.1"
-port = 15432
+port = 15442
 user = "postgres"
-pass = "password"
+pass = "lirous587"
 schema = "public"
 sslmode = "disable"
+# 启用自动时间戳
+auto-timestamps = true
+updated-at-column = "updated_at"
+created-at-column = "created_at"
 # blacklist = ["migrations"] # 根据需要添加黑名单表

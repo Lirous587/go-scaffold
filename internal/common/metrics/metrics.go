@@ -1,4 +1,4 @@
-﻿package metrics
+package metrics
 
 type Client interface {
 	Inc(action, status string, value int)

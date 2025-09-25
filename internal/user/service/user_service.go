@@ -1,11 +1,9 @@
-﻿package service
+package service
 
 import (
+	"scaffold/internal/common/reskit/codes"
 	"go.uber.org/zap"
 	"os"
-	"scaffold/internal/common/reskit/codes"
-	"scaffold/internal/common/utils"
-	"time"
 
 	"github.com/pkg/errors"
 
@@ -13,13 +11,13 @@ import (
 )
 
 type userService struct {
-	userRepo     domain.UserRepository
-	tokenService domain.TokenService
+	userRepo	domain.UserRepository
+	tokenService	domain.TokenService
 }
 
 var (
-	githubClientID     string
-	githubClientSecret string
+	githubClientID		string
+	githubClientSecret	string
 )
 
 func NewUserService(userRepo domain.UserRepository, tokenService domain.TokenService) domain.UserService {
@@ -29,12 +27,14 @@ func NewUserService(userRepo domain.UserRepository, tokenService domain.TokenSer
 		panic("加载环境变量失败")
 	}
 	return &userService{
-		userRepo:     userRepo,
-		tokenService: tokenService,
+		userRepo:	userRepo,
+		tokenService:	tokenService,
 	}
 }
 
-func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OAuthUserInfo) (*domain.User2Token, error) {
+func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OAuthUserInfo) (
+	*domain.User2Token, error,
+) {
 	// 1. 查找或创建用户
 	user, isNewUser, err := s.findOrCreateUserByOAuth(provider, userInfo)
 	if err != nil {
@@ -45,14 +45,13 @@ func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OA
 	if !isNewUser {
 		if err := s.userRepo.UpdateLastLogin(user.ID); err != nil {
 			// 这个错误不应该阻止登录流程，记录日志即可
-			zap.L().Error("更新用户最后登录时间失败", zap.String("user_id", user.ID), zap.Error(err))
+			zap.L().Error("更新用户最后登录时间失败", zap.Int64("user_id", user.ID), zap.Error(err))
 		}
 	}
 
 	// 3. 生成 Token
-	payload := domain.JwtPayload{
-		UserID:     user.ID,
-		RandomCode: utils.GenRandomCodeForJWT(),
+	payload := &domain.JwtPayload{
+		UserID: user.ID,
 	}
 
 	accessToken, err := s.tokenService.GenerateAccessToken(payload)
@@ -66,61 +65,45 @@ func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OA
 	}
 
 	return &domain.User2Token{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken:	accessToken,
+		RefreshToken:	refreshToken,
 	}, nil
 }
 
-func (s *userService) RefreshUserToken(payload domain.JwtPayload, refreshToken string) (*domain.User2Token, error) {
+func (s *userService) RefreshUserToken(refreshToken string) (*domain.User2Token, error) {
 	//1 . 生成新的 access token
-	accessToken, err := s.tokenService.RefreshAccessToken(payload, refreshToken)
+	accessToken, err := s.tokenService.RefreshAccessToken(refreshToken)
 	if err != nil {
 		return nil, err
 	}
 
-	//2. 刷新refresh token的时间
-	if err := s.tokenService.ResetRefreshTokenExpiry(payload); err != nil {
+	//2. 获取payload
+	payload, err := s.tokenService.ParseAccessToken(accessToken)
+	if err != nil {
+		return nil, err
+	}
+
+	//3. 生成新的refresh token
+	newRefreshToken, err := s.tokenService.GenerateRefreshToken(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	//4. 移除旧的refresh token
+	if err := s.tokenService.RemoveRefreshToken(refreshToken); err != nil {
 		return nil, err
 	}
 
 	return &domain.User2Token{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken:	accessToken,
+		RefreshToken:	newRefreshToken,
 	}, nil
 }
 
-func (s *userService) GetUser(userID string) (*domain.User, error) {
-	return s.userRepo.FindByID(userID)
-}
-
-func (s *userService) UpdateUserProfile(userID string, updates *domain.UserProfileUpdate) (*domain.User, error) {
-	user, err := s.userRepo.FindByID(userID)
-	if err != nil {
-		return nil, err
-	}
-
-	// 应用更新
-	if updates.Name != nil {
-		user.Name = *updates.Name
-	}
-	if updates.Username != nil {
-		// 检查用户名是否已被使用
-		if exists, err := s.userRepo.UsernameExists(*updates.Username); err != nil {
-			return nil, err
-		} else if exists {
-			return nil, codes.ErrUserAlreadyExists
-		}
-		user.Username = *updates.Username
-	}
-	if updates.Avatar != nil {
-		user.AvatarURL = *updates.Avatar
-	}
-
-	return s.userRepo.Update(user)
-}
-
 // 私有辅助方法
-func (s *userService) findOrCreateUserByOAuth(provider string, userInfo *domain.OAuthUserInfo) (*domain.User, bool, error) {
+func (s *userService) findOrCreateUserByOAuth(provider string, userInfo *domain.OAuthUserInfo) (
+	*domain.User, bool, error,
+) {
 	// 1. 先通过 OAuth ID 查找
 	user, err := s.userRepo.FindByOAuthID(provider, userInfo.ID)
 	if err == nil {
@@ -152,45 +135,27 @@ func (s *userService) findOrCreateUserByOAuth(provider string, userInfo *domain.
 }
 
 func (s *userService) createUserFromOAuth(provider string, userInfo *domain.OAuthUserInfo) (*domain.User, error) {
-	// 生成唯一用户名
-	username, err := s.userRepo.GenerateUniqueUsername(userInfo.Login)
-	if err != nil {
-		return nil, err
-	}
-
 	user := &domain.User{
-		Email:         userInfo.Email,
-		Name:          userInfo.Name,
-		Username:      username,
-		AvatarURL:     userInfo.Avatar,
-		EmailVerified: true, // OAuth 用户邮箱已验证
-		Status:        "active",
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		Email:	userInfo.Email,
+		Name:	userInfo.Name,
 	}
 
 	// 设置 OAuth ID
 	switch provider {
 	case "github":
 		user.GithubID = userInfo.ID
-	case "google":
-		user.GoogleID = userInfo.ID
-	case "gitlab":
-		user.GitlabID = userInfo.ID
 	}
 
 	return s.userRepo.Create(user)
 }
 
-func (s *userService) bindOAuthToUser(user *domain.User, provider string, userInfo *domain.OAuthUserInfo) (*domain.User, error) {
+func (s *userService) bindOAuthToUser(user *domain.User, provider string, userInfo *domain.OAuthUserInfo) (
+	*domain.User, error,
+) {
 	// 设置 OAuth ID
 	switch provider {
 	case "github":
 		user.GithubID = userInfo.ID
-	case "google":
-		user.GoogleID = userInfo.ID
-	case "gitlab":
-		user.GitlabID = userInfo.ID
 	}
 
 	// 更新头像等信息
@@ -198,6 +163,9 @@ func (s *userService) bindOAuthToUser(user *domain.User, provider string, userIn
 		user.AvatarURL = userInfo.Avatar
 	}
 
-	user.UpdatedAt = time.Now()
 	return s.userRepo.Update(user)
+}
+
+func (s *userService) GetUser(id int64) (*domain.User, error) {
+	return s.userRepo.FindByID(id)
 }

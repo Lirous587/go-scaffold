@@ -1,0 +1,25 @@
+basePath: /api/v1
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: lirous@lirous.com
+    name: Lirous
+    url: https://Lirous.com
+  description: 用于构建手脚架
+  license:
+    name: MIT
+    url: https://github.com/Lirous587/go-scaffold/main/LICENSE
+  termsOfService: https://Lirous.com
+  title: 手脚架api
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

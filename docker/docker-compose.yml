@@ -1,104 +1,33 @@
-﻿x-citus-base: &citus-base
-  image: citusdata/citus:12.1
-  environment:
-    POSTGRES_DB: ${POSTGRES_DB}
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  networks:
-    - citus-network
-  restart: unless-stopped
-  healthcheck:
-    test: [ "CMD-SHELL", "PGPASSWORD=${POSTGRES_PASSWORD} pg_isready -U postgres -d ${POSTGRES_DB}" ]
-    interval: 30s
-    timeout: 10s
-    retries: 3
-    start_period: 30s
-
-x-citus-worker: &citus-worker
-  <<: *citus-base
-  command: >
-    postgres
-    -c shared_preload_libraries=citus
-    -c max_connections=100
-    -c logging_collector=on
-    -c log_directory='pg_log'
-
-
-services:
-  # Citus Coordinator节点
-  citus-coordinator:
-    <<: *citus-base
-    container_name: ${COMPOSE_PROJECT_NAME}-citus-coordinator
+﻿services:
+  # Postgres 数据库
+  postgres:
+    image: postgres:15
+    container_name: ${COMPOSE_PROJECT_NAME}-postgres
     ports:
-      - "15432:5432"
+      - "15442:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - coordinator-data:/var/lib/postgresql/data
-      - ./config/citus-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - postgres_data:/var/lib/postgresql/data
+      - ./config/ddl.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      citus-network:
-        ipv4_address: 172.20.0.10
-    command: >
-      postgres
-      -c shared_preload_libraries=citus
-      -c max_connections=200
-      -c logging_collector=on
-      -c log_directory='pg_log'
-      -c log_filename='postgresql-%Y-%m-%d_%H%M%S.log'
-      -c log_statement=all
+      - blog-network
+    restart: always
     healthcheck:
-      test: [ "CMD-SHELL", "PGPASSWORD=${POSTGRES_PASSWORD} pg_isready -U postgres -d ${POSTGRES_DB}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
-    depends_on:
-      citus-worker1:
-        condition: service_healthy
-      citus-worker2:
-        condition: service_healthy
-      citus-worker3:
-        condition: service_healthy
-
-  # Worker 节点们
-  citus-worker1:
-    <<: *citus-worker
-    container_name: ${COMPOSE_PROJECT_NAME}-citus-worker1
-    ports:
-      - "15433:5432"
-    volumes:
-      - worker1-data:/var/lib/postgresql/data
-    networks:
-      citus-network:
-        ipv4_address: 172.20.0.11
-
-  citus-worker2:
-    <<: *citus-worker
-    container_name: ${COMPOSE_PROJECT_NAME}-citus-worker2
-    ports:
-      - "15434:5432"
-    volumes:
-      - worker2-data:/var/lib/postgresql/data
-    networks:
-      citus-network:
-        ipv4_address: 172.20.0.12
-
-  citus-worker3:
-    <<: *citus-worker
-    container_name: ${COMPOSE_PROJECT_NAME}-citus-worker3
-    ports:
-      - "15435:5432"
-    volumes:
-      - worker3-data:/var/lib/postgresql/data
-    networks:
-      citus-network:
-        ipv4_address: 172.20.0.13
+      start_period: 30s
 
   # Redis 服务
   redis:
     image: redis/redis-stack
     container_name: ${COMPOSE_PROJECT_NAME}-redis
     ports:
-      - "16379:6379"
+      - "16389:6379"
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
@@ -106,7 +35,7 @@ services:
       - redis-data:/data
       - ./config/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
-      - citus-network
+      - blog-network
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "redis-cli", "-a", "$${REDIS_PASSWORD}", "ping" ]
@@ -115,17 +44,27 @@ services:
       retries: 3
       start_period: 10s
 
+  # go服务
+  go-app:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    container_name: go_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - blog-network
+    restart: unless-stopped
+    env_file:
+      - ../.env.docker
+
 volumes:
-  coordinator-data:
-  worker1-data:
-  worker2-data:
-  worker3-data:
+  postgres_data:
   redis-data:
 
 networks:
-  citus-network:
+  blog-network:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-          gateway: 172.20.0.1

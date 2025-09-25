@@ -44,6 +44,7 @@ func main() {
 	{
 		cwd, _ := os.Getwd()
 		goModPath, err := findGoModPath(cwd)
+		fmt.Println(goModPath)
 		if err != nil {
 			fmt.Println("未找到 go.mod 文件")
 			os.Exit(1)

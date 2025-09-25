@@ -6,9 +6,9 @@ package {{.Domain}}
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
-	"scaffold/internal/{{.Domain}}/adapters"
-	"scaffold/internal/{{.Domain}}/handler"
-	"scaffold/internal/{{.Domain}}/service"
+	"{{.Module}}/internal/{{.Domain}}/adapters"
+	"{{.Module}}/internal/{{.Domain}}/handler"
+	"{{.Module}}/internal/{{.Domain}}/service"
 )
 
 func InitV1(r *gin.RouterGroup) func() {

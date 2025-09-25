@@ -11,6 +11,7 @@ const (
 	ErrorTypeInternal      ErrorType = "INTERNAL"
 	ErrorTypeExternal      ErrorType = "EXTERNAL"
 	ErrorTypeRateLimit     ErrorType = "RATE_LIMIT"
+	ErrorTypeCacheMiss     ErrorType = "CACHE_MISS"
 )
 
 type ErrCode struct {
