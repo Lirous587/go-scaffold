@@ -1,11 +1,11 @@
 package validator
 
 import (
-	"scaffold/internal/common/validator/i18n"
-	"scaffold/internal/common/validator/register"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/pkg/errors"
 	"reflect"
+	"scaffold/internal/common/validator/i18n"
+	"scaffold/internal/common/validator/register"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -39,6 +39,10 @@ func Init() error {
 	}
 
 	return nil
+}
+
+func ValidateStruct(req any) error {
+	return v.Struct(req)
 }
 
 func toSnakeCase(str string) string {

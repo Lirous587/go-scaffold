@@ -1,16 +1,16 @@
 package adapters
 
 import (
+	"context"
+	"database/sql"
+	"fmt"
+	"github.com/aarondl/sqlboiler/v4/boil"
+	"github.com/aarondl/sqlboiler/v4/queries/qm"
+	"github.com/pkg/errors"
 	"scaffold/internal/common/orm"
 	"scaffold/internal/common/reskit/codes"
 	"scaffold/internal/common/utils"
 	"scaffold/internal/img/domain"
-	"context"
-	"database/sql"
-	"fmt"
-	"github.com/pkg/errors"
-	"github.com/volatiletech/sqlboiler/v4/boil"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"time"
 )
 
@@ -67,8 +67,8 @@ func (repo *PSQLImgRepository) WithTX(ctx context.Context, opts *sql.TxOptions) 
 	}
 	if opts == nil {
 		opts = &sql.TxOptions{
-			Isolation:	sql.LevelReadCommitted,
-			ReadOnly:	false,
+			Isolation: sql.LevelReadCommitted,
+			ReadOnly:  false,
 		}
 	}
 	return boil.BeginTx(ctx, opts)
@@ -114,8 +114,8 @@ func (repo *PSQLImgRepository) Delete(id int64, hard bool) error {
 
 func (repo *PSQLImgRepository) Restore(id int64) (*domain.Img, error) {
 	rows, err := orm.Imgs(qm.WithDeleted(), qm.Where("id = ?", id)).UpdateAllG(orm.M{
-		orm.ImgColumns.DeletedAt:	nil,
-		orm.ImgColumns.UpdatedAt:	time.Now(),
+		orm.ImgColumns.DeletedAt: nil,
+		orm.ImgColumns.UpdatedAt: time.Now(),
 	})
 	if err != nil {
 		return nil, err
@@ -182,8 +182,8 @@ func (repo *PSQLImgRepository) List(query *domain.ImgQuery) (*domain.ImgPages, e
 	}
 
 	return &domain.ImgPages{
-		Pages:	totalPages,
-		List:	ormImgsToDomain(imgs, query.Deleted),
+		Pages: totalPages,
+		List:  ormImgsToDomain(imgs, query.Deleted),
 	}, nil
 }
 

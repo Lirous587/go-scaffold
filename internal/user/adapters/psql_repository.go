@@ -1,15 +1,14 @@
 package adapters
 
 import (
-	"scaffold/internal/common/reskit/codes"
 	"database/sql"
 	"fmt"
+	"github.com/aarondl/null/v8"
+	"github.com/aarondl/sqlboiler/v4/boil"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
+	"scaffold/internal/common/reskit/codes"
 	"time"
-
-	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 
 	"scaffold/internal/common/orm"
 	"scaffold/internal/user/domain"

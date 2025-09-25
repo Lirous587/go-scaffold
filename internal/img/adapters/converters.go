@@ -1,9 +1,9 @@
 package adapters
 
 import (
+	"github.com/aarondl/null/v8"
 	"scaffold/internal/common/orm"
 	"scaffold/internal/img/domain"
-	"github.com/volatiletech/null/v8"
 )
 
 func domainImgToORM(img *domain.Img) *orm.Img {
@@ -12,9 +12,9 @@ func domainImgToORM(img *domain.Img) *orm.Img {
 	}
 
 	ormImg := &orm.Img{
-		ID:		img.ID,
-		Path:		img.Path,
-		UpdatedAt:	img.UpdatedAt,
+		ID:        img.ID,
+		Path:      img.Path,
+		UpdatedAt: img.UpdatedAt,
 	}
 
 	// 处理null项
@@ -36,10 +36,10 @@ func ormImgToDomain(ormImg *orm.Img, isDeleted ...bool) *domain.Img {
 	}
 
 	img := &domain.Img{
-		ID:		ormImg.ID,
-		Path:		ormImg.Path,
-		CreatedAt:	ormImg.CreatedAt,
-		UpdatedAt:	ormImg.UpdatedAt,
+		ID:        ormImg.ID,
+		Path:      ormImg.Path,
+		CreatedAt: ormImg.CreatedAt,
+		UpdatedAt: ormImg.UpdatedAt,
 	}
 
 	img.SetDeletedStatus(deleted)
@@ -84,9 +84,9 @@ func domainCategoryToORM(category *domain.Category) *orm.ImgCategory {
 	}
 
 	ormImg := &orm.ImgCategory{
-		ID:	category.ID,
-		Title:	category.Title,
-		Prefix:	category.Prefix,
+		ID:     category.ID,
+		Title:  category.Title,
+		Prefix: category.Prefix,
 	}
 
 	// 处理null项
@@ -100,10 +100,10 @@ func ormCategoryToDomain(ormCategory *orm.ImgCategory) *domain.Category {
 	}
 
 	img := &domain.Category{
-		ID:		ormCategory.ID,
-		Title:		ormCategory.Title,
-		Prefix:		ormCategory.Prefix,
-		CreatedAt:	ormCategory.CreatedAt,
+		ID:        ormCategory.ID,
+		Title:     ormCategory.Title,
+		Prefix:    ormCategory.Prefix,
+		CreatedAt: ormCategory.CreatedAt,
 	}
 
 	// 处理null项

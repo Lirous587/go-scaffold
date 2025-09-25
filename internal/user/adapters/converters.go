@@ -1,9 +1,9 @@
 package adapters
 
 import (
+	"github.com/aarondl/null/v8"
 	"scaffold/internal/common/orm"
 	"scaffold/internal/user/domain"
-	"github.com/volatiletech/null/v8"
 )
 
 func DomainUserToORM(user *domain.User) *orm.User {
@@ -12,9 +12,9 @@ func DomainUserToORM(user *domain.User) *orm.User {
 	}
 
 	ormUser := &orm.User{
-		ID:	user.ID,
-		Email:	user.Email,
-		Name:	user.Name,
+		ID:    user.ID,
+		Email: user.Email,
+		Name:  user.Name,
 	}
 
 	if user.PasswordHash != "" {
@@ -42,9 +42,9 @@ func ORMUserToDomain(ormUser *orm.User) *domain.User {
 	}
 
 	user := &domain.User{
-		ID:	ormUser.ID,
-		Email:	ormUser.Email,
-		Name:	ormUser.Name,
+		ID:    ormUser.ID,
+		Email: ormUser.Email,
+		Name:  ormUser.Name,
 	}
 
 	if ormUser.PasswordHash.Valid {
