@@ -6,14 +6,14 @@ import (
 	"scaffold/internal/common/reqkit/bind"
 	"scaffold/internal/common/reskit/response"
 	"strconv"
-	"{{.Module}}/internal/{{.Domain}}/domain"
+	"scaffold/internal/mock/domain"
 )
 
 type HttpHandler struct {
-    service domain.{{.DomainTitle}}Service
+    service domain.MockService
 }
 
-func NewHttpHandler(service domain.{{.DomainTitle}}Service) *HttpHandler {
+func NewHttpHandler(service domain.MockService) *HttpHandler {
     return &HttpHandler{
         service: service,
     }
@@ -41,7 +41,7 @@ func (h *HttpHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-    data, err := h.service.Create(&domain.{{.DomainTitle}}{
+    data, err := h.service.Create(&domain.Mock{
         Title:    req.Title,
         Description:  req.Description,
     })
@@ -51,7 +51,7 @@ func (h *HttpHandler) Create(ctx *gin.Context) {
         return
     }
 
-    response.Success(ctx, domain{{.DomainTitle}}ToResponse(data))
+    response.Success(ctx, domainMockToResponse(data))
 }
 
 
@@ -68,7 +68,7 @@ func (h *HttpHandler) Read(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, domain{{.DomainTitle}}ToResponse(data))
+	response.Success(ctx, domainMockToResponse(data))
 }
 
 func (h *HttpHandler) Update(ctx *gin.Context) {
@@ -83,7 +83,7 @@ func (h *HttpHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-    data, err := h.service.Update(&domain.{{.DomainTitle}}{
+    data, err := h.service.Update(&domain.Mock{
         ID:           id,
         Title:        req.Title,
         Description:  req.Description,
@@ -94,7 +94,7 @@ func (h *HttpHandler) Update(ctx *gin.Context) {
         return
     }
 
-    response.Success(ctx, domain{{.DomainTitle}}ToResponse(data))
+    response.Success(ctx, domainMockToResponse(data))
 }
 
 func (h *HttpHandler) Delete(ctx *gin.Context) {
@@ -118,7 +118,7 @@ func (h *HttpHandler) List(ctx *gin.Context) {
 		return
 	}
 
-    data, err := h.service.List(&domain.{{.DomainTitle}}Query{
+    data, err := h.service.List(&domain.MockQuery{
         Keyword:  req.KeyWord,
         Page:     req.Page,
         PageSize: req.PageSize,
@@ -129,5 +129,5 @@ func (h *HttpHandler) List(ctx *gin.Context) {
         return
     }
 
-    response.Success(ctx, domain{{.DomainTitle}}ListToResponse(data))
+    response.Success(ctx, domainMockListToResponse(data))
 }

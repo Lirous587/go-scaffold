@@ -1,6 +1,9 @@
 ﻿package domain
 
 type {{.DomainTitle}}Service interface {
-
+	Create({{.Domain}} *{{.DomainTitle}}) (*{{.DomainTitle}}, error)
+	Read(id int64) (*{{.DomainTitle}}, error)
+	Update({{.Domain}} *{{.DomainTitle}}) (*{{.DomainTitle}}, error)
+	Delete(id int64) error
+	List(query *{{.DomainTitle}}Query) (*{{.DomainTitle}}List, error)
 }
-

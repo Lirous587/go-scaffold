@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type {{.DomainTitle}} struct {
+type Mock struct {
 	ID          int64
 	Title       string
 	Description string
@@ -13,13 +13,13 @@ type {{.DomainTitle}} struct {
 	DeletedAt   time.Time
 }
 
-type {{.DomainTitle}}Query struct {
+type MockQuery struct {
 	Keyword  string
 	Page     int
 	PageSize int
 }
 
-type {{.DomainTitle}}List struct {
+type MockList struct {
 	Total int64
-	List  []*{{.DomainTitle}}
+	List  []*Mock
 }

@@ -2,7 +2,7 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- 用户表
-CREATE TABLE users
+CREATE TABLE public.users
 (
     "id"            BIGSERIAL PRIMARY KEY,
     "email"         VARCHAR(255) UNIQUE NOT NULL,
@@ -13,11 +13,11 @@ CREATE TABLE users
 );
 
 -- 用户表索引
-CREATE INDEX idx_users_email ON users (email);
-CREATE INDEX idx_users_github_id ON users (github_id) WHERE github_id IS NOT NULL;
+CREATE INDEX idx_users_email ON public.users (email);
+CREATE INDEX idx_users_github_id ON public.users (github_id) WHERE github_id IS NOT NULL;
 
 -- img 表
-CREATE TABLE img
+CREATE TABLE public.img
 (
     "id"          BIGSERIAL PRIMARY KEY,
     "path"        VARCHAR(120) NOT NULL,
@@ -28,13 +28,13 @@ CREATE TABLE img
     "category_id" BIGINT
 );
 
-CREATE UNIQUE INDEX idx_img_path ON img (path);
-CREATE INDEX idx_img_deleted_at ON img (deleted_at);
-CREATE INDEX idx_img_description_trgm ON img USING gin (description gin_trgm_ops);
+CREATE UNIQUE INDEX idx_img_path ON public.img (path);
+CREATE INDEX idx_img_deleted_at ON public.img (deleted_at);
+CREATE INDEX idx_img_description_trgm ON public.img USING gin (description gin_trgm_ops);
 
 
 CREATE TABLE
-    img_category
+    public.img_category
 (
     "id"         BIGSERIAL PRIMARY KEY,
     "title"      VARCHAR(10) NOT NULL UNIQUE,
@@ -43,6 +43,6 @@ CREATE TABLE
 );
 
 
-ALTER TABLE img
+ALTER TABLE public.img
     ADD CONSTRAINT fk_img_category
         FOREIGN KEY (category_id) REFERENCES img_category (id);

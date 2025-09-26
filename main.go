@@ -20,6 +20,7 @@ import (
 	"scaffold/internal/common/server"
 	"scaffold/internal/common/uid"
 	"scaffold/internal/img"
+	"scaffold/internal/mock"
 	"scaffold/internal/user"
 	"syscall"
 	"time"
@@ -144,5 +145,6 @@ func main() {
 		user.InitV1(r)
 		captcha.InitV1(r)
 		img.InitV1(r)
+		mock.InitV1(r)
 	})
 }

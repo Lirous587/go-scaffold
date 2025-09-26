@@ -1,13 +1,13 @@
-package {{.Domain}}
+package mock
 
 import (
-    "{{.Module}}/internal/common/middleware/auth"
-    "{{.Module}}/internal/{{.Domain}}/handler"
+    "scaffold/internal/common/middleware/auth"
+    "scaffold/internal/mock/handler"
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterV1(r *gin.RouterGroup, handler *handler.HttpHandler) func() {
-	g := r.Group("/v1/{{.Domain}}")
+	g := r.Group("/v1/mock")
 	{
 		g.GET("/:id",handler.Read)
 		g.GET("", handler.List)
