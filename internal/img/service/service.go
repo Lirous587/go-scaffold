@@ -1,8 +1,6 @@
 package service
 
 import (
-	"scaffold/internal/common/reskit/codes"
-	"scaffold/internal/img/domain"
 	"bytes"
 	"context"
 	"fmt"
@@ -18,15 +16,17 @@ import (
 	"io"
 	"log"
 	"os"
+	"scaffold/internal/common/reskit/codes"
+	"scaffold/internal/img/domain"
 	"time"
 )
 
 type service struct {
-	repo		domain.ImgRepository
-	s3Client	*s3.Client
-	msgQueue	domain.ImgMsgQueue
-	publicBucket	bucket
-	deleteBucket	bucket
+	repo         domain.ImgRepository
+	s3Client     *s3.Client
+	msgQueue     domain.ImgMsgQueue
+	publicBucket bucket
+	deleteBucket bucket
 }
 
 func loadS3() (*s3.Client, string, string) {
@@ -43,7 +43,7 @@ func loadS3() (*s3.Client, string, string) {
 
 	// 配置 S3 客户端
 	r2Resolver := aws.EndpointResolverWithOptionsFunc(func(
-		service, region string, options ...interface{},
+			service, region string, options ...interface{},
 	) (aws.Endpoint, error) {
 		return aws.Endpoint{
 			URL: fmt.Sprintf("https://%s.r2.cloudflarestorage.com", accountID),
@@ -53,7 +53,7 @@ func loadS3() (*s3.Client, string, string) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithEndpointResolverWithOptions(r2Resolver),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyID, secretAccessKey, "")),
-		config.WithRegion("auto"),	// R2 不使用区域，但 SDK 需要
+		config.WithRegion("auto"), // R2 不使用区域，但 SDK 需要
 	)
 	if err != nil {
 		log.Fatalf("Unable to load SDK config, %v", err)
@@ -66,11 +66,11 @@ func NewImgService(repo domain.ImgRepository, msgQueue domain.ImgMsgQueue) domai
 	client, publicBucket, deleteBucket := loadS3()
 
 	return &service{
-		repo:		repo,
-		s3Client:	client,
-		publicBucket:	bucket(publicBucket),
-		deleteBucket:	bucket(deleteBucket),
-		msgQueue:	msgQueue,
+		repo:         repo,
+		s3Client:     client,
+		publicBucket: bucket(publicBucket),
+		deleteBucket: bucket(deleteBucket),
+		msgQueue:     msgQueue,
 	}
 }
 
@@ -246,7 +246,7 @@ func (s *service) ClearRecycleBin(id int64) error {
 	return nil
 }
 
-func (s *service) List(query *domain.ImgQuery) (*domain.ImgPages, error) {
+func (s *service) List(query *domain.ImgQuery) (*domain.ImgList, error) {
 	return s.repo.List(query)
 }
 

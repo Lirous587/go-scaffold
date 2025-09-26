@@ -43,7 +43,7 @@ func (h *HttpHandler) getID(ctx *gin.Context) (int64, error) {
 // @Success      200  {object}  response.successResponse{data=handler.CaptchaResponse} "成功创建验证码"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
-// @Router       /captcha [post]
+// @Router       /v1/captcha [post]
 func (h *HttpHandler) Gen(ctx *gin.Context) {
 	req := new(GenRequest)
 
@@ -71,7 +71,7 @@ func (h *HttpHandler) Gen(ctx *gin.Context) {
 // @Success      200  {object}  response.successResponse{data=handler.CaptchaAnswerResponse} "成功创建验证码并返回答案"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
-// @Router       /captcha/with-answer [get]
+// @Router       /v1/captcha/with-answer [get]
 func (h *HttpHandler) GenWithAnswer(ctx *gin.Context) {
 	mode := os.Getenv("SERVER_MODE")
 	if mode != "dev" {

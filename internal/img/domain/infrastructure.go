@@ -14,7 +14,7 @@ type ImgRepository interface {
 	Create(img *Img, categoryID int64) (*Img, error)
 	Delete(id int64, hard bool) error
 	Restore(id int64) (*Img, error)
-	List(query *ImgQuery) (*ImgPages, error)
+	List(query *ImgQuery) (*ImgList, error)
 
 	CreateCategory(category *Category) (*Category, error)
 	UpdateCategory(category *Category) (*Category, error)

@@ -106,7 +106,7 @@ func sync(ctx context.Context, cancel context.CancelFunc) {
 // @license.url   https://github.com/Lirous587/go-scaffold/main/LICENSE
 
 // @host      localhost:8080
-// @BasePath  /api/v1
+// @BasePath  /api
 
 // @securityDefinitions.apikey BearerAuth
 // @in header

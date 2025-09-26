@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"scaffold/internal/img/domain"
 	"net/url"
 	"os"
+	"scaffold/internal/img/domain"
 	"time"
 )
 
@@ -23,18 +23,18 @@ func init() {
 }
 
 type ImgResponse struct {
-	ID		int64	`json:"id"`
-	Url		string	`json:"url"`
-	Description	string	`json:"description,omitempty"`
-	CreatedAt	string	`json:"created_at"`
-	UpdatedAt	string	`json:"updated_at"`
-	DeletedAt	string	`json:"deleted_at,omitempty"`
+	ID          int64  `json:"id"`
+	Url         string `json:"url"`
+	Description string `json:"description,omitempty"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
+	DeletedAt   string `json:"deleted_at,omitempty"`
 }
 
 type UploadRequest struct {
-	Path		string	`form:"path"`
-	Description	string	`form:"description" binding:"max=60"`
-	CategoryID	int64	`form:"category_id"`
+	Path        string `form:"path"`
+	Description string `form:"description" binding:"max=60"`
+	CategoryID  int64  `form:"category_id"`
 }
 
 type DeleteRequest struct {
@@ -42,16 +42,16 @@ type DeleteRequest struct {
 }
 
 type ListRequest struct {
-	Page		int	`form:"page,default=1" binding:"min=1"`
-	PageSize	int	`form:"page_size,default=5" binding:"min=5,max=50"`
-	KeyWord		string	`form:"keyword" binding:"max=20"`
-	Deleted		bool	`form:"deleted,default=false"`
-	CategoryID	int64	`form:"category_id"`
+	Page       int    `form:"page,default=1" binding:"min=1"`
+	PageSize   int    `form:"page_size,default=5" binding:"min=5,max=50"`
+	KeyWord    string `form:"keyword" binding:"max=20"`
+	Deleted    bool   `form:"deleted,default=false"`
+	CategoryID int64  `form:"category_id"`
 }
 
-type ImgPagesResponse struct {
-	Pages	int		`json:"pages"`
-	List	[]*ImgResponse	`json:"list"`
+type ImgListResponse struct {
+	Total int64          `json:"total"`
+	List  []*ImgResponse `json:"list"`
 }
 
 func domainImgToResponse(img *domain.Img) *ImgResponse {
@@ -67,11 +67,11 @@ func domainImgToResponse(img *domain.Img) *ImgResponse {
 	}
 
 	resp := &ImgResponse{
-		ID:		img.ID,
-		Url:		urlPrefix + "/" + encodedPath,
-		Description:	img.Description,
-		CreatedAt:	img.CreatedAt.Format(time.DateTime),
-		UpdatedAt:	img.UpdatedAt.Format(time.DateTime),
+		ID:          img.ID,
+		Url:         urlPrefix + "/" + encodedPath,
+		Description: img.Description,
+		CreatedAt:   img.CreatedAt.Format(time.DateTime),
+		UpdatedAt:   img.UpdatedAt.Format(time.DateTime),
 	}
 
 	// 只有当 DeletedAt 不为零值时才设置
@@ -97,13 +97,13 @@ func domainImgsToResponse(imgs []*domain.Img) []*ImgResponse {
 	return list
 }
 
-func domainImgWithPagesToResponse(data *domain.ImgPages) *ImgPagesResponse {
+func domainImgListToResponse(data *domain.ImgList) *ImgListResponse {
 	if data == nil {
 		return nil
 	}
 
-	return &ImgPagesResponse{
-		Pages:	data.Pages,
-		List:	domainImgsToResponse(data.List),
+	return &ImgListResponse{
+		List:  domainImgsToResponse(data.List),
+		Total: data.Total,
 	}
 }

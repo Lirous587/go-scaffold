@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /api
 definitions:
   domain.VerifyWay:
     enum:
@@ -40,27 +40,39 @@ definitions:
         description: 缩略图
         type: string
     type: object
-  handler.CreateRequest:
+  handler.CategoryResponse:
     properties:
-      description:
-        maxLength: 60
+      created_at:
+        type: string
+      id:
+        type: integer
+      prefix:
         type: string
       title:
-        maxLength: 30
+        type: string
+    type: object
+  handler.CreateCategoryRequest:
+    properties:
+      prefix:
+        maxLength: 20
+        type: string
+      title:
+        maxLength: 10
         type: string
     required:
+    - prefix
     - title
     type: object
-  handler.TestListResponse:
+  handler.ImgListResponse:
     properties:
       list:
         items:
-          $ref: '#/definitions/handler.TestResponse'
+          $ref: '#/definitions/handler.ImgResponse'
         type: array
       total:
         type: integer
     type: object
-  handler.TestResponse:
+  handler.ImgResponse:
     properties:
       created_at:
         type: string
@@ -70,21 +82,19 @@ definitions:
         type: string
       id:
         type: integer
-      title:
-        type: string
       updated_at:
         type: string
+      url:
+        type: string
     type: object
-  handler.UpdateRequest:
+  handler.UpdateCategoryRequest:
     properties:
-      description:
-        maxLength: 60
+      prefix:
+        maxLength: 20
         type: string
       title:
-        maxLength: 30
+        maxLength: 10
         type: string
-    required:
-    - title
     type: object
   response.errorResponse:
     properties:
@@ -135,7 +145,7 @@ info:
   title: 自定义title
   version: "1.0"
 paths:
-  /captcha:
+  /v1/captcha:
     post:
       consumes:
       - application/json
@@ -171,7 +181,7 @@ paths:
       summary: 生成验证码
       tags:
       - captcha
-  /captcha/with-answer:
+  /v1/captcha/with-answer:
     get:
       consumes:
       - application/json
@@ -207,71 +217,43 @@ paths:
       summary: 生成带答案的验证码
       tags:
       - captcha
-  /test:
+  /v1/img:
     get:
       consumes:
       - application/json
-      description: 根据查询参数获取Test列表，返回当前页数据和total数量
+      description: 分页获取图片列表
       parameters:
-      - description: 关键词搜索
-        in: query
-        name: keyword
-        type: string
-      - default: 1
-        description: 页码
+      - description: 页码（默认1）
         in: query
         name: page
         type: integer
-      - default: 10
-        description: 每页数量
+      - description: 每页数量（默认5，最大50）
         in: query
         name: page_size
+        type: integer
+      - description: 关键词（可选，最长20字）
+        in: query
+        name: keyword
+        type: string
+      - description: 是否查询回收站图片（默认false）
+        in: query
+        name: deleted
+        type: boolean
+      - description: 分类ID（可选）
+        in: query
+        name: category_id
         type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Test列表
+          description: 查询成功
           schema:
             allOf:
             - $ref: '#/definitions/response.successResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.TestListResponse'
-              type: object
-        "400":
-          description: 参数错误
-          schema:
-            $ref: '#/definitions/response.invalidParamsResponse'
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/response.errorResponse'
-      summary: 获取 Test 列表
-      tags:
-      - test
-    post:
-      consumes:
-      - application/json
-      description: 创建新的 Test
-      parameters:
-      - description: 创建 Test 请求
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.CreateRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功创建 Test
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.successResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/handler.TestResponse'
+                  $ref: '#/definitions/handler.ImgListResponse'
               type: object
         "400":
           description: 参数错误
@@ -283,25 +265,29 @@ paths:
             $ref: '#/definitions/response.errorResponse'
       security:
       - BearerAuth: []
-      summary: 创建 Test
+      summary: 图片列表
       tags:
-      - test
-  /test/{id}:
+      - img
+  /v1/img/{id}:
     delete:
       consumes:
       - application/json
-      description: 根据ID删除 Test
+      description: 删除图片（软删除或硬删除）
       parameters:
-      - description: Test ID
+      - description: 图片ID
         in: path
         name: id
         required: true
         type: integer
+      - description: 是否硬删除（默认false）
+        in: query
+        name: hard
+        type: boolean
       produces:
       - application/json
       responses:
         "200":
-          description: 成功删除 Test
+          description: 删除成功
           schema:
             $ref: '#/definitions/response.successResponse'
         "400":
@@ -314,71 +300,60 @@ paths:
             $ref: '#/definitions/response.errorResponse'
       security:
       - BearerAuth: []
-      summary: 删除 Test
+      summary: 删除图片
       tags:
-      - test
+      - img
+  /v1/img/categories:
     get:
       consumes:
       - application/json
-      description: 读取单条 Test
-      parameters:
-      - description: Test ID
-        in: path
-        name: id
-        required: true
-        type: integer
+      description: 获取所有图片分类
       produces:
       - application/json
       responses:
         "200":
-          description: 成功创建 Test
+          description: 查询成功
           schema:
             allOf:
             - $ref: '#/definitions/response.successResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.TestResponse'
+                  items:
+                    $ref: '#/definitions/handler.CategoryResponse'
+                  type: array
               type: object
-        "400":
-          description: 参数错误
-          schema:
-            $ref: '#/definitions/response.invalidParamsResponse'
         "500":
           description: 服务器错误
           schema:
             $ref: '#/definitions/response.errorResponse'
       security:
       - BearerAuth: []
-      summary: 读取单条 Test
+      summary: 分类列表
       tags:
-      - test
-    put:
+      - img-category
+  /v1/img/category:
+    post:
       consumes:
       - application/json
-      description: 根据ID更新 Test 信息
+      description: 新建图片分类
       parameters:
-      - description: Test ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 更新 Test 请求
+      - description: 创建分类请求
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateRequest'
+          $ref: '#/definitions/handler.CreateCategoryRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: 成功更新 Test
+          description: 创建成功
           schema:
             allOf:
             - $ref: '#/definitions/response.successResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.TestResponse'
+                  $ref: '#/definitions/handler.CategoryResponse'
               type: object
         "400":
           description: 参数错误
@@ -390,9 +365,195 @@ paths:
             $ref: '#/definitions/response.errorResponse'
       security:
       - BearerAuth: []
-      summary: 更新 Test
+      summary: 创建图片分类
       tags:
-      - test
+      - img-category
+  /v1/img/category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定图片分类
+      parameters:
+      - description: 分类ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/response.successResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除图片分类
+      tags:
+      - img-category
+    put:
+      consumes:
+      - application/json
+      description: 修改图片分类信息
+      parameters:
+      - description: 分类ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新分类请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.CategoryResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新图片分类
+      tags:
+      - img-category
+  /v1/img/recycle/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 彻底删除回收站中的图片
+      parameters:
+      - description: 图片ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 清空成功
+          schema:
+            $ref: '#/definitions/response.successResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 清空回收站图片
+      tags:
+      - img
+    put:
+      consumes:
+      - application/json
+      description: 从回收站恢复图片
+      parameters:
+      - description: 图片ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 恢复成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.ImgResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 恢复回收站图片
+      tags:
+      - img
+  /v1/img/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传单张图片（支持 jpeg/png/gif/webp/avif/bmp/svg）
+      parameters:
+      - description: 图片文件
+        in: formData
+        name: object
+        required: true
+        type: file
+      - description: 自定义图片路径（可选）
+        in: formData
+        name: path
+        type: string
+      - description: 图片描述（可选，最长60字）
+        in: formData
+        name: description
+        type: string
+      - description: 分类ID（可选）
+        in: formData
+        name: category_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.ImgResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 上传图片
+      tags:
+      - img
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

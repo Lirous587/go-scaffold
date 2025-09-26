@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/captcha": {
+        "/v1/captcha": {
             "post": {
                 "description": "创建新的验证码",
                 "consumes": [
@@ -84,7 +84,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/captcha/with-answer": {
+        "/v1/captcha/with-answer": {
             "get": {
                 "description": "创建新的验证码并返回答案（仅用于测试或开发环境）",
                 "consumes": [
@@ -144,81 +144,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/test": {
+        "/v1/img": {
             "get": {
-                "description": "根据查询参数获取Test列表，返回当前页数据和total数量",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "test"
-                ],
-                "summary": "获取 Test 列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "关键词搜索",
-                        "name": "keyword",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "每页数量",
-                        "name": "page_size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Test列表",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.successResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/handler.TestListResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.invalidParamsResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.errorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "创建新的 Test",
+                "description": "分页获取图片列表",
                 "consumes": [
                     "application/json"
                 ],
@@ -226,23 +159,44 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "test"
+                    "img"
                 ],
-                "summary": "创建 Test",
+                "summary": "图片列表",
                 "parameters": [
                     {
-                        "description": "创建 Test 请求",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.CreateRequest"
-                        }
+                        "type": "integer",
+                        "description": "页码（默认1）",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量（默认5，最大50）",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "关键词（可选，最长20字）",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否查询回收站图片（默认false）",
+                        "name": "deleted",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分类ID（可选）",
+                        "name": "category_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功创建 Test",
+                        "description": "查询成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -252,7 +206,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.TestResponse"
+                                            "$ref": "#/definitions/handler.ImgListResponse"
                                         }
                                     }
                                 }
@@ -274,14 +228,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/test/{id}": {
+        "/v1/img/categories": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "读取单条 Test",
+                "description": "获取所有图片分类",
                 "consumes": [
                     "application/json"
                 ],
@@ -289,21 +243,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "test"
+                    "img-category"
                 ],
-                "summary": "读取单条 Test",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Test ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "分类列表",
                 "responses": {
                     "200": {
-                        "description": "成功创建 Test",
+                        "description": "查询成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -313,7 +258,67 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.TestResponse"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.CategoryResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/img/category": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "新建图片分类",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "img-category"
+                ],
+                "summary": "创建图片分类",
+                "parameters": [
+                    {
+                        "description": "创建分类请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateCategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.CategoryResponse"
                                         }
                                     }
                                 }
@@ -333,14 +338,16 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/v1/img/category/{id}": {
             "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "根据ID更新 Test 信息",
+                "description": "修改图片分类信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -348,30 +355,30 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "test"
+                    "img-category"
                 ],
-                "summary": "更新 Test",
+                "summary": "更新图片分类",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Test ID",
+                        "description": "分类ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "更新 Test 请求",
+                        "description": "更新分类请求",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateRequest"
+                            "$ref": "#/definitions/handler.UpdateCategoryRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功更新 Test",
+                        "description": "更新成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -381,7 +388,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.TestResponse"
+                                            "$ref": "#/definitions/handler.CategoryResponse"
                                         }
                                     }
                                 }
@@ -408,7 +415,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "根据ID删除 Test",
+                "description": "删除指定图片分类",
                 "consumes": [
                     "application/json"
                 ],
@@ -416,13 +423,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "test"
+                    "img-category"
                 ],
-                "summary": "删除 Test",
+                "summary": "删除图片分类",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Test ID",
+                        "description": "分类ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -430,7 +437,249 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功删除 Test",
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.successResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/img/recycle/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "从回收站恢复图片",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "img"
+                ],
+                "summary": "恢复回收站图片",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "图片ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "恢复成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.ImgResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "彻底删除回收站中的图片",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "img"
+                ],
+                "summary": "清空回收站图片",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "图片ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "清空成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.successResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/img/upload": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "上传单张图片（支持 jpeg/png/gif/webp/avif/bmp/svg）",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "img"
+                ],
+                "summary": "上传图片",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "图片文件",
+                        "name": "object",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "自定义图片路径（可选）",
+                        "name": "path",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "图片描述（可选，最长60字）",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分类ID（可选）",
+                        "name": "category_id",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "上传成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.ImgResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/img/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除图片（软删除或硬删除）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "img"
+                ],
+                "summary": "删除图片",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "图片ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否硬删除（默认false）",
+                        "name": "hard",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
                         "schema": {
                             "$ref": "#/definitions/response.successResponse"
                         }
@@ -509,29 +758,47 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.CreateRequest": {
+        "handler.CategoryResponse": {
             "type": "object",
-            "required": [
-                "title"
-            ],
             "properties": {
-                "description": {
-                    "type": "string",
-                    "maxLength": 60
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "prefix": {
+                    "type": "string"
                 },
                 "title": {
-                    "type": "string",
-                    "maxLength": 30
+                    "type": "string"
                 }
             }
         },
-        "handler.TestListResponse": {
+        "handler.CreateCategoryRequest": {
+            "type": "object",
+            "required": [
+                "prefix",
+                "title"
+            ],
+            "properties": {
+                "prefix": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 10
+                }
+            }
+        },
+        "handler.ImgListResponse": {
             "type": "object",
             "properties": {
                 "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.TestResponse"
+                        "$ref": "#/definitions/handler.ImgResponse"
                     }
                 },
                 "total": {
@@ -539,7 +806,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.TestResponse": {
+        "handler.ImgResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -554,27 +821,24 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "title": {
+                "updated_at": {
                     "type": "string"
                 },
-                "updated_at": {
+                "url": {
                     "type": "string"
                 }
             }
         },
-        "handler.UpdateRequest": {
+        "handler.UpdateCategoryRequest": {
             "type": "object",
-            "required": [
-                "title"
-            ],
             "properties": {
-                "description": {
+                "prefix": {
                     "type": "string",
-                    "maxLength": 60
+                    "maxLength": 20
                 },
                 "title": {
                     "type": "string",
-                    "maxLength": 30
+                    "maxLength": 10
                 }
             }
         },
@@ -643,7 +907,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "/api/v1",
+	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "自定义title",
 	Description:      "自定义描述",

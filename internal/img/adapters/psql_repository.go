@@ -141,7 +141,7 @@ func (repo *PSQLImgRepository) OrderByUpdatedAtDesc() qm.QueryMod {
 	return qm.OrderBy(orm.ImgColumns.UpdatedAt + " DESC")
 }
 
-func (repo *PSQLImgRepository) List(query *domain.ImgQuery) (*domain.ImgPages, error) {
+func (repo *PSQLImgRepository) List(query *domain.ImgQuery) (*domain.ImgList, error) {
 	var whereMods []qm.QueryMod
 	if query.Keyword != "" {
 		like := "%" + query.Keyword + "%"
@@ -158,12 +158,7 @@ func (repo *PSQLImgRepository) List(query *domain.ImgQuery) (*domain.ImgPages, e
 	}
 
 	// 1.计算count
-	count, err := orm.Imgs(whereMods...).CountG()
-	if err != nil {
-		return nil, err
-	}
-
-	totalPages, err := utils.ComputePages(query.Page, query.PageSize, count)
+	total, err := orm.Imgs(whereMods...).CountG()
 	if err != nil {
 		return nil, err
 	}
@@ -181,8 +176,8 @@ func (repo *PSQLImgRepository) List(query *domain.ImgQuery) (*domain.ImgPages, e
 		return nil, err
 	}
 
-	return &domain.ImgPages{
-		Pages: totalPages,
+	return &domain.ImgList{
+		Total: total,
 		List:  ormImgsToDomain(imgs, query.Deleted),
 	}, nil
 }

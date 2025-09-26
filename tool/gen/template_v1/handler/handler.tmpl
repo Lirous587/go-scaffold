@@ -45,7 +45,7 @@ func (h *HttpHandler) getID(ctx *gin.Context) (int64, error) {
 // @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功创建 {{.DomainTitle}}"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
-// @Router       /{{.Domain}} [post]
+// @Router       /v1/{{.Domain}} [post]
 func (h *HttpHandler) Create(ctx *gin.Context) {
     req := new(CreateRequest)
 
@@ -77,7 +77,7 @@ func (h *HttpHandler) Create(ctx *gin.Context) {
 // @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功创建 {{.DomainTitle}}"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
-// @Router       /{{.Domain}}/{id} [get]
+// @Router       /v1/{{.Domain}}/{id} [get]
 func (h *HttpHandler) Read(ctx *gin.Context) {
 	id, err := h.getID(ctx)
 	if err != nil {
@@ -106,7 +106,7 @@ func (h *HttpHandler) Read(ctx *gin.Context) {
 // @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功更新 {{.DomainTitle}}"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
-// @Router       /{{.Domain}}/{id} [put]
+// @Router       /v1/{{.Domain}}/{id} [put]
 func (h *HttpHandler) Update(ctx *gin.Context) {
     id, err := h.getID(ctx)
     if err != nil {
@@ -144,7 +144,7 @@ func (h *HttpHandler) Update(ctx *gin.Context) {
 // @Success      200  {object}  response.successResponse "成功删除 {{.DomainTitle}}"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
-// @Router       /{{.Domain}}/{id} [delete]
+// @Router       /v1/{{.Domain}}/{id} [delete]
 func (h *HttpHandler) Delete(ctx *gin.Context) {
     id, err := h.getID(ctx)
     if err != nil {
@@ -171,7 +171,7 @@ func (h *HttpHandler) Delete(ctx *gin.Context) {
 // @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}ListResponse} "{{.DomainTitle}}列表"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
-// @Router       /{{.Domain}} [get]
+// @Router       /v1/{{.Domain}} [get]
 func (h *HttpHandler) List(ctx *gin.Context) {
     req := new(ListRequest)
 

@@ -30,9 +30,9 @@ type ImgQuery struct {
 	CategoryID int64
 }
 
-type ImgPages struct {
+type ImgList struct {
 	List  []*Img
-	Pages int
+	Total int64
 }
 
 type Category struct {
