@@ -19,8 +19,8 @@ import (
 )
 
 func init() {
-	cwd := getWd()
-	goModPath, err := findGoModPath(cwd)
+	wd := getWd()
+	goModPath, err := findGoModPath(wd)
 	if err != nil {
 		log.Fatal("未找到 go.mod 文件")
 	}
@@ -80,8 +80,8 @@ func main() {
 
 	// 查找go.mod所在路径
 	module := ""
-	cwd := getWd()
-	goModPath, err := findGoModPath(cwd)
+	wd := getWd()
+	goModPath, err := findGoModPath(wd)
 	if err != nil {
 		log.Fatal("未找到 go.mod 文件")
 	}
@@ -199,6 +199,11 @@ func main() {
 		rollBackTemplate(outBase)
 		log.Fatalf("生成基础表失败: %v", err)
 	}
+
+	// 生成api文档
+	if err := genApiDoc(); err != nil {
+		log.Fatalf("生成api文档失败: %v,请手动生成", err)
+	}
 }
 
 // 查找最近的 go.mod 文件路径
@@ -255,12 +260,9 @@ func rollBackCode(codePath string) {
 
 // 建表
 func createTable(domainLower string) error {
-	cwd, err := os.Getwd()
-	if err != nil {
-		panic("os.Getwd() 调用失败")
-	}
+	wd := getWd()
 
-	goModPath, _ := findGoModPath(cwd)
+	goModPath, _ := findGoModPath(wd)
 	goModDir := filepath.Dir(goModPath)
 	sqlPath := filepath.Join(goModDir, "tool", "gen", "ddl.sql")
 	content, err := os.ReadFile(sqlPath)
@@ -326,5 +328,21 @@ func createTable(domainLower string) error {
 	}
 	log.Println("sqlboiler 执行完成")
 
+	return nil
+}
+
+// 生产api doc
+func genApiDoc() error {
+	wd := getWd()
+	goModPath, _ := findGoModPath(wd)
+	goModDir := filepath.Dir(goModPath)
+	cmd := exec.Command("swag", "init", "-g", "main.go", "-o", "./api/openapi")
+	cmd.Dir = goModDir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("执行 swag init 失败: %v", err)
+	}
+	log.Println("swag init 执行完成")
 	return nil
 }

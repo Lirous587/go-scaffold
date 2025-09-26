@@ -3,9 +3,9 @@
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"scaffold/internal/common/reqkit/bind"
-	"scaffold/internal/common/reskit/response"
-	"strconv"
+    "strconv"
+	"{{.Module}}/internal/common/reqkit/bind"
+	"{{.Module}}/internal/common/reskit/response"
 	"{{.Module}}/internal/{{.Domain}}/domain"
 )
 
@@ -34,6 +34,18 @@ func (h *HttpHandler) getID(ctx *gin.Context) (int64, error) {
     return int64(idInt), err
 }
 
+// Create godoc
+// @Summary      创建 {{.DomainTitle}}
+// @Description  创建新的 {{.DomainTitle}}
+// @Tags         {{.Domain}}
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body handler.CreateRequest true "创建 {{.DomainTitle}} 请求"
+// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功创建 {{.DomainTitle}}"
+// @Failure      400  {object}  response.invalidParamsResponse "参数错误"
+// @Failure      500  {object}  response.errorResponse "服务器错误"
+// @Router       /{{.Domain}} [post]
 func (h *HttpHandler) Create(ctx *gin.Context) {
     req := new(CreateRequest)
 
@@ -54,7 +66,18 @@ func (h *HttpHandler) Create(ctx *gin.Context) {
     response.Success(ctx, domain{{.DomainTitle}}ToResponse(data))
 }
 
-
+// Read godoc
+// @Summary      读取单条 {{.DomainTitle}}
+// @Description  读取单条 {{.DomainTitle}}
+// @Tags         {{.Domain}}
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path int true "{{.DomainTitle}} ID"
+// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功创建 {{.DomainTitle}}"
+// @Failure      400  {object}  response.invalidParamsResponse "参数错误"
+// @Failure      500  {object}  response.errorResponse "服务器错误"
+// @Router       /{{.Domain}}/{id} [get]
 func (h *HttpHandler) Read(ctx *gin.Context) {
 	id, err := h.getID(ctx)
 	if err != nil {
@@ -71,6 +94,19 @@ func (h *HttpHandler) Read(ctx *gin.Context) {
 	response.Success(ctx, domain{{.DomainTitle}}ToResponse(data))
 }
 
+// Update godoc
+// @Summary      更新 {{.DomainTitle}}
+// @Description  根据ID更新 {{.DomainTitle}} 信息
+// @Tags         {{.Domain}}
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path int true "{{.DomainTitle}} ID"
+// @Param        request body handler.UpdateRequest true "更新 {{.DomainTitle}} 请求"
+// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功更新 {{.DomainTitle}}"
+// @Failure      400  {object}  response.invalidParamsResponse "参数错误"
+// @Failure      500  {object}  response.errorResponse "服务器错误"
+// @Router       /{{.Domain}}/{id} [put]
 func (h *HttpHandler) Update(ctx *gin.Context) {
     id, err := h.getID(ctx)
     if err != nil {
@@ -97,6 +133,18 @@ func (h *HttpHandler) Update(ctx *gin.Context) {
     response.Success(ctx, domain{{.DomainTitle}}ToResponse(data))
 }
 
+// Delete godoc
+// @Summary      删除 {{.DomainTitle}}
+// @Description  根据ID删除 {{.DomainTitle}}
+// @Tags         {{.Domain}}
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path int true "{{.DomainTitle}} ID"
+// @Success      200  {object}  response.successResponse "成功删除 {{.DomainTitle}}"
+// @Failure      400  {object}  response.invalidParamsResponse "参数错误"
+// @Failure      500  {object}  response.errorResponse "服务器错误"
+// @Router       /{{.Domain}}/{id} [delete]
 func (h *HttpHandler) Delete(ctx *gin.Context) {
     id, err := h.getID(ctx)
     if err != nil {
@@ -111,6 +159,19 @@ func (h *HttpHandler) Delete(ctx *gin.Context) {
     response.Success(ctx)
 }
 
+// List godoc
+// @Summary      获取 {{.DomainTitle}} 列表
+// @Description  根据查询参数获取{{.DomainTitle}}列表，返回当前页数据和total数量
+// @Tags         {{.Domain}}
+// @Accept       json
+// @Produce      json
+// @Param        keyword    query     string  false  "关键词搜索"
+// @Param        page       query     int     false  "页码" default(1)
+// @Param        page_size  query     int     false  "每页数量" default(10)
+// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}ListResponse} "{{.DomainTitle}}列表"
+// @Failure      400  {object}  response.invalidParamsResponse "参数错误"
+// @Failure      500  {object}  response.errorResponse "服务器错误"
+// @Router       /{{.Domain}} [get]
 func (h *HttpHandler) List(ctx *gin.Context) {
     req := new(ListRequest)
 

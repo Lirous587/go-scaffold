@@ -1,4 +1,83 @@
 basePath: /api/v1
+definitions:
+  handler.MockListResponse:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/handler.MockResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  handler.MockResponse:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.errorResponse:
+    properties:
+      code:
+        type: integer
+      details:
+        additionalProperties: true
+        type: object
+      message:
+        example: Internal server error
+        type: string
+    type: object
+  response.invalidParamsResponse:
+    properties:
+      code:
+        type: integer
+      details:
+        additionalProperties: true
+        type: object
+      message:
+        example: invalid params
+        type: string
+    type: object
+  response.successResponse:
+    properties:
+      code:
+        example: 2000
+        type: integer
+      data: {}
+      message:
+        example: 请求成功
+        type: string
+    type: object
+  scaffold_internal_mock_handler.CreateRequest:
+    properties:
+      Description:
+        maxLength: 60
+        type: string
+      title:
+        maxLength: 30
+        type: string
+    required:
+    - title
+    type: object
+  scaffold_internal_mock_handler.UpdateRequest:
+    properties:
+      Description:
+        maxLength: 60
+        type: string
+      title:
+        maxLength: 30
+        type: string
+    required:
+    - title
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -8,14 +87,200 @@ info:
     email: lirous@lirous.com
     name: Lirous
     url: https://Lirous.com
-  description: 用于构建手脚架
+  description: 自定义描述
   license:
     name: MIT
     url: https://github.com/Lirous587/go-scaffold/main/LICENSE
   termsOfService: https://Lirous.com
-  title: 手脚架api
+  title: 自定义title
   version: "1.0"
-paths: {}
+paths:
+  /mock:
+    get:
+      consumes:
+      - application/json
+      description: 根据查询参数获取Mock列表，返回当前页数据和total数量
+      parameters:
+      - description: 关键词搜索
+        in: query
+        name: keyword
+        type: string
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Mock列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.MockListResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      summary: 获取 Mock 列表
+      tags:
+      - mock
+    post:
+      consumes:
+      - application/json
+      description: 创建新的 Mock
+      parameters:
+      - description: 创建 Mock 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/scaffold_internal_mock_handler.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功创建 Mock
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.MockResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建 Mock
+      tags:
+      - mock
+  /mock/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据ID删除 Mock
+      parameters:
+      - description: Mock ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功删除 Mock
+          schema:
+            $ref: '#/definitions/response.successResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除 Mock
+      tags:
+      - mock
+    get:
+      consumes:
+      - application/json
+      description: 读取单条 Mock
+      parameters:
+      - description: Mock ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功创建 Mock
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.MockResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 读取单条 Mock
+      tags:
+      - mock
+    put:
+      consumes:
+      - application/json
+      description: 根据ID更新 Mock 信息
+      parameters:
+      - description: Mock ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新 Mock 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/scaffold_internal_mock_handler.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功更新 Mock
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.MockResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新 Mock
+      tags:
+      - mock
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

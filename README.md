@@ -33,6 +33,8 @@
 ```
 scaffold/
 ├── api/
+│   ├── openapi             #swagger 文件
+│   └── protobuf            # pb文件 (普通项目规模不推荐使用微服务)
 ├── docker/
 ├── internal/
 │   ├── common
