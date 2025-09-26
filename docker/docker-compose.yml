@@ -66,5 +66,5 @@ volumes:
   redis-data:
 
 networks:
-  blog-network:
+  ${NETWORK_NAME}:
     driver: bridge
