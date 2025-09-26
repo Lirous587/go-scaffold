@@ -16,15 +16,17 @@
 - 🔌 多数据库支持
 - 🛠️ 优雅的错误处理
 - 🚦 优雅启动和关闭
+- 🎇 不计其数的优雅设计
 
 ## 🔧 技术栈
 
 - [Gin](https://github.com/gin-gonic/gin) - 高性能 HTTP Web 框架
+- [Validator](https://github.com/go-playground/validator) - 参数验证库
 - [SQLBoiler](https://github.com/volatiletech/sqlboiler) - 优秀的 ORM 库，基于代码生成
 - [Redis](https://github.com/redis/go-redis) - Redis 客户端
+- [JWT](https://github.com/golang-jwt/jwt) - JWT 鉴权管理
 - [Zap](https://github.com/uber-go/zap) - 高性能、结构化日志
 - [Wire](https://github.com/google/wire) - Wire 依赖注入
-- [JWT](https://github.com/golang-jwt/jwt) - JWT 鉴权管理
 
 ## 📁 项目结构
 
@@ -39,20 +41,28 @@ scaffold/
 │   │    ├── logger/        # 日志配置
 │   │    ├── metrics/       # 指数收集
 │   │    ├── middleware/    # 中间件
-│   │    ├── orm/           # SQLBoiler生成的代码
+│   │    ├── orm/           # SQLBoiler生成代码
+│   │    ├── reqkit         # 自封装请求工具集
+│   │    ├── reskit/        # 自封装响应工具集
 │   │    ├── server/        # 服务配置
+│   │    ├── uid/           # 唯一键生成
 │   │    ├── utils/         # utils工具函数
 │   │    └── validator/     # validator管理
+│   └── captcha             # 验证码模块
+│   └── img                 # 图库模块
 │   └── user                # 用户模块
 │   └── ...                 # 其余模块
 ├── logs/                   # 日志文件
 ├── tool/                   # 工具脚本
 ├── .air.conf               # air配置
-├── .env                    # 环境变量
-├── .gitignore
+├── .env                    # 开发环境变量(由下方得来)
+├── .env.copy               # 开发环境变量
+├── .env.docker             # 生产环境变量(由下方得来)
+├── .env.docker_copy        # 生产环境变量
+├── ....
 ├── main.go                 # 主入口
 └── README.md
-└── sqlboiler.toml          # sqlboiler相关配置
+└── sqlboiler.toml          # sqlboiler配置
 ```
 
 ## ⚡ 快速开始
@@ -68,7 +78,6 @@ scaffold/
 > 以下演示以Windows作为示例
 
 1. 新建目录
-
 ```bash
 mkdir demo
 ```
@@ -80,13 +89,11 @@ git clone https://github.com/Lirou587/go-scaffold.git
 ```
 
 3. 移动目录 并删除git记录
-
 ```bash
 robocopy go-scaffold . /E /XD .git
 ```
 
 4. 删除clone目录
-
 ```bash
 Remove-Item go-scaffold -Recurse -Force
 ```
@@ -100,24 +107,36 @@ go build
 ```
 
 6. 删除replace
-
 ```bash
 cd ..
 rm ./replace
 ```
 
 7. 安装依赖
-
 ```bash
 cd ..
 go mod tidy
 ```
 
 8. 修改配置
-将 `.copy.env` 重命名为 `.env`，配置 `.env`
+- 开发环境:将 `.copy.env` 重命名为 `.env`，配置 `.env`
+- 生产环境:将 `.copy.docker_copy` 重命名为 `.env.docker`，配置 `.env.docker`
 
-9. 运行服务
+9. 使用gen工具(可选)
+- 根路径下运行
+```bash
+go run ./tool/gen/gen.go -m mock
+```
+- 修改入口文件main函数的 `server.RunHttpServer`
+```go
+server.RunHttpServer(os.Getenv("SERVER_PORT"), metricsClient, func(r *gin.RouterGroup) {
+    // ......
+    // 新增
+    mock.InitV1(r)
+})
+```
 
+10. 运行服务
 ```bash
 go run main.go
 # 或者运行 air
@@ -147,11 +166,12 @@ go run main.go
 > 以下排名不分先后
 
 - [Gin](https://github.com/gin-gonic/gin)
+- [Validator](https://github.com/go-playground/validator)
 - [SQLBoiler](https://github.com/volatiletech/sqlboiler)
 - [Redis](https://github.com/redis/go-redis)
+- [JWT](https://github.com/golang-jwt/jwt)
 - [Zap](https://github.com/uber-go/zap)
 - [Wire](https://github.com/google/wire)
-- [JWT](https://github.com/golang-jwt/jwt)
 
 ---
 
