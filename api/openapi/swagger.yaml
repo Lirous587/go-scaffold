@@ -87,6 +87,13 @@ definitions:
       url:
         type: string
     type: object
+  handler.RefreshTokenResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
   handler.UpdateCategoryRequest:
     properties:
       prefix:
@@ -94,6 +101,29 @@ definitions:
         type: string
       title:
         maxLength: 10
+        type: string
+    type: object
+  handler.UserResponse:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      id:
+        type: integer
+      last_login_at:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      username:
         type: string
     type: object
   response.errorResponse:
@@ -554,6 +584,95 @@ paths:
       summary: 上传图片
       tags:
       - img
+  /v1/user/auth:
+    post:
+      consumes:
+      - application/json
+      description: 校验当前访问令牌是否有效
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 令牌有效
+          schema:
+            $ref: '#/definitions/response.successResponse'
+        "401":
+          description: 令牌无效或过期
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 校验令牌
+      tags:
+      - user
+  /v1/user/profile:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户的详细信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.UserResponse'
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取用户信息
+      tags:
+      - user
+  /v1/user/refresh_token:
+    post:
+      consumes:
+      - application/json
+      description: 使用刷新令牌获取新的访问令牌
+      parameters:
+      - description: refresh_token刷新令牌
+        in: header
+        name: X-Refresh-Token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 刷新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.RefreshTokenResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+        "401":
+          description: 令牌无效或过期
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      summary: 刷新令牌
+      tags:
+      - user
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

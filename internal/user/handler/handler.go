@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"scaffold/internal/common/reskit/codes"
-	"scaffold/internal/common/reskit/response"
 	"github.com/pkg/errors"
 	"os"
+	"scaffold/internal/common/reskit/codes"
+	"scaffold/internal/common/reskit/response"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +22,18 @@ func NewHttpHandler(userService domain.UserService) *HttpHandler {
 		userService: userService,
 	}
 }
+
+// GithubAuth godoc
+// @Summary      GitHub 授权登录
+// @Description  使用 GitHub OAuth 登录，返回用户信息和令牌
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Param        request body handler.GithubAuthRequest true "GitHub 授权码"
+// @Success      200 {object} response.successResponse{data=handler.AuthResponse} "登录成功"
+// @Failure      400 {object} response.invalidParamsResponse "参数错误"
+// @Failure      500 {object} response.errorResponse "服务器错误"
+// @Router       /v1/user/auth/github [post]
 
 func (h *HttpHandler) GithubAuth(ctx *gin.Context) {
 	req := new(GithubAuthRequest)
@@ -56,6 +68,18 @@ func (h *HttpHandler) getRefreshToke(ctx *gin.Context) (string, error) {
 	return refreshToken, nil
 }
 
+// RefreshToken godoc
+// @Summary      刷新令牌
+// @Description  使用刷新令牌获取新的访问令牌
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Param        X-Refresh-Token header string true "refresh_token刷新令牌"
+// @Success      200 {object} response.successResponse{data=handler.RefreshTokenResponse} "刷新成功"
+// @Failure      400 {object} response.errorResponse "参数错误"
+// @Failure      401 {object} response.errorResponse "令牌无效或过期"
+// @Failure      500 {object} response.errorResponse "服务器错误"
+// @Router       /v1/user/refresh_token [post]
 func (h *HttpHandler) RefreshToken(ctx *gin.Context) {
 	refreshToken, err := h.getRefreshToke(ctx)
 	if err != nil {
@@ -104,9 +128,9 @@ func (h *HttpHandler) getGithubAccessToken(code string) (string, error) {
 	_, err := client.R().
 		SetHeader("Accept", "application/json").
 		SetFormData(map[string]string{
-			"client_id":		clientID,
-			"client_secret":	clientSecret,
-			"code":			code,
+			"client_id":     clientID,
+			"client_secret": clientSecret,
+			"code":          code,
 		}).
 		SetResult(&result).
 		Post("https://github.com/login/oauth/access_token")
@@ -135,16 +159,16 @@ func (h *HttpHandler) fetchGithubUserInfo(accessToken string) (*domain.OAuthUser
 		Get("https://api.github.com/user")
 
 	if err != nil {
-		return nil, err	// 这里的错误会在上层被包装
+		return nil, err // 这里的错误会在上层被包装
 	}
 
 	return &domain.OAuthUserInfo{
-		Provider:	"github",
-		ID:		strconv.FormatInt(githubUser.ID, 10),
-		Login:		githubUser.Login,
-		Name:		githubUser.Name,
-		Email:		githubUser.Email,
-		Avatar:		githubUser.AvatarURL,
+		Provider: "github",
+		ID:       strconv.FormatInt(githubUser.ID, 10),
+		Login:    githubUser.Login,
+		Name:     githubUser.Name,
+		Email:    githubUser.Email,
+		Avatar:   githubUser.AvatarURL,
 	}, nil
 }
 
@@ -164,6 +188,31 @@ func (h *HttpHandler) getUserID(ctx *gin.Context) (int64, error) {
 	return userID64, nil
 }
 
+// ValidateAuth godoc
+// @Summary      校验令牌
+// @Description  校验当前访问令牌是否有效
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} response.successResponse "令牌有效"
+// @Failure      401 {object} response.errorResponse "令牌无效或过期"
+// @Router       /v1/user/auth [post]
+func (h *HttpHandler) ValidateAuth(ctx *gin.Context) {
+	response.Success(ctx)
+}
+
+// GetProfile godoc
+// @Summary      获取用户信息
+// @Description  获取当前登录用户的详细信息
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} response.successResponse{data=handler.UserResponse} "获取成功"
+// @Failure      401 {object} response.errorResponse "未授权"
+// @Failure      500 {object} response.errorResponse "服务器错误"
+// @Router       /v1/user/profile [get]
 func (h *HttpHandler) GetProfile(ctx *gin.Context) {
 	userID, err := h.getUserID(ctx)
 	if err != nil {
@@ -178,8 +227,4 @@ func (h *HttpHandler) GetProfile(ctx *gin.Context) {
 
 	res := domainUserToResponse(user)
 	response.Success(ctx, res)
-}
-
-func (h *HttpHandler) ValidateAuth(ctx *gin.Context) {
-	response.Success(ctx)
 }
