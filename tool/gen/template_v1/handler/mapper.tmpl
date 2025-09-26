@@ -46,12 +46,12 @@ func domain{{.DomainTitle}}sToResponse({{.Domain}}s []*domain.{{.DomainTitle}}) 
 
 type CreateRequest struct {
     Title       string  `json:"title" binding:"required,max=30"`
-    Description string  `json:"Description" binding:"max=60"`
+    Description string  `json:"description" binding:"max=60"`
 }
 
 type UpdateRequest struct {
     Title       string  `json:"title" binding:"required,max=30"`
-    Description string  `json:"Description" binding:"max=60"`
+    Description string  `json:"description" binding:"max=60"`
 }
 
 type ListRequest struct {
