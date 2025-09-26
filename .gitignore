@@ -5,8 +5,7 @@ output/
 *.exe
 /tmp
 logs
-docs
 .env
 .env.docker
+!docker/.env
 code_stats.ps1
-blog
