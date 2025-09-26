@@ -33,7 +33,7 @@ const (
 )
 
 func (v VerifyWay) GetKey() string {
-	return string(v)
+	return "captcha:" + string(v)
 }
 
 func (v VerifyWay) GetExpire() time.Duration {

@@ -8,11 +8,13 @@ var TableNames = struct {
 	ImgCategory string
 	Lisu        string
 	Mock        string
+	Test        string
 	Users       string
 }{
 	Img:         "img",
 	ImgCategory: "img_category",
 	Lisu:        "lisu",
 	Mock:        "mock",
+	Test:        "test",
 	Users:       "users",
 }

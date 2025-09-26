@@ -7,9 +7,9 @@ var (
 	ErrCaptchaImageEmpty     = ErrCode{Msg: "验证码图片为空", Type: ErrorTypeInternal, Code: 1202}
 
 	// 验证类错误 (1220-1239)
-	ErrCaptchaVerifyFailed = ErrCode{Msg: "验证码验证失败", Type: ErrorTypeValidation, Code: 1220}
-	ErrCaptchaInvalid      = ErrCode{Msg: "验证码无效", Type: ErrorTypeValidation, Code: 1221}
-	ErrCaptchaExpired      = ErrCode{Msg: "验证码已过期", Type: ErrorTypeValidation, Code: 1222}
+	ErrCaptchaVerifyFailed = ErrCode{Msg: "验证码验证失败", Type: ErrorTypeUnauthorized, Code: 1220}
+	ErrCaptchaInvalid      = ErrCode{Msg: "验证码无效", Type: ErrorTypeUnauthorized, Code: 1221}
+	ErrCaptchaExpired      = ErrCode{Msg: "验证码已过期", Type: ErrorTypeUnauthorized, Code: 1222}
 	ErrCaptchaNotFound     = ErrCode{Msg: "验证码不存在", Type: ErrorTypeNotFound, Code: 1223}
 
 	// 参数类错误 (1240-1259)

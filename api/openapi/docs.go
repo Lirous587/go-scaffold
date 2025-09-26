@@ -24,9 +24,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/mock": {
-            "get": {
-                "description": "根据查询参数获取Mock列表，返回当前页数据和total数量",
+        "/captcha": {
+            "post": {
+                "description": "创建新的验证码",
                 "consumes": [
                     "application/json"
                 ],
@@ -34,9 +34,129 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "mock"
+                    "captcha"
                 ],
-                "summary": "获取 Mock 列表",
+                "summary": "生成验证码",
+                "parameters": [
+                    {
+                        "enum": [
+                            "image:click"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "WayImageClick"
+                        ],
+                        "name": "way",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功创建验证码",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.CaptchaResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/captcha/with-answer": {
+            "get": {
+                "description": "创建新的验证码并返回答案（仅用于测试或开发环境）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "captcha"
+                ],
+                "summary": "生成带答案的验证码",
+                "parameters": [
+                    {
+                        "enum": [
+                            "image:click"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "WayImageClick"
+                        ],
+                        "name": "way",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功创建验证码并返回答案",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.CaptchaAnswerResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/test": {
+            "get": {
+                "description": "根据查询参数获取Test列表，返回当前页数据和total数量",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "test"
+                ],
+                "summary": "获取 Test 列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -61,7 +181,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Mock列表",
+                        "description": "Test列表",
                         "schema": {
                             "allOf": [
                                 {
@@ -71,7 +191,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.MockListResponse"
+                                            "$ref": "#/definitions/handler.TestListResponse"
                                         }
                                     }
                                 }
@@ -98,7 +218,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "创建新的 Mock",
+                "description": "创建新的 Test",
                 "consumes": [
                     "application/json"
                 ],
@@ -106,23 +226,23 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "mock"
+                    "test"
                 ],
-                "summary": "创建 Mock",
+                "summary": "创建 Test",
                 "parameters": [
                     {
-                        "description": "创建 Mock 请求",
+                        "description": "创建 Test 请求",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/scaffold_internal_mock_handler.CreateRequest"
+                            "$ref": "#/definitions/handler.CreateRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功创建 Mock",
+                        "description": "成功创建 Test",
                         "schema": {
                             "allOf": [
                                 {
@@ -132,7 +252,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.MockResponse"
+                                            "$ref": "#/definitions/handler.TestResponse"
                                         }
                                     }
                                 }
@@ -154,14 +274,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/mock/{id}": {
+        "/test/{id}": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "读取单条 Mock",
+                "description": "读取单条 Test",
                 "consumes": [
                     "application/json"
                 ],
@@ -169,13 +289,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "mock"
+                    "test"
                 ],
-                "summary": "读取单条 Mock",
+                "summary": "读取单条 Test",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Mock ID",
+                        "description": "Test ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -183,7 +303,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功创建 Mock",
+                        "description": "成功创建 Test",
                         "schema": {
                             "allOf": [
                                 {
@@ -193,7 +313,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.MockResponse"
+                                            "$ref": "#/definitions/handler.TestResponse"
                                         }
                                     }
                                 }
@@ -220,7 +340,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "根据ID更新 Mock 信息",
+                "description": "根据ID更新 Test 信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -228,30 +348,30 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "mock"
+                    "test"
                 ],
-                "summary": "更新 Mock",
+                "summary": "更新 Test",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Mock ID",
+                        "description": "Test ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "更新 Mock 请求",
+                        "description": "更新 Test 请求",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/scaffold_internal_mock_handler.UpdateRequest"
+                            "$ref": "#/definitions/handler.UpdateRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功更新 Mock",
+                        "description": "成功更新 Test",
                         "schema": {
                             "allOf": [
                                 {
@@ -261,7 +381,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.MockResponse"
+                                            "$ref": "#/definitions/handler.TestResponse"
                                         }
                                     }
                                 }
@@ -288,7 +408,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "根据ID删除 Mock",
+                "description": "根据ID删除 Test",
                 "consumes": [
                     "application/json"
                 ],
@@ -296,13 +416,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "mock"
+                    "test"
                 ],
-                "summary": "删除 Mock",
+                "summary": "删除 Test",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Mock ID",
+                        "description": "Test ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -310,7 +430,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功删除 Mock",
+                        "description": "成功删除 Test",
                         "schema": {
                             "$ref": "#/definitions/response.successResponse"
                         }
@@ -332,13 +452,86 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.MockListResponse": {
+        "domain.VerifyWay": {
+            "type": "string",
+            "enum": [
+                "image:click"
+            ],
+            "x-enum-varnames": [
+                "WayImageClick"
+            ]
+        },
+        "handler.CaptchaAnswerResponse": {
+            "type": "object",
+            "properties": {
+                "audio": {
+                    "description": "音频验证码",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "image": {
+                    "description": "主图片",
+                    "type": "string"
+                },
+                "thumb": {
+                    "description": "缩略图",
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                },
+                "way": {
+                    "$ref": "#/definitions/domain.VerifyWay"
+                }
+            }
+        },
+        "handler.CaptchaResponse": {
+            "type": "object",
+            "properties": {
+                "audio": {
+                    "description": "音频验证码",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "image": {
+                    "description": "主图片",
+                    "type": "string"
+                },
+                "thumb": {
+                    "description": "缩略图",
+                    "type": "string"
+                }
+            }
+        },
+        "handler.CreateRequest": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 60
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 30
+                }
+            }
+        },
+        "handler.TestListResponse": {
             "type": "object",
             "properties": {
                 "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.MockResponse"
+                        "$ref": "#/definitions/handler.TestResponse"
                     }
                 },
                 "total": {
@@ -346,7 +539,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.MockResponse": {
+        "handler.TestResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -366,6 +559,22 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.UpdateRequest": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 60
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 30
                 }
             }
         },
@@ -412,38 +621,6 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "请求成功"
-                }
-            }
-        },
-        "scaffold_internal_mock_handler.CreateRequest": {
-            "type": "object",
-            "required": [
-                "title"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string",
-                    "maxLength": 60
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 30
-                }
-            }
-        },
-        "scaffold_internal_mock_handler.UpdateRequest": {
-            "type": "object",
-            "required": [
-                "title"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string",
-                    "maxLength": 60
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 30
                 }
             }
         }

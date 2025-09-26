@@ -1,14 +1,14 @@
 package handler
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	"os"
 	"scaffold/internal/captcha/domain"
 	"scaffold/internal/captcha/service"
 	"scaffold/internal/common/reskit/codes"
 	"scaffold/internal/common/reskit/response"
-	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"strconv"
-	"strings"
 )
 
 type HttpHandler struct {
@@ -33,6 +33,17 @@ func (h *HttpHandler) getID(ctx *gin.Context) (int64, error) {
 	return int64(idInt), err
 }
 
+// Gen godoc
+// @Summary      生成验证码
+// @Description  创建新的验证码
+// @Tags         captcha
+// @Accept       json
+// @Produce      json
+// @Param        request query handler.GenRequest true "创建验证码请求"
+// @Success      200  {object}  response.successResponse{data=handler.CaptchaResponse} "成功创建验证码"
+// @Failure      400  {object}  response.invalidParamsResponse "参数错误"
+// @Failure      500  {object}  response.errorResponse "服务器错误"
+// @Router       /captcha [post]
 func (h *HttpHandler) Gen(ctx *gin.Context) {
 	req := new(GenRequest)
 
@@ -50,7 +61,23 @@ func (h *HttpHandler) Gen(ctx *gin.Context) {
 	response.Success(ctx, domainCaptchaToResponse(res))
 }
 
+// GenWithAnswer godoc
+// @Summary      生成带答案的验证码
+// @Description  创建新的验证码并返回答案（仅用于测试或开发环境）
+// @Tags         captcha
+// @Accept       json
+// @Produce      json
+// @Param        request query handler.GenRequest true "创建验证码请求"
+// @Success      200  {object}  response.successResponse{data=handler.CaptchaAnswerResponse} "成功创建验证码并返回答案"
+// @Failure      400  {object}  response.invalidParamsResponse "参数错误"
+// @Failure      500  {object}  response.errorResponse "服务器错误"
+// @Router       /captcha/with-answer [get]
 func (h *HttpHandler) GenWithAnswer(ctx *gin.Context) {
+	mode := os.Getenv("SERVER_MODE")
+	if mode != "dev" {
+		response.Error(ctx, codes.ErrAPIForbidden)
+	}
+
 	req := new(GenRequest)
 
 	if err := ctx.ShouldBindQuery(req); err != nil {
@@ -68,62 +95,52 @@ func (h *HttpHandler) GenWithAnswer(ctx *gin.Context) {
 }
 
 const (
-	verifyWayHeaderKey	= "verify-way"
-	verifyHeaderKey		= "verify"
+	verifyWayHeaderKey   = "captcha-verify-way"
+	verifyIDHeaderKey    = "captcha-verify-id"
+	verifyValueHeaderKey = "captcha-verify-value"
 )
 
-func parseFromHeader(c *gin.Context) (domain.VerifyWay, int64, string, error) {
-	var way domain.VerifyWay
-	var id int64
-	var value string
-
-	wayHeader := c.GetHeader(verifyWayHeaderKey)
-	if wayHeader == "" {
+// parseFromHeader 从请求头中获取验证方式
+func parseFromHeader(c *gin.Context) (way domain.VerifyWay, id int64, value string, err error) {
+	wayFromHeader := c.GetHeader(verifyWayHeaderKey)
+	if wayFromHeader == "" {
 		return "", 0, "", errors.New("验证方式为空")
 	}
-	way = domain.VerifyWay(wayHeader)
+	way = domain.VerifyWay(wayFromHeader)
 
-	verifyKey := c.GetHeader(verifyHeaderKey)
-	if verifyKey == "" {
-		return "", 0, "", errors.New("验证信息为空")
-	}
-	slice := strings.Split(verifyKey, ":")
-	if len(slice) != 2 {
-		return "", 0, "", errors.New("验证信息错误")
+	verifyID := c.GetHeader(verifyIDHeaderKey)
+	if verifyID == "" {
+		return "", 0, "", errors.New("无效的验证id")
 	}
 
-	id, err := strconv.ParseInt(slice[0], 10, 64)
+	id, err = strconv.ParseInt(verifyID, 10, 64)
 	if err != nil {
 		return "", 0, "", errors.New("无效的id")
 	}
-	value = slice[1]
 
-	return way, id, value, nil
-}
-
-func (h *HttpHandler) Verify() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// 解析
-		way, k, v, err := parseFromHeader(c)
-		if err != nil {
-			response.Error(c, codes.ErrCaptchaFormatInvalid)
-			return
-		}
-
-		//fmt.Println(way)
-		//fmt.Println(k)
-		//fmt.Println(v)
-
-		//	2验证
-		if err := h.service.Verify(way, k, v); err != nil {
-			response.Error(c, codes.ErrCaptchaVerifyFailed)
-			return
-		}
-
-		c.Next()
+	value = c.GetHeader(verifyValueHeaderKey)
+	if value == "" {
+		return "", 0, "", errors.New("验证信息为空")
 	}
+
+	return
 }
 
-func (h *HttpHandler) VerifyEndpoint(ctx *gin.Context) {
-	response.Success(ctx)
+// Verify 作为中间件
+func (h *HttpHandler) Verify() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		// 1.解析
+		way, k, v, err := parseFromHeader(ctx)
+		if err != nil {
+			response.Error(ctx, codes.ErrCaptchaFormatInvalid.WithCause(err))
+			return
+		}
+		// 2.验证
+		if err := h.service.Verify(way, k, v); err != nil {
+			response.Error(ctx, codes.ErrCaptchaVerifyFailed.WithCause(err))
+			return
+		}
+
+		ctx.Next()
+	}
 }

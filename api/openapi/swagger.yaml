@@ -1,15 +1,66 @@
 basePath: /api/v1
 definitions:
-  handler.MockListResponse:
+  domain.VerifyWay:
+    enum:
+    - image:click
+    type: string
+    x-enum-varnames:
+    - WayImageClick
+  handler.CaptchaAnswerResponse:
+    properties:
+      audio:
+        description: 音频验证码
+        type: string
+      id:
+        example: "0"
+        type: string
+      image:
+        description: 主图片
+        type: string
+      thumb:
+        description: 缩略图
+        type: string
+      value:
+        type: string
+      way:
+        $ref: '#/definitions/domain.VerifyWay'
+    type: object
+  handler.CaptchaResponse:
+    properties:
+      audio:
+        description: 音频验证码
+        type: string
+      id:
+        example: "0"
+        type: string
+      image:
+        description: 主图片
+        type: string
+      thumb:
+        description: 缩略图
+        type: string
+    type: object
+  handler.CreateRequest:
+    properties:
+      description:
+        maxLength: 60
+        type: string
+      title:
+        maxLength: 30
+        type: string
+    required:
+    - title
+    type: object
+  handler.TestListResponse:
     properties:
       list:
         items:
-          $ref: '#/definitions/handler.MockResponse'
+          $ref: '#/definitions/handler.TestResponse'
         type: array
       total:
         type: integer
     type: object
-  handler.MockResponse:
+  handler.TestResponse:
     properties:
       created_at:
         type: string
@@ -23,6 +74,17 @@ definitions:
         type: string
       updated_at:
         type: string
+    type: object
+  handler.UpdateRequest:
+    properties:
+      description:
+        maxLength: 60
+        type: string
+      title:
+        maxLength: 30
+        type: string
+    required:
+    - title
     type: object
   response.errorResponse:
     properties:
@@ -56,28 +118,6 @@ definitions:
         example: 请求成功
         type: string
     type: object
-  scaffold_internal_mock_handler.CreateRequest:
-    properties:
-      description:
-        maxLength: 60
-        type: string
-      title:
-        maxLength: 30
-        type: string
-    required:
-    - title
-    type: object
-  scaffold_internal_mock_handler.UpdateRequest:
-    properties:
-      description:
-        maxLength: 60
-        type: string
-      title:
-        maxLength: 30
-        type: string
-    required:
-    - title
-    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -95,11 +135,83 @@ info:
   title: 自定义title
   version: "1.0"
 paths:
-  /mock:
+  /captcha:
+    post:
+      consumes:
+      - application/json
+      description: 创建新的验证码
+      parameters:
+      - enum:
+        - image:click
+        in: query
+        name: way
+        type: string
+        x-enum-varnames:
+        - WayImageClick
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功创建验证码
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.CaptchaResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      summary: 生成验证码
+      tags:
+      - captcha
+  /captcha/with-answer:
     get:
       consumes:
       - application/json
-      description: 根据查询参数获取Mock列表，返回当前页数据和total数量
+      description: 创建新的验证码并返回答案（仅用于测试或开发环境）
+      parameters:
+      - enum:
+        - image:click
+        in: query
+        name: way
+        type: string
+        x-enum-varnames:
+        - WayImageClick
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功创建验证码并返回答案
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.CaptchaAnswerResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.invalidParamsResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.errorResponse'
+      summary: 生成带答案的验证码
+      tags:
+      - captcha
+  /test:
+    get:
+      consumes:
+      - application/json
+      description: 根据查询参数获取Test列表，返回当前页数据和total数量
       parameters:
       - description: 关键词搜索
         in: query
@@ -119,13 +231,13 @@ paths:
       - application/json
       responses:
         "200":
-          description: Mock列表
+          description: Test列表
           schema:
             allOf:
             - $ref: '#/definitions/response.successResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.MockListResponse'
+                  $ref: '#/definitions/handler.TestListResponse'
               type: object
         "400":
           description: 参数错误
@@ -135,31 +247,31 @@ paths:
           description: 服务器错误
           schema:
             $ref: '#/definitions/response.errorResponse'
-      summary: 获取 Mock 列表
+      summary: 获取 Test 列表
       tags:
-      - mock
+      - test
     post:
       consumes:
       - application/json
-      description: 创建新的 Mock
+      description: 创建新的 Test
       parameters:
-      - description: 创建 Mock 请求
+      - description: 创建 Test 请求
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/scaffold_internal_mock_handler.CreateRequest'
+          $ref: '#/definitions/handler.CreateRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: 成功创建 Mock
+          description: 成功创建 Test
           schema:
             allOf:
             - $ref: '#/definitions/response.successResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.MockResponse'
+                  $ref: '#/definitions/handler.TestResponse'
               type: object
         "400":
           description: 参数错误
@@ -171,16 +283,16 @@ paths:
             $ref: '#/definitions/response.errorResponse'
       security:
       - BearerAuth: []
-      summary: 创建 Mock
+      summary: 创建 Test
       tags:
-      - mock
-  /mock/{id}:
+      - test
+  /test/{id}:
     delete:
       consumes:
       - application/json
-      description: 根据ID删除 Mock
+      description: 根据ID删除 Test
       parameters:
-      - description: Mock ID
+      - description: Test ID
         in: path
         name: id
         required: true
@@ -189,7 +301,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功删除 Mock
+          description: 成功删除 Test
           schema:
             $ref: '#/definitions/response.successResponse'
         "400":
@@ -202,15 +314,15 @@ paths:
             $ref: '#/definitions/response.errorResponse'
       security:
       - BearerAuth: []
-      summary: 删除 Mock
+      summary: 删除 Test
       tags:
-      - mock
+      - test
     get:
       consumes:
       - application/json
-      description: 读取单条 Mock
+      description: 读取单条 Test
       parameters:
-      - description: Mock ID
+      - description: Test ID
         in: path
         name: id
         required: true
@@ -219,13 +331,13 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功创建 Mock
+          description: 成功创建 Test
           schema:
             allOf:
             - $ref: '#/definitions/response.successResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.MockResponse'
+                  $ref: '#/definitions/handler.TestResponse'
               type: object
         "400":
           description: 参数错误
@@ -237,36 +349,36 @@ paths:
             $ref: '#/definitions/response.errorResponse'
       security:
       - BearerAuth: []
-      summary: 读取单条 Mock
+      summary: 读取单条 Test
       tags:
-      - mock
+      - test
     put:
       consumes:
       - application/json
-      description: 根据ID更新 Mock 信息
+      description: 根据ID更新 Test 信息
       parameters:
-      - description: Mock ID
+      - description: Test ID
         in: path
         name: id
         required: true
         type: integer
-      - description: 更新 Mock 请求
+      - description: 更新 Test 请求
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/scaffold_internal_mock_handler.UpdateRequest'
+          $ref: '#/definitions/handler.UpdateRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: 成功更新 Mock
+          description: 成功更新 Test
           schema:
             allOf:
             - $ref: '#/definitions/response.successResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.MockResponse'
+                  $ref: '#/definitions/handler.TestResponse'
               type: object
         "400":
           description: 参数错误
@@ -278,9 +390,9 @@ paths:
             $ref: '#/definitions/response.errorResponse'
       security:
       - BearerAuth: []
-      summary: 更新 Mock
+      summary: 更新 Test
       tags:
-      - mock
+      - test
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.
