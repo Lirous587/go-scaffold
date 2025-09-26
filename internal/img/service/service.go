@@ -43,7 +43,7 @@ func loadS3() (*s3.Client, string, string) {
 
 	// 配置 S3 客户端
 	r2Resolver := aws.EndpointResolverWithOptionsFunc(func(
-			service, region string, options ...interface{},
+		service, region string, options ...interface{},
 	) (aws.Endpoint, error) {
 		return aws.Endpoint{
 			URL: fmt.Sprintf("https://%s.r2.cloudflarestorage.com", accountID),
