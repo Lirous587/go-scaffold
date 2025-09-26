@@ -82,12 +82,13 @@ scaffold/
 1. 新建目录
 ```bash
 mkdir demo
+cd demo
 ```
 
 2. 克隆项目
 
 ```bash
-git clone https://github.com/Lirou587/go-scaffold.git
+git clone https://github.com/Lirous587/go-scaffold.git
 ```
 
 3. 移动目录 并删除git记录
