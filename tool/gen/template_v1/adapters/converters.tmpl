@@ -14,6 +14,7 @@ func domain{{.DomainTitle}}ToORM({{.Domain}} *domain.{{.DomainTitle}}) *orm.{{.D
 	// 非null项
 	orm{{.DomainTitle}} := &orm.{{.DomainTitle}}{
 		ID:        		{{.Domain}}.ID,
+		Title:     		{{.Domain}}.Title,
         CreatedAt: 		{{.Domain}}.CreatedAt,
         UpdatedAt: 		{{.Domain}}.UpdatedAt,
 	}
@@ -34,6 +35,7 @@ func orm{{.DomainTitle}}ToDomain(orm{{.DomainTitle}} *orm.{{.DomainTitle}}) *dom
 	// 非null项
 	{{.Domain}} := &domain.{{.DomainTitle}}{
 		ID:        		orm{{.DomainTitle}}.ID,
+		Title:     		orm{{.DomainTitle}}.Title,
 		CreatedAt: 		orm{{.DomainTitle}}.CreatedAt,
 		UpdatedAt: 		orm{{.DomainTitle}}.UpdatedAt,
 	}
