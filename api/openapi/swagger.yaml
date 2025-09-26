@@ -58,7 +58,7 @@ definitions:
     type: object
   scaffold_internal_mock_handler.CreateRequest:
     properties:
-      Description:
+      description:
         maxLength: 60
         type: string
       title:
@@ -69,7 +69,7 @@ definitions:
     type: object
   scaffold_internal_mock_handler.UpdateRequest:
     properties:
-      Description:
+      description:
         maxLength: 60
         type: string
       title:

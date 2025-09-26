@@ -415,7 +415,7 @@
                 "title"
             ],
             "properties": {
-                "Description": {
+                "description": {
                     "type": "string",
                     "maxLength": 60
                 },
@@ -431,7 +431,7 @@
                 "title"
             ],
             "properties": {
-                "Description": {
+                "description": {
                     "type": "string",
                     "maxLength": 60
                 },

@@ -310,7 +310,7 @@ func createTable(domainLower string) error {
 		return fmt.Errorf("检查表是否存在失败: %v", err)
 	}
 	if exists {
-		log.Printf("表 %s 已存在，跳过建表\n", domainLower)
+		log.Printf("%s 表已存在，跳过建表\n", domainLower)
 		return nil
 	}
 

@@ -421,7 +421,7 @@ const docTemplate = `{
                 "title"
             ],
             "properties": {
-                "Description": {
+                "description": {
                     "type": "string",
                     "maxLength": 60
                 },
@@ -437,7 +437,7 @@ const docTemplate = `{
                 "title"
             ],
             "properties": {
-                "Description": {
+                "description": {
                     "type": "string",
                     "maxLength": 60
                 },

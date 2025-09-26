@@ -120,11 +120,16 @@ cd ..
 go mod tidy
 ```
 
-8. 修改配置
+8. 使用docker构建依赖
+> 开发阶段无需使用docker去构建应用程序，故可将 `docker-compose.yml` 中 `service` 下的 `go-app`注释，以此来快速构建依赖
+- 修改 `docker` 目录下的 `.env` 配置
+- 在 `docker` 目录下运行 `docker compose up -d --build`
+
+9. 修改配置
 - 开发环境:将 `.copy.env` 重命名为 `.env`，配置 `.env`
 - 生产环境:将 `.copy.docker_copy` 重命名为 `.env.docker`，配置 `.env.docker`
 
-9. 使用gen工具(可选)
+10. 使用gen工具(可选)
 - 根路径下运行
 ```bash
 go run ./tool/gen/gen.go -m mock
@@ -138,10 +143,10 @@ server.RunHttpServer(os.Getenv("SERVER_PORT"), metricsClient, func(r *gin.Router
 })
 ```
 
-10. 运行服务
+11. 运行服务
 ```bash
-go run main.go
 # 或者运行 air
+go run main.go
 ```
 
 ## 📝 最佳实践
