@@ -62,70 +62,16 @@ var ImgTableColumns = struct {
 	DeletedAt   string
 	CategoryID  string
 }{
-	ID:          "img.id",
-	Path:        "img.path",
-	Description: "img.description",
-	CreatedAt:   "img.created_at",
-	UpdatedAt:   "img.updated_at",
-	DeletedAt:   "img.deleted_at",
-	CategoryID:  "img.category_id",
+	ID:          "imgs.id",
+	Path:        "imgs.path",
+	Description: "imgs.description",
+	CreatedAt:   "imgs.created_at",
+	UpdatedAt:   "imgs.updated_at",
+	DeletedAt:   "imgs.deleted_at",
+	CategoryID:  "imgs.category_id",
 }
 
 // Generated where
-
-type whereHelperint64 struct{ field string }
-
-func (w whereHelperint64) EQ(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperint64) NEQ(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperint64) LT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperint64) LTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperint64) GT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperint64) GTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperint64) IN(slice []int64) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperint64) NIN(slice []int64) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-type whereHelperstring struct{ field string }
-
-func (w whereHelperstring) EQ(x string) qm.QueryMod      { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperstring) NEQ(x string) qm.QueryMod     { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperstring) LT(x string) qm.QueryMod      { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperstring) LTE(x string) qm.QueryMod     { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperstring) GT(x string) qm.QueryMod      { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperstring) GTE(x string) qm.QueryMod     { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperstring) LIKE(x string) qm.QueryMod    { return qm.Where(w.field+" LIKE ?", x) }
-func (w whereHelperstring) NLIKE(x string) qm.QueryMod   { return qm.Where(w.field+" NOT LIKE ?", x) }
-func (w whereHelperstring) ILIKE(x string) qm.QueryMod   { return qm.Where(w.field+" ILIKE ?", x) }
-func (w whereHelperstring) NILIKE(x string) qm.QueryMod  { return qm.Where(w.field+" NOT ILIKE ?", x) }
-func (w whereHelperstring) SIMILAR(x string) qm.QueryMod { return qm.Where(w.field+" SIMILAR TO ?", x) }
-func (w whereHelperstring) NSIMILAR(x string) qm.QueryMod {
-	return qm.Where(w.field+" NOT SIMILAR TO ?", x)
-}
-func (w whereHelperstring) IN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
 
 type whereHelpernull_String struct{ field string }
 
@@ -182,27 +128,6 @@ func (w whereHelpernull_String) NIN(slice []string) qm.QueryMod {
 
 func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
 func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
-type whereHelpertime_Time struct{ field string }
-
-func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.EQ, x)
-}
-func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.NEQ, x)
-}
-func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
 
 type whereHelpernull_Time struct{ field string }
 
@@ -275,13 +200,13 @@ var ImgWhere = struct {
 	DeletedAt   whereHelpernull_Time
 	CategoryID  whereHelpernull_Int64
 }{
-	ID:          whereHelperint64{field: "\"img\".\"id\""},
-	Path:        whereHelperstring{field: "\"img\".\"path\""},
-	Description: whereHelpernull_String{field: "\"img\".\"description\""},
-	CreatedAt:   whereHelpertime_Time{field: "\"img\".\"created_at\""},
-	UpdatedAt:   whereHelpertime_Time{field: "\"img\".\"updated_at\""},
-	DeletedAt:   whereHelpernull_Time{field: "\"img\".\"deleted_at\""},
-	CategoryID:  whereHelpernull_Int64{field: "\"img\".\"category_id\""},
+	ID:          whereHelperint64{field: "\"imgs\".\"id\""},
+	Path:        whereHelperstring{field: "\"imgs\".\"path\""},
+	Description: whereHelpernull_String{field: "\"imgs\".\"description\""},
+	CreatedAt:   whereHelpertime_Time{field: "\"imgs\".\"created_at\""},
+	UpdatedAt:   whereHelpertime_Time{field: "\"imgs\".\"updated_at\""},
+	DeletedAt:   whereHelpernull_Time{field: "\"imgs\".\"deleted_at\""},
+	CategoryID:  whereHelpernull_Int64{field: "\"imgs\".\"category_id\""},
 }
 
 // ImgRels is where relationship names are stored.
@@ -541,7 +466,7 @@ func (q imgQuery) One(exec boil.Executor) (*Img, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "orm: failed to execute a one query for img")
+		return nil, errors.Wrap(err, "orm: failed to execute a one query for imgs")
 	}
 
 	if err := o.doAfterSelectHooks(exec); err != nil {
@@ -590,7 +515,7 @@ func (q imgQuery) Count(exec boil.Executor) (int64, error) {
 
 	err := q.Query.QueryRow(exec).Scan(&count)
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: failed to count img rows")
+		return 0, errors.Wrap(err, "orm: failed to count imgs rows")
 	}
 
 	return count, nil
@@ -611,7 +536,7 @@ func (q imgQuery) Exists(exec boil.Executor) (bool, error) {
 
 	err := q.Query.QueryRow(exec).Scan(&count)
 	if err != nil {
-		return false, errors.Wrap(err, "orm: failed to check if img exists")
+		return false, errors.Wrap(err, "orm: failed to check if imgs exists")
 	}
 
 	return count > 0, nil
@@ -690,8 +615,8 @@ func (imgL) LoadCategory(e boil.Executor, singular bool, maybeImg interface{}, m
 	}
 
 	query := NewQuery(
-		qm.From(`img_category`),
-		qm.WhereIn(`img_category.id in ?`, argsSlice...),
+		qm.From(`img_categories`),
+		qm.WhereIn(`img_categories.id in ?`, argsSlice...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -708,10 +633,10 @@ func (imgL) LoadCategory(e boil.Executor, singular bool, maybeImg interface{}, m
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for img_category")
+		return errors.Wrap(err, "failed to close results of eager load for img_categories")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for img_category")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for img_categories")
 	}
 
 	if len(imgCategoryAfterSelectHooks) != 0 {
@@ -772,7 +697,7 @@ func (o *Img) SetCategory(exec boil.Executor, insert bool, related *ImgCategory)
 	}
 
 	updateQuery := fmt.Sprintf(
-		"UPDATE \"img\" SET %s WHERE %s",
+		"UPDATE \"imgs\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, []string{"category_id"}),
 		strmangle.WhereClause("\"", "\"", 2, imgPrimaryKeyColumns),
 	)
@@ -849,10 +774,10 @@ func (o *Img) RemoveCategory(exec boil.Executor, related *ImgCategory) error {
 
 // Imgs retrieves all the records using an executor.
 func Imgs(mods ...qm.QueryMod) imgQuery {
-	mods = append(mods, qm.From("\"img\""), qmhelper.WhereIsNull("\"img\".\"deleted_at\""))
+	mods = append(mods, qm.From("\"imgs\""), qmhelper.WhereIsNull("\"imgs\".\"deleted_at\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
-		queries.SetSelect(q, []string{"\"img\".*"})
+		queries.SetSelect(q, []string{"\"imgs\".*"})
 	}
 
 	return imgQuery{q}
@@ -873,7 +798,7 @@ func FindImg(exec boil.Executor, iD int64, selectCols ...string) (*Img, error) {
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"img\" where \"id\"=$1 and \"deleted_at\" is null", sel,
+		"select %s from \"imgs\" where \"id\"=$1 and \"deleted_at\" is null", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -883,7 +808,7 @@ func FindImg(exec boil.Executor, iD int64, selectCols ...string) (*Img, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "orm: unable to select from img")
+		return nil, errors.Wrap(err, "orm: unable to select from imgs")
 	}
 
 	if err = imgObj.doAfterSelectHooks(exec); err != nil {
@@ -902,7 +827,7 @@ func (o *Img) InsertG(columns boil.Columns) error {
 // See boil.Columns.InsertColumnSet documentation to understand column list inference for inserts.
 func (o *Img) Insert(exec boil.Executor, columns boil.Columns) error {
 	if o == nil {
-		return errors.New("orm: no img provided for insertion")
+		return errors.New("orm: no imgs provided for insertion")
 	}
 
 	var err error
@@ -943,9 +868,9 @@ func (o *Img) Insert(exec boil.Executor, columns boil.Columns) error {
 			return err
 		}
 		if len(wl) != 0 {
-			cache.query = fmt.Sprintf("INSERT INTO \"img\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
+			cache.query = fmt.Sprintf("INSERT INTO \"imgs\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
 		} else {
-			cache.query = "INSERT INTO \"img\" %sDEFAULT VALUES%s"
+			cache.query = "INSERT INTO \"imgs\" %sDEFAULT VALUES%s"
 		}
 
 		var queryOutput, queryReturning string
@@ -972,7 +897,7 @@ func (o *Img) Insert(exec boil.Executor, columns boil.Columns) error {
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "orm: unable to insert into img")
+		return errors.Wrap(err, "orm: unable to insert into imgs")
 	}
 
 	if !cached {
@@ -1017,10 +942,10 @@ func (o *Img) Update(exec boil.Executor, columns boil.Columns) (int64, error) {
 			wl = strmangle.SetComplement(wl, []string{"created_at"})
 		}
 		if len(wl) == 0 {
-			return 0, errors.New("orm: unable to update img, could not build whitelist")
+			return 0, errors.New("orm: unable to update imgs, could not build whitelist")
 		}
 
-		cache.query = fmt.Sprintf("UPDATE \"img\" SET %s WHERE %s",
+		cache.query = fmt.Sprintf("UPDATE \"imgs\" SET %s WHERE %s",
 			strmangle.SetParamNames("\"", "\"", 1, wl),
 			strmangle.WhereClause("\"", "\"", len(wl)+1, imgPrimaryKeyColumns),
 		)
@@ -1039,12 +964,12 @@ func (o *Img) Update(exec boil.Executor, columns boil.Columns) (int64, error) {
 	var result sql.Result
 	result, err = exec.Exec(cache.query, values...)
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: unable to update img row")
+		return 0, errors.Wrap(err, "orm: unable to update imgs row")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: failed to get rows affected by update for img")
+		return 0, errors.Wrap(err, "orm: failed to get rows affected by update for imgs")
 	}
 
 	if !cached {
@@ -1067,12 +992,12 @@ func (q imgQuery) UpdateAll(exec boil.Executor, cols M) (int64, error) {
 
 	result, err := q.Query.Exec(exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: unable to update all for img")
+		return 0, errors.Wrap(err, "orm: unable to update all for imgs")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: unable to retrieve rows affected for img")
+		return 0, errors.Wrap(err, "orm: unable to retrieve rows affected for imgs")
 	}
 
 	return rowsAff, nil
@@ -1110,7 +1035,7 @@ func (o ImgSlice) UpdateAll(exec boil.Executor, cols M) (int64, error) {
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := fmt.Sprintf("UPDATE \"img\" SET %s WHERE %s",
+	sql := fmt.Sprintf("UPDATE \"imgs\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, colNames),
 		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, imgPrimaryKeyColumns, len(o)))
 
@@ -1139,7 +1064,7 @@ func (o *Img) UpsertG(updateOnConflict bool, conflictColumns []string, updateCol
 // See boil.Columns documentation for how to properly use updateColumns and insertColumns.
 func (o *Img) Upsert(exec boil.Executor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns, opts ...UpsertOptionFunc) error {
 	if o == nil {
-		return errors.New("orm: no img provided for upsert")
+		return errors.New("orm: no imgs provided for upsert")
 	}
 	currTime := time.Now().In(boil.GetLocation())
 
@@ -1202,7 +1127,7 @@ func (o *Img) Upsert(exec boil.Executor, updateOnConflict bool, conflictColumns 
 		)
 
 		if updateOnConflict && len(update) == 0 {
-			return errors.New("orm: unable to upsert img, could not build update column list")
+			return errors.New("orm: unable to upsert imgs, could not build update column list")
 		}
 
 		ret := strmangle.SetComplement(imgAllColumns, strmangle.SetIntersect(insert, update))
@@ -1210,13 +1135,13 @@ func (o *Img) Upsert(exec boil.Executor, updateOnConflict bool, conflictColumns 
 		conflict := conflictColumns
 		if len(conflict) == 0 && updateOnConflict && len(update) != 0 {
 			if len(imgPrimaryKeyColumns) == 0 {
-				return errors.New("orm: unable to upsert img, could not build conflict column list")
+				return errors.New("orm: unable to upsert imgs, could not build conflict column list")
 			}
 
 			conflict = make([]string, len(imgPrimaryKeyColumns))
 			copy(conflict, imgPrimaryKeyColumns)
 		}
-		cache.query = buildUpsertQueryPostgres(dialect, "\"img\"", updateOnConflict, ret, update, conflict, insert, opts...)
+		cache.query = buildUpsertQueryPostgres(dialect, "\"imgs\"", updateOnConflict, ret, update, conflict, insert, opts...)
 
 		cache.valueMapping, err = queries.BindMapping(imgType, imgMapping, insert)
 		if err != nil {
@@ -1250,7 +1175,7 @@ func (o *Img) Upsert(exec boil.Executor, updateOnConflict bool, conflictColumns 
 		_, err = exec.Exec(cache.query, vals...)
 	}
 	if err != nil {
-		return errors.Wrap(err, "orm: unable to upsert img")
+		return errors.Wrap(err, "orm: unable to upsert imgs")
 	}
 
 	if !cached {
@@ -1285,12 +1210,12 @@ func (o *Img) Delete(exec boil.Executor, hardDelete bool) (int64, error) {
 	)
 	if hardDelete {
 		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), imgPrimaryKeyMapping)
-		sql = "DELETE FROM \"img\" WHERE \"id\"=$1"
+		sql = "DELETE FROM \"imgs\" WHERE \"id\"=$1"
 	} else {
 		currTime := time.Now().In(boil.GetLocation())
 		o.DeletedAt = null.TimeFrom(currTime)
 		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"img\" SET %s WHERE \"id\"=$2",
+		sql = fmt.Sprintf("UPDATE \"imgs\" SET %s WHERE \"id\"=$2",
 			strmangle.SetParamNames("\"", "\"", 1, wl),
 		)
 		valueMapping, err := queries.BindMapping(imgType, imgMapping, append(wl, imgPrimaryKeyColumns...))
@@ -1306,12 +1231,12 @@ func (o *Img) Delete(exec boil.Executor, hardDelete bool) (int64, error) {
 	}
 	result, err := exec.Exec(sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: unable to delete from img")
+		return 0, errors.Wrap(err, "orm: unable to delete from imgs")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: failed to get rows affected by delete for img")
+		return 0, errors.Wrap(err, "orm: failed to get rows affected by delete for imgs")
 	}
 
 	if err := o.doAfterDeleteHooks(exec); err != nil {
@@ -1340,12 +1265,12 @@ func (q imgQuery) DeleteAll(exec boil.Executor, hardDelete bool) (int64, error) 
 
 	result, err := q.Query.Exec(exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: unable to delete all from img")
+		return 0, errors.Wrap(err, "orm: unable to delete all from imgs")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: failed to get rows affected by deleteall for img")
+		return 0, errors.Wrap(err, "orm: failed to get rows affected by deleteall for imgs")
 	}
 
 	return rowsAff, nil
@@ -1379,7 +1304,7 @@ func (o ImgSlice) DeleteAll(exec boil.Executor, hardDelete bool) (int64, error) 
 			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), imgPrimaryKeyMapping)
 			args = append(args, pkeyArgs...)
 		}
-		sql = "DELETE FROM \"img\" WHERE " +
+		sql = "DELETE FROM \"imgs\" WHERE " +
 			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, imgPrimaryKeyColumns, len(o))
 	} else {
 		currTime := time.Now().In(boil.GetLocation())
@@ -1389,7 +1314,7 @@ func (o ImgSlice) DeleteAll(exec boil.Executor, hardDelete bool) (int64, error) 
 			obj.DeletedAt = null.TimeFrom(currTime)
 		}
 		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"img\" SET %s WHERE "+
+		sql = fmt.Sprintf("UPDATE \"imgs\" SET %s WHERE "+
 			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 2, imgPrimaryKeyColumns, len(o)),
 			strmangle.SetParamNames("\"", "\"", 1, wl),
 		)
@@ -1407,7 +1332,7 @@ func (o ImgSlice) DeleteAll(exec boil.Executor, hardDelete bool) (int64, error) 
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: failed to get rows affected by deleteall for img")
+		return 0, errors.Wrap(err, "orm: failed to get rows affected by deleteall for imgs")
 	}
 
 	if len(imgAfterDeleteHooks) != 0 {
@@ -1466,7 +1391,7 @@ func (o *ImgSlice) ReloadAll(exec boil.Executor) error {
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "SELECT \"img\".* FROM \"img\" WHERE " +
+	sql := "SELECT \"imgs\".* FROM \"imgs\" WHERE " +
 		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, imgPrimaryKeyColumns, len(*o)) +
 		"and \"deleted_at\" is null"
 
@@ -1490,7 +1415,7 @@ func ImgExistsG(iD int64) (bool, error) {
 // ImgExists checks if the Img row exists.
 func ImgExists(exec boil.Executor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"img\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
+	sql := "select exists(select 1 from \"imgs\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
 
 	if boil.DebugMode {
 		fmt.Fprintln(boil.DebugWriter, sql)
@@ -1500,7 +1425,7 @@ func ImgExists(exec boil.Executor, iD int64) (bool, error) {
 
 	err := row.Scan(&exists)
 	if err != nil {
-		return false, errors.Wrap(err, "orm: unable to check if img exists")
+		return false, errors.Wrap(err, "orm: unable to check if imgs exists")
 	}
 
 	return exists, nil

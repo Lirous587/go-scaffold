@@ -4,17 +4,11 @@
 package orm
 
 var TableNames = struct {
-	Img         string
-	ImgCategory string
-	Lisu        string
-	Mock        string
-	Test        string
-	Users       string
+	ImgCategories string
+	Imgs          string
+	Users         string
 }{
-	Img:         "img",
-	ImgCategory: "img_category",
-	Lisu:        "lisu",
-	Mock:        "mock",
-	Test:        "test",
-	Users:       "users",
+	ImgCategories: "img_categories",
+	Imgs:          "imgs",
+	Users:         "users",
 }

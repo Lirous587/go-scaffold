@@ -34,7 +34,6 @@ func NewHttpHandler(userService domain.UserService) *HttpHandler {
 // @Failure      400 {object} response.invalidParamsResponse "参数错误"
 // @Failure      500 {object} response.errorResponse "服务器错误"
 // @Router       /v1/user/auth/github [post]
-
 func (h *HttpHandler) GithubAuth(ctx *gin.Context) {
 	req := new(GithubAuthRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
@@ -56,8 +55,7 @@ func (h *HttpHandler) GithubAuth(ctx *gin.Context) {
 		return
 	}
 	// 3. 转换为响应格式
-	res := domain2TokenToAuthResponse(session)
-	response.Success(ctx, res)
+	response.Success(ctx, domain2TokenToAuthResponse(session))
 }
 
 func (h *HttpHandler) getRefreshToke(ctx *gin.Context) (string, error) {
@@ -166,7 +164,7 @@ func (h *HttpHandler) fetchGithubUserInfo(accessToken string) (*domain.OAuthUser
 		Provider: "github",
 		ID:       strconv.FormatInt(githubUser.ID, 10),
 		Login:    githubUser.Login,
-		Name:     githubUser.Name,
+		Nickname: githubUser.Name,
 		Email:    githubUser.Email,
 		Avatar:   githubUser.AvatarURL,
 	}, nil
@@ -175,12 +173,12 @@ func (h *HttpHandler) fetchGithubUserInfo(accessToken string) (*domain.OAuthUser
 func (h *HttpHandler) getUserID(ctx *gin.Context) (int64, error) {
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		return 0, codes.ErrTokenExpired
+		return 0, codes.ErrTokenInvalid
 	}
 
 	userID64, ok := userID.(int64)
 	if !ok {
-		return 0, codes.ErrTokenExpired
+		return 0, codes.ErrTokenInvalid
 	}
 	if userID64 == 0 {
 		return 0, errors.New("无效的id")
@@ -225,6 +223,5 @@ func (h *HttpHandler) GetProfile(ctx *gin.Context) {
 		return
 	}
 
-	res := domainUserToResponse(user)
-	response.Success(ctx, res)
+	response.Success(ctx, domainUserToResponse(user))
 }

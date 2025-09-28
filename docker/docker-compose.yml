@@ -45,21 +45,21 @@
       start_period: 10s
 
   # go服务
-  go-app:
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile
-    container_name: go_app
-    ports:
-      - "${GO_APP_PORT}:8080"
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - ${NETWORK_NAME}
-    restart: unless-stopped
-    env_file:
-      - ../.env.docker
+  #  go-app:
+  #    build:
+  #      context: ../
+  #      dockerfile: docker/Dockerfile
+  #    container_name: go_app
+  #    ports:
+  #      - "${GO_APP_PORT}:8080"
+  #    depends_on:
+  #      - postgres
+  #      - redis
+  #    networks:
+  #      - ${NETWORK_NAME}
+  #    restart: unless-stopped
+  #    env_file:
+  #      - ../.env.docker
 
 volumes:
   postgres_data:

@@ -24,11 +24,13 @@ import (
 // User is an object representing the database table.
 type User struct {
 	ID           int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Nickname     string      `boil:"nickname" json:"nickname" toml:"nickname" yaml:"nickname"`
 	Email        string      `boil:"email" json:"email" toml:"email" yaml:"email"`
-	PasswordHash null.String `boil:"password_hash" json:"password_hash,omitempty" toml:"password_hash" yaml:"password_hash,omitempty"`
-	Name         string      `boil:"name" json:"name" toml:"name" yaml:"name"`
 	GithubID     null.String `boil:"github_id" json:"github_id,omitempty" toml:"github_id" yaml:"github_id,omitempty"`
+	PasswordHash null.String `boil:"password_hash" json:"password_hash,omitempty" toml:"password_hash" yaml:"password_hash,omitempty"`
 	LastLoginAt  null.Time   `boil:"last_login_at" json:"last_login_at,omitempty" toml:"last_login_at" yaml:"last_login_at,omitempty"`
+	CreatedAt    time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt    time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -36,52 +38,64 @@ type User struct {
 
 var UserColumns = struct {
 	ID           string
+	Nickname     string
 	Email        string
-	PasswordHash string
-	Name         string
 	GithubID     string
+	PasswordHash string
 	LastLoginAt  string
+	CreatedAt    string
+	UpdatedAt    string
 }{
 	ID:           "id",
+	Nickname:     "nickname",
 	Email:        "email",
-	PasswordHash: "password_hash",
-	Name:         "name",
 	GithubID:     "github_id",
+	PasswordHash: "password_hash",
 	LastLoginAt:  "last_login_at",
+	CreatedAt:    "created_at",
+	UpdatedAt:    "updated_at",
 }
 
 var UserTableColumns = struct {
 	ID           string
+	Nickname     string
 	Email        string
-	PasswordHash string
-	Name         string
 	GithubID     string
+	PasswordHash string
 	LastLoginAt  string
+	CreatedAt    string
+	UpdatedAt    string
 }{
 	ID:           "users.id",
+	Nickname:     "users.nickname",
 	Email:        "users.email",
-	PasswordHash: "users.password_hash",
-	Name:         "users.name",
 	GithubID:     "users.github_id",
+	PasswordHash: "users.password_hash",
 	LastLoginAt:  "users.last_login_at",
+	CreatedAt:    "users.created_at",
+	UpdatedAt:    "users.updated_at",
 }
 
 // Generated where
 
 var UserWhere = struct {
 	ID           whereHelperint64
+	Nickname     whereHelperstring
 	Email        whereHelperstring
-	PasswordHash whereHelpernull_String
-	Name         whereHelperstring
 	GithubID     whereHelpernull_String
+	PasswordHash whereHelpernull_String
 	LastLoginAt  whereHelpernull_Time
+	CreatedAt    whereHelpertime_Time
+	UpdatedAt    whereHelpertime_Time
 }{
 	ID:           whereHelperint64{field: "\"users\".\"id\""},
+	Nickname:     whereHelperstring{field: "\"users\".\"nickname\""},
 	Email:        whereHelperstring{field: "\"users\".\"email\""},
-	PasswordHash: whereHelpernull_String{field: "\"users\".\"password_hash\""},
-	Name:         whereHelperstring{field: "\"users\".\"name\""},
 	GithubID:     whereHelpernull_String{field: "\"users\".\"github_id\""},
+	PasswordHash: whereHelpernull_String{field: "\"users\".\"password_hash\""},
 	LastLoginAt:  whereHelpernull_Time{field: "\"users\".\"last_login_at\""},
+	CreatedAt:    whereHelpertime_Time{field: "\"users\".\"created_at\""},
+	UpdatedAt:    whereHelpertime_Time{field: "\"users\".\"updated_at\""},
 }
 
 // UserRels is where relationship names are stored.
@@ -101,9 +115,9 @@ func (*userR) NewStruct() *userR {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "email", "password_hash", "name", "github_id", "last_login_at"}
-	userColumnsWithoutDefault = []string{"email", "name"}
-	userColumnsWithDefault    = []string{"id", "password_hash", "github_id", "last_login_at"}
+	userAllColumns            = []string{"id", "nickname", "email", "github_id", "password_hash", "last_login_at", "created_at", "updated_at"}
+	userColumnsWithoutDefault = []string{"nickname", "email"}
+	userColumnsWithDefault    = []string{"id", "github_id", "password_hash", "last_login_at", "created_at", "updated_at"}
 	userPrimaryKeyColumns     = []string{"id"}
 	userGeneratedColumns      = []string{}
 )
@@ -456,6 +470,14 @@ func (o *User) Insert(exec boil.Executor, columns boil.Columns) error {
 	}
 
 	var err error
+	currTime := time.Now().In(boil.GetLocation())
+
+	if o.CreatedAt.IsZero() {
+		o.CreatedAt = currTime
+	}
+	if o.UpdatedAt.IsZero() {
+		o.UpdatedAt = currTime
+	}
 
 	if err := o.doBeforeInsertHooks(exec); err != nil {
 		return err
@@ -536,6 +558,10 @@ func (o *User) UpdateG(columns boil.Columns) (int64, error) {
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *User) Update(exec boil.Executor, columns boil.Columns) (int64, error) {
+	currTime := time.Now().In(boil.GetLocation())
+
+	o.UpdatedAt = currTime
+
 	var err error
 	if err = o.doBeforeUpdateHooks(exec); err != nil {
 		return 0, err
@@ -679,6 +705,12 @@ func (o *User) Upsert(exec boil.Executor, updateOnConflict bool, conflictColumns
 	if o == nil {
 		return errors.New("orm: no users provided for upsert")
 	}
+	currTime := time.Now().In(boil.GetLocation())
+
+	if o.CreatedAt.IsZero() {
+		o.CreatedAt = currTime
+	}
+	o.UpdatedAt = currTime
 
 	if err := o.doBeforeUpsertHooks(exec); err != nil {
 		return err

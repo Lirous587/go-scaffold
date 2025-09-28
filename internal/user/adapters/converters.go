@@ -12,9 +12,9 @@ func DomainUserToORM(user *domain.User) *orm.User {
 	}
 
 	ormUser := &orm.User{
-		ID:    user.ID,
-		Email: user.Email,
-		Name:  user.Name,
+		ID:       user.ID,
+		Email:    user.Email,
+		Nickname: user.Nickname,
 	}
 
 	if user.PasswordHash != "" {
@@ -25,8 +25,8 @@ func DomainUserToORM(user *domain.User) *orm.User {
 		ormUser.GithubID = null.StringFrom(user.GithubID)
 	}
 
-	if user.LastLoginAt != nil {
-		ormUser.LastLoginAt = null.TimeFrom(*user.LastLoginAt)
+	if !user.LastLoginAt.IsZero() {
+		ormUser.LastLoginAt = null.TimeFrom(user.LastLoginAt)
 	}
 
 	return ormUser
@@ -38,9 +38,11 @@ func ORMUserToDomain(ormUser *orm.User) *domain.User {
 	}
 
 	user := &domain.User{
-		ID:    ormUser.ID,
-		Email: ormUser.Email,
-		Name:  ormUser.Name,
+		ID:        ormUser.ID,
+		Email:     ormUser.Email,
+		Nickname:  ormUser.Nickname,
+		CreatedAt: ormUser.CreatedAt,
+		UpdatedAt: ormUser.UpdatedAt,
 	}
 
 	if ormUser.PasswordHash.Valid {
@@ -52,7 +54,7 @@ func ORMUserToDomain(ormUser *orm.User) *domain.User {
 	}
 
 	if ormUser.LastLoginAt.Valid {
-		user.LastLoginAt = &ormUser.LastLoginAt.Time
+		user.LastLoginAt = ormUser.LastLoginAt.Time
 	}
 
 	return user

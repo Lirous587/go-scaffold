@@ -49,13 +49,88 @@ var ImgCategoryTableColumns = struct {
 	Prefix    string
 	CreatedAt string
 }{
-	ID:        "img_category.id",
-	Title:     "img_category.title",
-	Prefix:    "img_category.prefix",
-	CreatedAt: "img_category.created_at",
+	ID:        "img_categories.id",
+	Title:     "img_categories.title",
+	Prefix:    "img_categories.prefix",
+	CreatedAt: "img_categories.created_at",
 }
 
 // Generated where
+
+type whereHelperint64 struct{ field string }
+
+func (w whereHelperint64) EQ(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperint64) NEQ(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperint64) LT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperint64) LTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperint64) GT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperint64) GTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperint64) IN(slice []int64) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperint64) NIN(slice []int64) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+type whereHelperstring struct{ field string }
+
+func (w whereHelperstring) EQ(x string) qm.QueryMod      { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperstring) NEQ(x string) qm.QueryMod     { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperstring) LT(x string) qm.QueryMod      { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperstring) LTE(x string) qm.QueryMod     { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperstring) GT(x string) qm.QueryMod      { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperstring) GTE(x string) qm.QueryMod     { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperstring) LIKE(x string) qm.QueryMod    { return qm.Where(w.field+" LIKE ?", x) }
+func (w whereHelperstring) NLIKE(x string) qm.QueryMod   { return qm.Where(w.field+" NOT LIKE ?", x) }
+func (w whereHelperstring) ILIKE(x string) qm.QueryMod   { return qm.Where(w.field+" ILIKE ?", x) }
+func (w whereHelperstring) NILIKE(x string) qm.QueryMod  { return qm.Where(w.field+" NOT ILIKE ?", x) }
+func (w whereHelperstring) SIMILAR(x string) qm.QueryMod { return qm.Where(w.field+" SIMILAR TO ?", x) }
+func (w whereHelperstring) NSIMILAR(x string) qm.QueryMod {
+	return qm.Where(w.field+" NOT SIMILAR TO ?", x)
+}
+func (w whereHelperstring) IN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+type whereHelpertime_Time struct{ field string }
+
+func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
 
 var ImgCategoryWhere = struct {
 	ID        whereHelperint64
@@ -63,10 +138,10 @@ var ImgCategoryWhere = struct {
 	Prefix    whereHelperstring
 	CreatedAt whereHelpertime_Time
 }{
-	ID:        whereHelperint64{field: "\"img_category\".\"id\""},
-	Title:     whereHelperstring{field: "\"img_category\".\"title\""},
-	Prefix:    whereHelperstring{field: "\"img_category\".\"prefix\""},
-	CreatedAt: whereHelpertime_Time{field: "\"img_category\".\"created_at\""},
+	ID:        whereHelperint64{field: "\"img_categories\".\"id\""},
+	Title:     whereHelperstring{field: "\"img_categories\".\"title\""},
+	Prefix:    whereHelperstring{field: "\"img_categories\".\"prefix\""},
+	CreatedAt: whereHelpertime_Time{field: "\"img_categories\".\"created_at\""},
 }
 
 // ImgCategoryRels is where relationship names are stored.
@@ -326,7 +401,7 @@ func (q imgCategoryQuery) One(exec boil.Executor) (*ImgCategory, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "orm: failed to execute a one query for img_category")
+		return nil, errors.Wrap(err, "orm: failed to execute a one query for img_categories")
 	}
 
 	if err := o.doAfterSelectHooks(exec); err != nil {
@@ -375,7 +450,7 @@ func (q imgCategoryQuery) Count(exec boil.Executor) (int64, error) {
 
 	err := q.Query.QueryRow(exec).Scan(&count)
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: failed to count img_category rows")
+		return 0, errors.Wrap(err, "orm: failed to count img_categories rows")
 	}
 
 	return count, nil
@@ -396,7 +471,7 @@ func (q imgCategoryQuery) Exists(exec boil.Executor) (bool, error) {
 
 	err := q.Query.QueryRow(exec).Scan(&count)
 	if err != nil {
-		return false, errors.Wrap(err, "orm: failed to check if img_category exists")
+		return false, errors.Wrap(err, "orm: failed to check if img_categories exists")
 	}
 
 	return count > 0, nil
@@ -410,7 +485,7 @@ func (o *ImgCategory) CategoryImgs(mods ...qm.QueryMod) imgQuery {
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"img\".\"category_id\"=?", o.ID),
+		qm.Where("\"imgs\".\"category_id\"=?", o.ID),
 	)
 
 	return Imgs(queryMods...)
@@ -471,9 +546,9 @@ func (imgCategoryL) LoadCategoryImgs(e boil.Executor, singular bool, maybeImgCat
 	}
 
 	query := NewQuery(
-		qm.From(`img`),
-		qm.WhereIn(`img.category_id in ?`, argsSlice...),
-		qmhelper.WhereIsNull(`img.deleted_at`),
+		qm.From(`imgs`),
+		qm.WhereIn(`imgs.category_id in ?`, argsSlice...),
+		qmhelper.WhereIsNull(`imgs.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -481,19 +556,19 @@ func (imgCategoryL) LoadCategoryImgs(e boil.Executor, singular bool, maybeImgCat
 
 	results, err := query.Query(e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load img")
+		return errors.Wrap(err, "failed to eager load imgs")
 	}
 
 	var resultSlice []*Img
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice img")
+		return errors.Wrap(err, "failed to bind eager loaded slice imgs")
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on img")
+		return errors.Wrap(err, "failed to close results in eager load on imgs")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for img")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for imgs")
 	}
 
 	if len(imgAfterSelectHooks) != 0 {
@@ -553,7 +628,7 @@ func (o *ImgCategory) AddCategoryImgs(exec boil.Executor, insert bool, related .
 			}
 		} else {
 			updateQuery := fmt.Sprintf(
-				"UPDATE \"img\" SET %s WHERE %s",
+				"UPDATE \"imgs\" SET %s WHERE %s",
 				strmangle.SetParamNames("\"", "\"", 1, []string{"category_id"}),
 				strmangle.WhereClause("\"", "\"", 2, imgPrimaryKeyColumns),
 			)
@@ -609,7 +684,7 @@ func (o *ImgCategory) SetCategoryImgsG(insert bool, related ...*Img) error {
 // Replaces o.R.CategoryImgs with related.
 // Sets related.R.Category's CategoryImgs accordingly.
 func (o *ImgCategory) SetCategoryImgs(exec boil.Executor, insert bool, related ...*Img) error {
-	query := "update \"img\" set \"category_id\" = null where \"category_id\" = $1"
+	query := "update \"imgs\" set \"category_id\" = null where \"category_id\" = $1"
 	values := []interface{}{o.ID}
 	if boil.DebugMode {
 		fmt.Fprintln(boil.DebugWriter, query)
@@ -685,10 +760,10 @@ func (o *ImgCategory) RemoveCategoryImgs(exec boil.Executor, related ...*Img) er
 
 // ImgCategories retrieves all the records using an executor.
 func ImgCategories(mods ...qm.QueryMod) imgCategoryQuery {
-	mods = append(mods, qm.From("\"img_category\""))
+	mods = append(mods, qm.From("\"img_categories\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
-		queries.SetSelect(q, []string{"\"img_category\".*"})
+		queries.SetSelect(q, []string{"\"img_categories\".*"})
 	}
 
 	return imgCategoryQuery{q}
@@ -709,7 +784,7 @@ func FindImgCategory(exec boil.Executor, iD int64, selectCols ...string) (*ImgCa
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"img_category\" where \"id\"=$1", sel,
+		"select %s from \"img_categories\" where \"id\"=$1", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -719,7 +794,7 @@ func FindImgCategory(exec boil.Executor, iD int64, selectCols ...string) (*ImgCa
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "orm: unable to select from img_category")
+		return nil, errors.Wrap(err, "orm: unable to select from img_categories")
 	}
 
 	if err = imgCategoryObj.doAfterSelectHooks(exec); err != nil {
@@ -738,7 +813,7 @@ func (o *ImgCategory) InsertG(columns boil.Columns) error {
 // See boil.Columns.InsertColumnSet documentation to understand column list inference for inserts.
 func (o *ImgCategory) Insert(exec boil.Executor, columns boil.Columns) error {
 	if o == nil {
-		return errors.New("orm: no img_category provided for insertion")
+		return errors.New("orm: no img_categories provided for insertion")
 	}
 
 	var err error
@@ -776,9 +851,9 @@ func (o *ImgCategory) Insert(exec boil.Executor, columns boil.Columns) error {
 			return err
 		}
 		if len(wl) != 0 {
-			cache.query = fmt.Sprintf("INSERT INTO \"img_category\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
+			cache.query = fmt.Sprintf("INSERT INTO \"img_categories\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
 		} else {
-			cache.query = "INSERT INTO \"img_category\" %sDEFAULT VALUES%s"
+			cache.query = "INSERT INTO \"img_categories\" %sDEFAULT VALUES%s"
 		}
 
 		var queryOutput, queryReturning string
@@ -805,7 +880,7 @@ func (o *ImgCategory) Insert(exec boil.Executor, columns boil.Columns) error {
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "orm: unable to insert into img_category")
+		return errors.Wrap(err, "orm: unable to insert into img_categories")
 	}
 
 	if !cached {
@@ -846,10 +921,10 @@ func (o *ImgCategory) Update(exec boil.Executor, columns boil.Columns) (int64, e
 			wl = strmangle.SetComplement(wl, []string{"created_at"})
 		}
 		if len(wl) == 0 {
-			return 0, errors.New("orm: unable to update img_category, could not build whitelist")
+			return 0, errors.New("orm: unable to update img_categories, could not build whitelist")
 		}
 
-		cache.query = fmt.Sprintf("UPDATE \"img_category\" SET %s WHERE %s",
+		cache.query = fmt.Sprintf("UPDATE \"img_categories\" SET %s WHERE %s",
 			strmangle.SetParamNames("\"", "\"", 1, wl),
 			strmangle.WhereClause("\"", "\"", len(wl)+1, imgCategoryPrimaryKeyColumns),
 		)
@@ -868,12 +943,12 @@ func (o *ImgCategory) Update(exec boil.Executor, columns boil.Columns) (int64, e
 	var result sql.Result
 	result, err = exec.Exec(cache.query, values...)
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: unable to update img_category row")
+		return 0, errors.Wrap(err, "orm: unable to update img_categories row")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: failed to get rows affected by update for img_category")
+		return 0, errors.Wrap(err, "orm: failed to get rows affected by update for img_categories")
 	}
 
 	if !cached {
@@ -896,12 +971,12 @@ func (q imgCategoryQuery) UpdateAll(exec boil.Executor, cols M) (int64, error) {
 
 	result, err := q.Query.Exec(exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: unable to update all for img_category")
+		return 0, errors.Wrap(err, "orm: unable to update all for img_categories")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: unable to retrieve rows affected for img_category")
+		return 0, errors.Wrap(err, "orm: unable to retrieve rows affected for img_categories")
 	}
 
 	return rowsAff, nil
@@ -939,7 +1014,7 @@ func (o ImgCategorySlice) UpdateAll(exec boil.Executor, cols M) (int64, error) {
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := fmt.Sprintf("UPDATE \"img_category\" SET %s WHERE %s",
+	sql := fmt.Sprintf("UPDATE \"img_categories\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, colNames),
 		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, imgCategoryPrimaryKeyColumns, len(o)))
 
@@ -968,7 +1043,7 @@ func (o *ImgCategory) UpsertG(updateOnConflict bool, conflictColumns []string, u
 // See boil.Columns documentation for how to properly use updateColumns and insertColumns.
 func (o *ImgCategory) Upsert(exec boil.Executor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns, opts ...UpsertOptionFunc) error {
 	if o == nil {
-		return errors.New("orm: no img_category provided for upsert")
+		return errors.New("orm: no img_categories provided for upsert")
 	}
 	currTime := time.Now().In(boil.GetLocation())
 
@@ -1030,7 +1105,7 @@ func (o *ImgCategory) Upsert(exec boil.Executor, updateOnConflict bool, conflict
 		)
 
 		if updateOnConflict && len(update) == 0 {
-			return errors.New("orm: unable to upsert img_category, could not build update column list")
+			return errors.New("orm: unable to upsert img_categories, could not build update column list")
 		}
 
 		ret := strmangle.SetComplement(imgCategoryAllColumns, strmangle.SetIntersect(insert, update))
@@ -1038,13 +1113,13 @@ func (o *ImgCategory) Upsert(exec boil.Executor, updateOnConflict bool, conflict
 		conflict := conflictColumns
 		if len(conflict) == 0 && updateOnConflict && len(update) != 0 {
 			if len(imgCategoryPrimaryKeyColumns) == 0 {
-				return errors.New("orm: unable to upsert img_category, could not build conflict column list")
+				return errors.New("orm: unable to upsert img_categories, could not build conflict column list")
 			}
 
 			conflict = make([]string, len(imgCategoryPrimaryKeyColumns))
 			copy(conflict, imgCategoryPrimaryKeyColumns)
 		}
-		cache.query = buildUpsertQueryPostgres(dialect, "\"img_category\"", updateOnConflict, ret, update, conflict, insert, opts...)
+		cache.query = buildUpsertQueryPostgres(dialect, "\"img_categories\"", updateOnConflict, ret, update, conflict, insert, opts...)
 
 		cache.valueMapping, err = queries.BindMapping(imgCategoryType, imgCategoryMapping, insert)
 		if err != nil {
@@ -1078,7 +1153,7 @@ func (o *ImgCategory) Upsert(exec boil.Executor, updateOnConflict bool, conflict
 		_, err = exec.Exec(cache.query, vals...)
 	}
 	if err != nil {
-		return errors.Wrap(err, "orm: unable to upsert img_category")
+		return errors.Wrap(err, "orm: unable to upsert img_categories")
 	}
 
 	if !cached {
@@ -1108,7 +1183,7 @@ func (o *ImgCategory) Delete(exec boil.Executor) (int64, error) {
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), imgCategoryPrimaryKeyMapping)
-	sql := "DELETE FROM \"img_category\" WHERE \"id\"=$1"
+	sql := "DELETE FROM \"img_categories\" WHERE \"id\"=$1"
 
 	if boil.DebugMode {
 		fmt.Fprintln(boil.DebugWriter, sql)
@@ -1116,12 +1191,12 @@ func (o *ImgCategory) Delete(exec boil.Executor) (int64, error) {
 	}
 	result, err := exec.Exec(sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: unable to delete from img_category")
+		return 0, errors.Wrap(err, "orm: unable to delete from img_categories")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: failed to get rows affected by delete for img_category")
+		return 0, errors.Wrap(err, "orm: failed to get rows affected by delete for img_categories")
 	}
 
 	if err := o.doAfterDeleteHooks(exec); err != nil {
@@ -1145,12 +1220,12 @@ func (q imgCategoryQuery) DeleteAll(exec boil.Executor) (int64, error) {
 
 	result, err := q.Query.Exec(exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: unable to delete all from img_category")
+		return 0, errors.Wrap(err, "orm: unable to delete all from img_categories")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: failed to get rows affected by deleteall for img_category")
+		return 0, errors.Wrap(err, "orm: failed to get rows affected by deleteall for img_categories")
 	}
 
 	return rowsAff, nil
@@ -1181,7 +1256,7 @@ func (o ImgCategorySlice) DeleteAll(exec boil.Executor) (int64, error) {
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "DELETE FROM \"img_category\" WHERE " +
+	sql := "DELETE FROM \"img_categories\" WHERE " +
 		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, imgCategoryPrimaryKeyColumns, len(o))
 
 	if boil.DebugMode {
@@ -1195,7 +1270,7 @@ func (o ImgCategorySlice) DeleteAll(exec boil.Executor) (int64, error) {
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "orm: failed to get rows affected by deleteall for img_category")
+		return 0, errors.Wrap(err, "orm: failed to get rows affected by deleteall for img_categories")
 	}
 
 	if len(imgCategoryAfterDeleteHooks) != 0 {
@@ -1254,7 +1329,7 @@ func (o *ImgCategorySlice) ReloadAll(exec boil.Executor) error {
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "SELECT \"img_category\".* FROM \"img_category\" WHERE " +
+	sql := "SELECT \"img_categories\".* FROM \"img_categories\" WHERE " +
 		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, imgCategoryPrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
@@ -1277,7 +1352,7 @@ func ImgCategoryExistsG(iD int64) (bool, error) {
 // ImgCategoryExists checks if the ImgCategory row exists.
 func ImgCategoryExists(exec boil.Executor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"img_category\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"img_categories\" where \"id\"=$1 limit 1)"
 
 	if boil.DebugMode {
 		fmt.Fprintln(boil.DebugWriter, sql)
@@ -1287,7 +1362,7 @@ func ImgCategoryExists(exec boil.Executor, iD int64) (bool, error) {
 
 	err := row.Scan(&exists)
 	if err != nil {
-		return false, errors.Wrap(err, "orm: unable to check if img_category exists")
+		return false, errors.Wrap(err, "orm: unable to check if img_categories exists")
 	}
 
 	return exists, nil

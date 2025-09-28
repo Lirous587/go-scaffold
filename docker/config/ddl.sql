@@ -4,45 +4,40 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 -- 用户表
 CREATE TABLE public.users
 (
-    "id"            BIGSERIAL PRIMARY KEY,
-    "email"         VARCHAR(255) UNIQUE NOT NULL,
-    "password_hash" VARCHAR(255),
-    "name"          VARCHAR(255)        NOT NULL,
-    "github_id"     VARCHAR(100) UNIQUE,
-    "last_login_at" TIMESTAMP WITH TIME ZONE
+    id            bigserial   NOT NULL PRIMARY KEY,
+    nickname      varchar(20) NOT NULL,
+    email         varchar(80) NOT NULL UNIQUE,
+    github_id     varchar(60) NULL UNIQUE,
+    --     google_id     varchar(60) NULL UNIQUE,
+    password_hash text        NULL,
+    created_at    timestamp   NOT NULL DEFAULT now(),
+    updated_at    timestamp   NOT NULL DEFAULT now(),
+    last_login_at TIMESTAMP WITH TIME ZONE
 );
-
--- 用户表索引
-CREATE INDEX idx_users_email ON public.users (email);
+CREATE INDEX IF NOT EXISTS idx_users_created_at ON public.users (created_at);
+CREATE INDEX IF NOT EXISTS idx_users_nickname ON public.users (nickname);
 CREATE INDEX idx_users_github_id ON public.users (github_id) WHERE github_id IS NOT NULL;
 
+-- img_categories
+CREATE TABLE public.img_categories
+(
+    id         bigserial PRIMARY KEY,
+    title      varchar(10) NOT NULL UNIQUE,
+    prefix     varchar(20) NOT NULL,
+    created_at timestamp   NOT NULL DEFAULT now()
+);
+
 -- img 表
-CREATE TABLE public.img
+CREATE TABLE public.imgs
 (
-    "id"          BIGSERIAL PRIMARY KEY,
-    "path"        VARCHAR(120) NOT NULL,
-    "description" VARCHAR(60),
-    "created_at"  TIMESTAMP    NOT NULL DEFAULT now(),
-    "updated_at"  TIMESTAMP    NOT NULL,
-    "deleted_at"  TIMESTAMP,
-    "category_id" BIGINT
+    id          bigserial PRIMARY KEY,
+    path        varchar(120) NOT NULL,
+    description varchar(60),
+    created_at  timestamp    NOT NULL DEFAULT now(),
+    updated_at  timestamp    NOT NULL,
+    deleted_at  timestamp,
+    category_id bigint REFERENCES img_categories (id)
 );
-
-CREATE UNIQUE INDEX idx_img_path ON public.img (path);
-CREATE INDEX idx_img_deleted_at ON public.img (deleted_at);
-CREATE INDEX idx_img_description_trgm ON public.img USING gin (description gin_trgm_ops);
-
-
-CREATE TABLE
-    public.img_category
-(
-    "id"         BIGSERIAL PRIMARY KEY,
-    "title"      VARCHAR(10) NOT NULL UNIQUE,
-    "prefix"     VARCHAR(20) NOT NULL,
-    "created_at" TIMESTAMP   NOT NULL DEFAULT now()
-);
-
-
-ALTER TABLE public.img
-    ADD CONSTRAINT fk_img_category
-        FOREIGN KEY (category_id) REFERENCES img_category (id);
+CREATE UNIQUE INDEX idx_img_path ON public.imgs (path);
+CREATE INDEX idx_img_deleted_at ON public.imgs (deleted_at);
+CREATE INDEX idx_img_description_trgm ON public.imgs USING gin (description gin_trgm_ops);
