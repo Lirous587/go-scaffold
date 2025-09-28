@@ -1,12 +1,9 @@
 package handler
 
 import (
-	"time"
-
 	"scaffold/internal/user/domain"
 )
 
-// HTTP 请求/响应模型
 type GithubAuthRequest struct {
 	Code string `json:"code" binding:"required"`
 }
@@ -17,9 +14,9 @@ type UserResponse struct {
 	NickName      string `json:"username"`
 	Avatar        string `json:"avatar_url,omitempty"`
 	EmailVerified bool   `json:"email_verified"`
-	CreatedAt     string `json:"created_at"`
-	UpdatedAt     string `json:"updated_at"`
-	LastLoginAt   string `json:"last_login_at,omitempty"`
+	CreatedAt     int64  `json:"created_at"`
+	UpdatedAt     int64  `json:"updated_at"`
+	LastLoginAt   int64  `json:"last_login_at"`
 }
 
 type AuthResponse struct {
@@ -57,9 +54,9 @@ func domainUserToResponse(user *domain.User) *UserResponse {
 		Email:       user.Email,
 		NickName:    user.Nickname,
 		Avatar:      user.Avatar,
-		CreatedAt:   user.CreatedAt.Format(time.DateTime),
-		UpdatedAt:   user.UpdatedAt.Format(time.DateTime),
-		LastLoginAt: user.LastLoginAt.Format(time.DateTime),
+		CreatedAt:   user.CreatedAt.Unix(),
+		UpdatedAt:   user.UpdatedAt.Unix(),
+		LastLoginAt: user.LastLoginAt.Unix(),
 	}
 }
 

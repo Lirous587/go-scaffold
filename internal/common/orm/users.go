@@ -28,9 +28,9 @@ type User struct {
 	Email        string      `boil:"email" json:"email" toml:"email" yaml:"email"`
 	GithubID     null.String `boil:"github_id" json:"github_id,omitempty" toml:"github_id" yaml:"github_id,omitempty"`
 	PasswordHash null.String `boil:"password_hash" json:"password_hash,omitempty" toml:"password_hash" yaml:"password_hash,omitempty"`
-	LastLoginAt  null.Time   `boil:"last_login_at" json:"last_login_at,omitempty" toml:"last_login_at" yaml:"last_login_at,omitempty"`
 	CreatedAt    time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt    time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	LastLoginAt  time.Time   `boil:"last_login_at" json:"last_login_at" toml:"last_login_at" yaml:"last_login_at"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -42,18 +42,18 @@ var UserColumns = struct {
 	Email        string
 	GithubID     string
 	PasswordHash string
-	LastLoginAt  string
 	CreatedAt    string
 	UpdatedAt    string
+	LastLoginAt  string
 }{
 	ID:           "id",
 	Nickname:     "nickname",
 	Email:        "email",
 	GithubID:     "github_id",
 	PasswordHash: "password_hash",
-	LastLoginAt:  "last_login_at",
 	CreatedAt:    "created_at",
 	UpdatedAt:    "updated_at",
+	LastLoginAt:  "last_login_at",
 }
 
 var UserTableColumns = struct {
@@ -62,18 +62,18 @@ var UserTableColumns = struct {
 	Email        string
 	GithubID     string
 	PasswordHash string
-	LastLoginAt  string
 	CreatedAt    string
 	UpdatedAt    string
+	LastLoginAt  string
 }{
 	ID:           "users.id",
 	Nickname:     "users.nickname",
 	Email:        "users.email",
 	GithubID:     "users.github_id",
 	PasswordHash: "users.password_hash",
-	LastLoginAt:  "users.last_login_at",
 	CreatedAt:    "users.created_at",
 	UpdatedAt:    "users.updated_at",
+	LastLoginAt:  "users.last_login_at",
 }
 
 // Generated where
@@ -84,18 +84,18 @@ var UserWhere = struct {
 	Email        whereHelperstring
 	GithubID     whereHelpernull_String
 	PasswordHash whereHelpernull_String
-	LastLoginAt  whereHelpernull_Time
 	CreatedAt    whereHelpertime_Time
 	UpdatedAt    whereHelpertime_Time
+	LastLoginAt  whereHelpertime_Time
 }{
 	ID:           whereHelperint64{field: "\"users\".\"id\""},
 	Nickname:     whereHelperstring{field: "\"users\".\"nickname\""},
 	Email:        whereHelperstring{field: "\"users\".\"email\""},
 	GithubID:     whereHelpernull_String{field: "\"users\".\"github_id\""},
 	PasswordHash: whereHelpernull_String{field: "\"users\".\"password_hash\""},
-	LastLoginAt:  whereHelpernull_Time{field: "\"users\".\"last_login_at\""},
 	CreatedAt:    whereHelpertime_Time{field: "\"users\".\"created_at\""},
 	UpdatedAt:    whereHelpertime_Time{field: "\"users\".\"updated_at\""},
+	LastLoginAt:  whereHelpertime_Time{field: "\"users\".\"last_login_at\""},
 }
 
 // UserRels is where relationship names are stored.
@@ -115,9 +115,9 @@ func (*userR) NewStruct() *userR {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "nickname", "email", "github_id", "password_hash", "last_login_at", "created_at", "updated_at"}
-	userColumnsWithoutDefault = []string{"nickname", "email"}
-	userColumnsWithDefault    = []string{"id", "github_id", "password_hash", "last_login_at", "created_at", "updated_at"}
+	userAllColumns            = []string{"id", "nickname", "email", "github_id", "password_hash", "created_at", "updated_at", "last_login_at"}
+	userColumnsWithoutDefault = []string{"nickname", "email", "last_login_at"}
+	userColumnsWithDefault    = []string{"id", "github_id", "password_hash", "created_at", "updated_at"}
 	userPrimaryKeyColumns     = []string{"id"}
 	userGeneratedColumns      = []string{}
 )

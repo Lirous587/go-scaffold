@@ -29,7 +29,7 @@ func (r *PSQLUserRepository) FindByID(id int64) (*domain.User, error) {
 		}
 		return nil, fmt.Errorf("database error: %w", err)
 	}
-	return ORMUserToDomain(ormUser), nil
+	return ormUserToDomain(ormUser), nil
 }
 
 func (r *PSQLUserRepository) FindByEmail(email string) (*domain.User, error) {
@@ -40,28 +40,28 @@ func (r *PSQLUserRepository) FindByEmail(email string) (*domain.User, error) {
 		}
 		return nil, fmt.Errorf("database error: %w", err)
 	}
-	return ORMUserToDomain(ormUser), nil
+	return ormUserToDomain(ormUser), nil
 }
 
 func (r *PSQLUserRepository) Create(user *domain.User) (*domain.User, error) {
-	ormUser := DomainUserToORM(user)
+	ormUser := domainUserToORM(user)
 
 	if err := ormUser.InsertG(boil.Infer()); err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	return ORMUserToDomain(ormUser), nil
+	return ormUserToDomain(ormUser), nil
 }
 
 func (r *PSQLUserRepository) Update(user *domain.User) (*domain.User, error) {
-	ormUser := DomainUserToORM(user)
+	ormUser := domainUserToORM(user)
 
 	_, err := ormUser.UpdateG(boil.Infer())
 	if err != nil {
 		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
 
-	return ORMUserToDomain(ormUser), nil
+	return ormUserToDomain(ormUser), nil
 }
 
 func (r *PSQLUserRepository) FindByOAuthID(provider, oauthID string) (*domain.User, error) {
@@ -84,7 +84,7 @@ func (r *PSQLUserRepository) FindByOAuthID(provider, oauthID string) (*domain.Us
 		return nil, fmt.Errorf("database error: %w", err)
 	}
 
-	return ORMUserToDomain(ormUser), nil
+	return ormUserToDomain(ormUser), nil
 }
 
 func (r *PSQLUserRepository) UpdateLastLogin(id int64) error {
@@ -93,7 +93,7 @@ func (r *PSQLUserRepository) UpdateLastLogin(id int64) error {
 		return fmt.Errorf("failed to find user: %w", err)
 	}
 
-	ormUser.LastLoginAt = null.TimeFrom(time.Now())
+	ormUser.LastLoginAt = time.Now()
 	_, err = ormUser.UpdateG(boil.Whitelist(orm.UserColumns.LastLoginAt))
 	return err
 }

@@ -4,7 +4,6 @@ import (
 	"net/url"
 	"os"
 	"scaffold/internal/img/domain"
-	"time"
 )
 
 var r2PublicUrlPrefix = ""
@@ -26,9 +25,8 @@ type ImgResponse struct {
 	ID          int64  `json:"id"`
 	Url         string `json:"url"`
 	Description string `json:"description,omitempty"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
-	DeletedAt   string `json:"deleted_at,omitempty"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
 }
 
 type UploadRequest struct {
@@ -70,13 +68,8 @@ func domainImgToResponse(img *domain.Img) *ImgResponse {
 		ID:          img.ID,
 		Url:         urlPrefix + "/" + encodedPath,
 		Description: img.Description,
-		CreatedAt:   img.CreatedAt.Format(time.DateTime),
-		UpdatedAt:   img.UpdatedAt.Format(time.DateTime),
-	}
-
-	// 只有当 DeletedAt 不为零值时才设置
-	if !img.DeletedAt.IsZero() {
-		resp.DeletedAt = img.DeletedAt.Format(time.DateTime)
+		CreatedAt:   img.CreatedAt.Unix(),
+		UpdatedAt:   img.UpdatedAt.Unix(),
 	}
 
 	return resp

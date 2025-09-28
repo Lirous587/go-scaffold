@@ -2,24 +2,23 @@ package handler
 
 import (
 	"scaffold/internal/img/domain"
-	"time"
 )
 
 type CategoryResponse struct {
-	ID		int64	`json:"id"`
-	Title		string	`json:"title"`
-	Prefix		string	`json:"prefix"`
-	CreatedAt	string	`json:"created_at"`
+	ID        int64  `json:"id"`
+	Title     string `json:"title"`
+	Prefix    string `json:"prefix"`
+	CreatedAt int64  `json:"created_at"`
 }
 
 type CreateCategoryRequest struct {
-	Title	string	`json:"title" binding:"required,max=10"`
-	Prefix	string	`json:"prefix" binding:"required,max=20,slug"`
+	Title  string `json:"title" binding:"required,max=10"`
+	Prefix string `json:"prefix" binding:"required,max=20,slug"`
 }
 
 type UpdateCategoryRequest struct {
-	Title	string	`json:"title" binding:"max=10"`
-	Prefix	string	`json:"prefix" binding:"max=20"`
+	Title  string `json:"title" binding:"max=10"`
+	Prefix string `json:"prefix" binding:"max=20"`
 }
 
 func domainCategoryToResponse(category *domain.Category) *CategoryResponse {
@@ -28,10 +27,10 @@ func domainCategoryToResponse(category *domain.Category) *CategoryResponse {
 	}
 
 	resp := &CategoryResponse{
-		ID:		category.ID,
-		Title:		category.Title,
-		Prefix:		category.Prefix,
-		CreatedAt:	category.CreatedAt.Format(time.DateTime),
+		ID:        category.ID,
+		Title:     category.Title,
+		Prefix:    category.Prefix,
+		CreatedAt: category.CreatedAt.Unix(),
 	}
 
 	return resp

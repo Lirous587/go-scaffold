@@ -6,7 +6,7 @@ import (
 	"scaffold/internal/user/domain"
 )
 
-func DomainUserToORM(user *domain.User) *orm.User {
+func domainUserToORM(user *domain.User) *orm.User {
 	if user == nil {
 		return nil
 	}
@@ -25,24 +25,21 @@ func DomainUserToORM(user *domain.User) *orm.User {
 		ormUser.GithubID = null.StringFrom(user.GithubID)
 	}
 
-	if !user.LastLoginAt.IsZero() {
-		ormUser.LastLoginAt = null.TimeFrom(user.LastLoginAt)
-	}
-
 	return ormUser
 }
 
-func ORMUserToDomain(ormUser *orm.User) *domain.User {
+func ormUserToDomain(ormUser *orm.User) *domain.User {
 	if ormUser == nil {
 		return nil
 	}
 
 	user := &domain.User{
-		ID:        ormUser.ID,
-		Email:     ormUser.Email,
-		Nickname:  ormUser.Nickname,
-		CreatedAt: ormUser.CreatedAt,
-		UpdatedAt: ormUser.UpdatedAt,
+		ID:          ormUser.ID,
+		Email:       ormUser.Email,
+		Nickname:    ormUser.Nickname,
+		CreatedAt:   ormUser.CreatedAt,
+		UpdatedAt:   ormUser.UpdatedAt,
+		LastLoginAt: ormUser.LastLoginAt,
 	}
 
 	if ormUser.PasswordHash.Valid {
@@ -51,10 +48,6 @@ func ORMUserToDomain(ormUser *orm.User) *domain.User {
 
 	if ormUser.GithubID.Valid {
 		user.GithubID = ormUser.GithubID.String
-	}
-
-	if ormUser.LastLoginAt.Valid {
-		user.LastLoginAt = ormUser.LastLoginAt.Time
 	}
 
 	return user
