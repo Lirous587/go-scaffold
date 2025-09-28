@@ -20,9 +20,9 @@ import (
 	"scaffold/internal/common/server"
 	"scaffold/internal/common/uid"
 	"scaffold/internal/img"
+	"scaffold/internal/mock"
 	"scaffold/internal/user"
 	"syscall"
-	"time"
 )
 
 func setGDB() {
@@ -49,17 +49,6 @@ func setGDB() {
 	}
 
 	boil.SetDB(db)
-
-	// 设置时区
-	tz := os.Getenv("TIMEZONE")
-	if tz == "" {
-		tz = "Asia/Shanghai"
-	}
-	loc, err := time.LoadLocation(tz)
-	if err != nil {
-		panic(err)
-	}
-	boil.SetLocation(loc)
 
 	boil.DebugMode = true
 
@@ -144,5 +133,6 @@ func main() {
 		user.InitV1(r)
 		captcha.InitV1(r)
 		img.InitV1(r)
+		mock.InitV1(r)
 	})
 }

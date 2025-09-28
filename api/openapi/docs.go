@@ -699,6 +699,312 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/mock": {
+            "get": {
+                "description": "根据查询参数获取Mock列表，返回当前页数据和total数量",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mock"
+                ],
+                "summary": "获取 Mock 列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "关键词搜索",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mock列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.MockListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建新的 Mock",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mock"
+                ],
+                "summary": "创建 Mock",
+                "parameters": [
+                    {
+                        "description": "创建 Mock 请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功创建 Mock",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.MockResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/mock/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "读取单条 Mock",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mock"
+                ],
+                "summary": "读取单条 Mock",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mock ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功创建 Mock",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.MockResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据ID更新 Mock 信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mock"
+                ],
+                "summary": "更新 Mock",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mock ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新 Mock 请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功更新 Mock",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.MockResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据ID删除 Mock",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mock"
+                ],
+                "summary": "删除 Mock",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mock ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功删除 Mock",
+                        "schema": {
+                            "$ref": "#/definitions/response.successResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user/auth": {
             "post": {
                 "security": [
@@ -726,6 +1032,64 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "令牌无效或过期",
+                        "schema": {
+                            "$ref": "#/definitions/response.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/auth/github": {
+            "post": {
+                "description": "使用 GitHub OAuth 登录，返回用户信息和令牌",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "GitHub 授权登录",
+                "parameters": [
+                    {
+                        "description": "GitHub 授权码",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.GithubAuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "登录成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.AuthResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.invalidParamsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
                         "schema": {
                             "$ref": "#/definitions/response.errorResponse"
                         }
@@ -858,6 +1222,20 @@ const docTemplate = `{
                 "WayImageClick"
             ]
         },
+        "handler.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/handler.UserResponse"
+                }
+            }
+        },
         "handler.CaptchaAnswerResponse": {
             "type": "object",
             "properties": {
@@ -940,6 +1318,33 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateRequest": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 60
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 30
+                }
+            }
+        },
+        "handler.GithubAuthRequest": {
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.ImgListResponse": {
             "type": "object",
             "properties": {
@@ -977,6 +1382,40 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.MockListResponse": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.MockResponse"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.MockResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "integer"
+                }
+            }
+        },
         "handler.RefreshTokenResponse": {
             "type": "object",
             "properties": {
@@ -1001,6 +1440,22 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.UpdateRequest": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 60
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 30
+                }
+            }
+        },
         "handler.UserResponse": {
             "type": "object",
             "properties": {
@@ -1020,12 +1475,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "last_login_at": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
                     "type": "string"
                 },
                 "updated_at": {

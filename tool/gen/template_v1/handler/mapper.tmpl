@@ -1,7 +1,6 @@
 ﻿package handler
 
 import (
-    "time"
     "{{.Module}}/internal/{{.Domain}}/domain"
 )
 
@@ -9,9 +8,8 @@ type {{.DomainTitle}}Response struct {
     ID          int64  `json:"id"`
     Title       string `json:"title"`
     Description string `json:"description,omitempty"`
-    CreatedAt   string `json:"created_at"`
-    UpdatedAt   string `json:"updated_at"`
-    DeletedAt   string `json:"deleted_at,omitempty"`
+    CreatedAt   int64  `json:"created_at"`
+    UpdatedAt   int64  `json:"updated_at"`
 }
 
 func domain{{.DomainTitle}}ToResponse({{.Domain}} *domain.{{.DomainTitle}}) *{{.DomainTitle}}Response {
@@ -23,9 +21,8 @@ func domain{{.DomainTitle}}ToResponse({{.Domain}} *domain.{{.DomainTitle}}) *{{.
         ID:          {{.Domain}}.ID,
         Title:       {{.Domain}}.Title,
         Description: {{.Domain}}.Description,
-        CreatedAt:   {{.Domain}}.CreatedAt.Format(time.DateTime),
-        UpdatedAt:   {{.Domain}}.UpdatedAt.Format(time.DateTime),
-        DeletedAt:   {{.Domain}}.DeletedAt.Format(time.DateTime),
+        CreatedAt:   mock.CreatedAt.Unix(),
+        UpdatedAt:   mock.UpdatedAt.Unix(),
     }
 }
 
