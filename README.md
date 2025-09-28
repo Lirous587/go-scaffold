@@ -80,6 +80,7 @@ scaffold/
 > 以下演示以Windows作为示例
 
 1. 新建目录
+
 ```bash
 mkdir demo
 cd demo
@@ -92,11 +93,13 @@ git clone https://github.com/Lirous587/go-scaffold.git
 ```
 
 3. 移动目录 并删除git记录
+
 ```bash
 robocopy go-scaffold . /E /XD .git
 ```
 
 4. 删除clone目录
+
 ```bash
 Remove-Item go-scaffold -Recurse -Force
 ```
@@ -110,21 +113,34 @@ go build
 ```
 
 6. 删除replace
+
 ```bash
 cd ..
 rm ./replace
 ```
 
 7. 安装依赖
+
 ```bash
 cd ..
 go mod tidy
 ```
 
-8. 使用docker构建依赖
-> 开发阶段无需使用docker去构建应用程序，故可将 `docker-compose.yml` 中 `service` 下的 `go-app`注释，以此来快速构建依赖
-- 修改 `docker` 目录下的 `.env` 配置
-- 在 `docker` 目录下运行 `docker compose up -d --build`
+8. 使用 Docker 构建依赖
+
+> 开发阶段无需使用 Docker 去构建应用程序，因此可以将 `docker-compose.yml` 中 `services` 下的 `go-app` 服务注释掉，仅启动数据库和缓存等依赖服务，以便快速搭建开发环境。
+
+- 修改 `docker` 目录下的 `.env` 配置文件
+
+> 注意：由于 `docker-compose.yml` 的 `networks` 部分的 key 不支持使用变量名，所以要保证 `networks` 下的网络名称与环境配置中的 `NETWORK_NAME` 一致
+
+- 在 `docker` 目录下执行以下命令，构建并启动依赖服务：
+
+```shell
+docker compose up -d --build
+```
+这样即可在本地快速启动 Postgres、Redis 等依赖服务，供本地开发调试使用
+
 
 9. 修改配置
 - 开发环境:将 `.copy.env` 重命名为 `.env`，配置 `.env`
