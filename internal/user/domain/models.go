@@ -7,7 +7,6 @@ type User struct {
 	Email        string     `json:"email"`
 	PasswordHash string     `json:"-"`
 	Name         string     `json:"name"`
-	AvatarURL    string     `json:"avatar_url,omitempty"`
 	GithubID     string     `json:"github_id,omitempty"`
 	LastLoginAt  *time.Time `json:"last_login_at,omitempty"`
 }

@@ -21,10 +21,6 @@ func DomainUserToORM(user *domain.User) *orm.User {
 		ormUser.PasswordHash = null.StringFrom(user.PasswordHash)
 	}
 
-	if user.AvatarURL != "" {
-		ormUser.PasswordHash = null.StringFrom(user.AvatarURL)
-	}
-
 	if user.GithubID != "" {
 		ormUser.GithubID = null.StringFrom(user.GithubID)
 	}
