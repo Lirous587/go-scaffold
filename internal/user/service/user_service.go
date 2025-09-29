@@ -33,7 +33,7 @@ func NewUserService(userRepo domain.UserRepository, tokenService domain.TokenSer
 }
 
 func (s *userService) AuthenticateWithOAuth(provider string, userInfo *domain.OAuthUserInfo) (
-	*domain.User2Token, error,
+		*domain.User2Token, error,
 ) {
 	// 1. 查找或创建用户
 	user, _, err := s.findOrCreateUserByOAuth(provider, userInfo)
@@ -100,7 +100,7 @@ func (s *userService) RefreshUserToken(refreshToken string) (*domain.User2Token,
 
 // 私有辅助方法
 func (s *userService) findOrCreateUserByOAuth(provider string, userInfo *domain.OAuthUserInfo) (
-	user *domain.User, isNew bool, err error,
+		user *domain.User, isNew bool, err error,
 ) {
 	// 1. 先通过 OAuth ID 查找
 	user, err = s.userRepo.FindByOAuthID(provider, userInfo.ID)
@@ -148,7 +148,7 @@ func (s *userService) createUserFromOAuth(provider string, userInfo *domain.OAut
 }
 
 func (s *userService) bindOAuthToUser(user *domain.User, provider string, userInfo *domain.OAuthUserInfo) (
-	*domain.User, error,
+		*domain.User, error,
 ) {
 	// 设置 OAuth ID
 	switch provider {
@@ -166,7 +166,9 @@ func (s *userService) bindOAuthToUser(user *domain.User, provider string, userIn
 
 func (s *userService) GetUser(id int64) (*domain.User, error) {
 	if err := s.userRepo.UpdateLastLogin(id); err != nil {
-		zap.L().Error("更新用户登录时间失败,err:%v", zap.Error(err))
+		zap.L().Error("更新用户登录时间失败",
+			zap.Int64("id", id),
+			zap.Error(err))
 	}
 	return s.userRepo.FindByID(id)
 }

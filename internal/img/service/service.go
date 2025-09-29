@@ -206,7 +206,7 @@ func (s *service) Delete(id int64, hard ...bool) error {
 		// 4.将id记录到消息队列
 		if err := s.msgQueue.AddToDeleteQueue(img.ID); err != nil {
 			zap.L().Error("图片软删除：添加到定时删除队列失败",
-				zap.Int64("imgID", img.ID),
+				zap.Int64("img_id", img.ID),
 				zap.String("path", img.Path),
 				zap.Error(err),
 			)
@@ -256,7 +256,7 @@ func (s *service) ListenDeleteQueue() {
 		img, err := s.repo.FindByID(imgID, true)
 		if err != nil {
 			zap.L().Error("定时删除队列：查询图片失败",
-				zap.Int64("imgID", imgID),
+				zap.Int64("img_id", imgID),
 				zap.Error(err),
 			)
 			return
@@ -265,7 +265,7 @@ func (s *service) ListenDeleteQueue() {
 		//2.删除R3
 		if err := s.repo.Delete(imgID, true); err != nil {
 			zap.L().Error("定时删除队列：删除数据库记录失败",
-				zap.Int64("imgID", imgID),
+				zap.Int64("img_id", imgID),
 				zap.String("path", img.Path),
 				zap.Error(err),
 			)
@@ -275,7 +275,7 @@ func (s *service) ListenDeleteQueue() {
 		//	3.删除记录
 		if err := s.DeleteFile(img.Path, s.deleteBucket); err != nil {
 			zap.L().Error("定时删除队列：删除存储文件失败",
-				zap.Int64("imgID", imgID),
+				zap.Int64("img_id", imgID),
 				zap.String("path", img.Path),
 				zap.String("bucket", s.deleteBucket.string()),
 				zap.Error(err),
@@ -283,7 +283,7 @@ func (s *service) ListenDeleteQueue() {
 		}
 
 		zap.L().Info("定时删除队列：图片删除成功",
-			zap.Int64("imgID", imgID),
+			zap.Int64("img_id", imgID),
 			zap.String("path", img.Path),
 		)
 	})
@@ -315,7 +315,7 @@ func (s *service) RestoreFromRecycleBin(id int64) (*domain.Img, error) {
 	// 5.从删除队列中移除
 	if err := s.msgQueue.RemoveFromDeleteQueue(id); err != nil {
 		zap.L().Error("从回收站恢复：移除定时删除任务失败",
-			zap.Int64("imgID", id),
+			zap.Int64("img_id", id),
 			zap.Error(err),
 		)
 	}
