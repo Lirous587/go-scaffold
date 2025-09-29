@@ -5,7 +5,7 @@ import (
 )
 
 func Println(n int) {
-	for _ = range n {
+	for range n {
 		fmt.Println()
 	}
 }

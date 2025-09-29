@@ -60,6 +60,10 @@ func init() {
 }
 
 func StartPrometheusServer() {
-	http.Handle(path, promhttp.Handler())
-	go http.ListenAndServe(":"+port, nil)
+    http.Handle(path, promhttp.Handler())
+    go func() {
+        if err := http.ListenAndServe(":"+port, nil); err != nil && err != http.ErrServerClosed {
+            panic(errors.Wrap(err, "Prometheus 监控服务启动失败"))
+        }
+    }()
 }

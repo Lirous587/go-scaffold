@@ -1,12 +1,12 @@
 package adapters
 
 import (
-	"scaffold/internal/common/utils"
-	"scaffold/internal/img/domain"
 	"context"
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"os"
+	"scaffold/internal/common/utils"
+	"scaffold/internal/img/domain"
 	"strconv"
 	"strings"
 	"time"
@@ -29,10 +29,10 @@ func NewImgRedisCache() domain.ImgMsgQueue {
 	addr := host + ":" + port
 
 	client := redis.NewClient(&redis.Options{
-		Addr:		addr,
-		DB:		db,
-		Password:	password,
-		PoolSize:	poolSize,
+		Addr:     addr,
+		DB:       db,
+		Password: password,
+		PoolSize: poolSize,
 	})
 
 	// 可选：ping 检查连接
@@ -44,8 +44,8 @@ func NewImgRedisCache() domain.ImgMsgQueue {
 }
 
 const (
-	keyImgDeleteQueueKey	= "img:delete"
-	deleteImgExpire		= time.Hour * 24 * 7
+	keyImgDeleteQueueKey = "img:delete"
+	deleteImgExpire      = time.Hour * 24 * 7
 	//deleteImgExpire = time.Second * 20
 )
 
@@ -58,7 +58,7 @@ func (c *RedisCache) AddToDeleteQueue(imgID int64) error {
 // ListenDeleteQueue 后台监听 key 过期事件
 func (c *RedisCache) ListenDeleteQueue(onExpire func(imgID int64)) {
 	pubsub := c.client.PSubscribe(context.Background(), "__keyevent@0__:expired")
-	defer pubsub.Close()	// 确保资源释放
+	defer pubsub.Close() // 确保资源释放
 
 	preKey := utils.GetRedisKey(keyImgDeleteQueueKey) + ":"
 

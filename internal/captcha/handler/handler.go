@@ -21,17 +21,7 @@ func NewHttpHandler(service *service.CaptchaServiceFactor) *HttpHandler {
 	}
 }
 
-func (h *HttpHandler) getID(ctx *gin.Context) (int64, error) {
-	idStr := ctx.Param("id")
-	idInt, err := strconv.Atoi(idStr)
-	if err != nil {
-		return 0, err
-	}
-	if idInt == 0 {
-		return 0, errors.New("无效的id")
-	}
-	return int64(idInt), err
-}
+
 
 // Gen godoc
 // @Summary      生成验证码

@@ -1,3 +1,4 @@
+//nolint:unused // 用于文档生成，忽略未使用检查
 package response
 
 // 用于文档生成

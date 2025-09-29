@@ -21,19 +21,8 @@ func NewPSQLImgRepository() domain.ImgRepository {
 	return &PSQLImgRepository{}
 }
 
-func (repo *PSQLImgRepository) getExecutor(tx ...*sql.Tx) boil.Executor {
-	if len(tx) > 0 && tx[0] != nil {
-		return tx[0]
-	}
-	return boil.GetDB()
-}
-
 func (repo *PSQLImgRepository) FindByID(id int64, deleted ...bool) (*domain.Img, error) {
-	selectDeleted := false
-
-	if len(deleted) > 0 && deleted[0] == true {
-		selectDeleted = true
-	}
+	selectDeleted := len(deleted) > 0 && deleted[0]
 
 	var whereMods []qm.QueryMod
 	whereMods = append(whereMods, qm.Where("id = ?", id))
@@ -152,7 +141,7 @@ func (repo *PSQLImgRepository) List(query *domain.ImgQuery) (*domain.ImgList, er
 		whereMods = append(whereMods, qm.Where(fmt.Sprintf("%s = ?", orm.ImgColumns.CategoryID), query.CategoryID))
 	}
 
-	if query.Deleted == true {
+	if query.Deleted {
 		whereMods = append(whereMods, qm.WithDeleted())
 		whereMods = append(whereMods, qm.Where("deleted_at is not null"))
 	}

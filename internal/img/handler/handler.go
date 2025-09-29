@@ -2,8 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"io"
 	"math/rand"
 	"mime/multipart"
@@ -14,6 +12,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 type HttpHandler struct {
@@ -38,16 +39,21 @@ func (h *HttpHandler) getID(ctx *gin.Context) (int64, error) {
 	return int64(idInt), err
 }
 
-func isImage(file multipart.File) (bool, string) {
+func isImage(file multipart.File) (bool, string, error) {
 	buf := make([]byte, 512)
 	n, _ := file.Read(buf)
-	file.Seek(0, io.SeekStart) // 复位文件指针
+
+	// 复位文件指针
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
+		return false, "", fmt.Errorf("file.Seek 复位文件指针失败,reason:%v", err)
+	}
+
 	contentType := http.DetectContentType(buf[:n])
 	switch contentType {
 	case "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/bmp", "image/svg+xml":
-		return true, contentType
+		return true, contentType, nil
 	default:
-		return false, contentType
+		return false, contentType, nil
 	}
 }
 
@@ -105,7 +111,11 @@ func (h *HttpHandler) Upload(ctx *gin.Context) {
 	file, _ := fileHeader.Open()
 	defer file.Close()
 
-	ok, realType := isImage(file)
+	ok, realType, err := isImage(file)
+	if err != nil {
+		response.Error(ctx, errors.Errorf("isImage执行失败: %s", err))
+		return
+	}
 	if !ok {
 		response.InvalidParams(ctx, errors.Errorf("仅支持基本图片类型上传，实际类型: %s", realType))
 		return
@@ -120,6 +130,7 @@ func (h *HttpHandler) Upload(ctx *gin.Context) {
 
 	var imgPath string
 
+	// 无path则生成path
 	if strings.TrimSpace(req.Path) != "" {
 		ext := filepath.Ext(req.Path)
 		if ext == "" {

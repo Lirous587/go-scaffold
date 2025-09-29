@@ -69,10 +69,10 @@ func Init() (err error) {
 		return errors.New("l.UnmarshalText([]byte(cfg.Level)) failed")
 	}
 
-	var core zapcore.Core
-	core = zapcore.NewCore(encoder, writeSyncer, l)
+	core := zapcore.NewCore(encoder, writeSyncer, l)
 
 	lg := zap.New(core, zap.AddCaller())
+
 	// 替换zap包中全局的logger实例，后续在其他包中只需使用zap.L()调用即可
 	zap.ReplaceGlobals(lg)
 	return

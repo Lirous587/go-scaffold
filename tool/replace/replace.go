@@ -5,6 +5,7 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,7 +28,7 @@ func main() {
 
 	replaceGoMod("../../go.mod", oldModule, newModule)
 
-	filepath.Walk("../../", func(path string, info os.FileInfo, err error) error {
+	if err := filepath.Walk("../../", func(path string, info os.FileInfo, err error) error {
 		if err != nil || !strings.HasSuffix(path, ".go") {
 			return nil
 		}
@@ -47,10 +48,15 @@ func main() {
 		if changed {
 			f, _ := os.Create(path)
 			defer f.Close()
-			printer.Fprint(f, fset, node)
+			if err := printer.Fprint(f, fset, node); err != nil {
+				log.Printf("Error writing file:err:%v", err)
+				return err
+			}
 		}
 		return nil
-	})
+	}); err != nil {
+		panic(err)
+	}
 }
 
 func replaceGoMod(goModPath, oldModule, newModule string) {
