@@ -21,8 +21,8 @@ func domain{{.DomainTitle}}ToResponse({{.Domain}} *domain.{{.DomainTitle}}) *{{.
         ID:          {{.Domain}}.ID,
         Title:       {{.Domain}}.Title,
         Description: {{.Domain}}.Description,
-        CreatedAt:   mock.CreatedAt.Unix(),
-        UpdatedAt:   mock.UpdatedAt.Unix(),
+        CreatedAt:   {{.Domain}}.CreatedAt.Unix(),
+        UpdatedAt:   {{.Domain}}.UpdatedAt.Unix(),
     }
 }
 
