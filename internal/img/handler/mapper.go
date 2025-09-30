@@ -8,16 +8,10 @@ import (
 
 var r2PublicUrlPrefix = ""
 
-var r2DeleteUrlPrefix = ""
-
 func init() {
 	r2PublicUrlPrefix = os.Getenv("R2_PUBLIC_URL_PREFIX")
 	if r2PublicUrlPrefix == "" {
 		panic("加载 R2_PUBLIC_URL_PREFIX 环境变量失败")
-	}
-	r2DeleteUrlPrefix = os.Getenv("R2_DELETE_URL_PREFIX")
-	if r2DeleteUrlPrefix == "" {
-		panic("加载 R2_DELETE_URL_PREFIX 环境变量失败")
 	}
 }
 
@@ -59,17 +53,18 @@ func domainImgToResponse(img *domain.Img) *ImgResponse {
 
 	encodedPath := url.PathEscape(img.Path)
 
-	urlPrefix := r2PublicUrlPrefix
-	if img.IsDelete() {
-		urlPrefix = r2DeleteUrlPrefix
-	}
-
+	// 默认访问public
 	resp := &ImgResponse{
 		ID:          img.ID,
-		Url:         urlPrefix + "/" + encodedPath,
+		Url:         r2PublicUrlPrefix + "/" + encodedPath,
 		Description: img.Description,
 		CreatedAt:   img.CreatedAt.Unix(),
 		UpdatedAt:   img.UpdatedAt.Unix(),
+	}
+
+	// 如果是要访问已删除文件
+	if img.IsDelete() {
+		resp.Url = img.Path
 	}
 
 	return resp

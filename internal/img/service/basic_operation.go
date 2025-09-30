@@ -6,12 +6,26 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"io"
+	"time"
 )
 
 type bucket string
 
 func (b bucket) string() string {
 	return string(b)
+}
+
+func (s *service) getPresignURL(bucket bucket, object string, expired time.Duration) (string, error) {
+	presignResult, err := s.presignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: aws.String(bucket.string()),
+		Key:    aws.String(object),
+	}, func(options *s3.PresignOptions) {
+		options.Expires = expired
+	})
+	if err != nil {
+		return "", err
+	}
+	return presignResult.URL, err
 }
 
 func (s *service) UploadFile(file io.Reader, path string) error {

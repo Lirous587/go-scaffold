@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -18,17 +19,19 @@ import (
 	"os"
 	"scaffold/internal/common/reskit/codes"
 	"scaffold/internal/img/domain"
+	"time"
 )
 
 type service struct {
-	repo         domain.ImgRepository
-	s3Client     *s3.Client
-	msgQueue     domain.ImgMsgQueue
-	publicBucket bucket
-	deleteBucket bucket
+	repo          domain.ImgRepository
+	s3Client      *s3.Client
+	presignClient *s3.PresignClient
+	msgQueue      domain.ImgMsgQueue
+	publicBucket  bucket
+	deleteBucket  bucket
 }
 
-func loadS3() (*s3.Client, string, string) {
+func loadS3() (*s3.Client, *s3.PresignClient, string, string) {
 	// 加载环境变量
 	accountID := os.Getenv("R2_ACCOUNT_ID")
 	accessKeyID := os.Getenv("R2_ACCESS_KEY_ID")
@@ -54,22 +57,27 @@ func loadS3() (*s3.Client, string, string) {
 		o.BaseEndpoint = aws.String(fmt.Sprintf("https://%s.r2.cloudflarestorage.com", accountID))
 	})
 
-	return client, publicBucket, deleteBucket
+	presignClient := s3.NewPresignClient(client)
+
+	return client, presignClient, publicBucket, deleteBucket
 }
 
 func NewImgService(repo domain.ImgRepository, msgQueue domain.ImgMsgQueue) domain.ImgService {
-	client, publicBucket, deleteBucket := loadS3()
+	client, presignClient, publicBucket, deleteBucket := loadS3()
 
 	return &service{
-		repo:         repo,
-		s3Client:     client,
-		publicBucket: bucket(publicBucket),
-		deleteBucket: bucket(deleteBucket),
-		msgQueue:     msgQueue,
+		repo:          repo,
+		s3Client:      client,
+		presignClient: presignClient,
+		publicBucket:  bucket(publicBucket),
+		deleteBucket:  bucket(deleteBucket),
+		msgQueue:      msgQueue,
 	}
 }
 
 const compressQuality = 60
+
+const deletedPresignExpired = 1 * time.Minute
 
 // Compress 压缩图片质量，返回压缩后的图片数据
 func (s *service) Compress(src io.Reader) (io.Reader, error) {
@@ -238,7 +246,30 @@ func (s *service) ClearRecycleBin(id int64) error {
 }
 
 func (s *service) List(query *domain.ImgQuery) (*domain.ImgList, error) {
-	return s.repo.List(query)
+	res, err := s.repo.List(query)
+	if err != nil {
+		return nil, err
+	}
+	if query.Deleted {
+		g := new(errgroup.Group)
+
+		for i := range res.List {
+			g.Go(func() error {
+				presignUrl, err := s.getPresignURL(s.deleteBucket, res.List[i].Path, deletedPresignExpired)
+				if err != nil {
+					return nil
+				}
+				res.List[i].Path = presignUrl
+				return nil
+			})
+		}
+
+		if err := g.Wait(); err != nil {
+			return nil, err
+		}
+
+	}
+	return res, nil
 }
 
 func (s *service) ListenDeleteQueue() {
