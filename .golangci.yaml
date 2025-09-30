@@ -23,13 +23,14 @@ linters:
         - (io.Closer).Close
         - (*os.File).Close
         - (*database/sql.DB).Close
+        - (*database/sql.Tx).Rollback
       # Display function signature instead of selector.
       # Default: false
       verbose: true
     unused:
       # Mark all struct fields that have been written to as used.
       # Default: true
-      field-writes-are-uses: false
+      field-writes-are-uses: true
       # Treat IncDec statement (e.g. `i++` or `i--`) as both read and write operation instead of just write.
       # Default: false
       post-statements-are-reads: true
@@ -45,3 +46,5 @@ linters:
       # Mark all identifiers inside generated files as used.
       # Default: true
       generated-is-used: true
+    staticcheck:
+      checks: [ "-QF1008" ]
