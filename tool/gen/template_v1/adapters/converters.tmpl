@@ -15,13 +15,14 @@ func domain{{.DomainTitle}}ToORM({{.Domain}} *domain.{{.DomainTitle}}) *orm.{{.D
 	orm{{.DomainTitle}} := &orm.{{.DomainTitle}}{
 		ID:        		{{.Domain}}.ID,
 		Title:     		{{.Domain}}.Title,
-        CreatedAt: 		{{.Domain}}.CreatedAt,
-        UpdatedAt: 		{{.Domain}}.UpdatedAt,
+    CreatedAt: 		{{.Domain}}.CreatedAt,
+    UpdatedAt: 		{{.Domain}}.UpdatedAt,
 	}
 
 	// 处理null项
 	if {{.Domain}}.Description != "" {
 	 	orm{{.DomainTitle}}.Description = null.StringFrom({{.Domain}}.Description)
+		orm{{.DomainTitle}}.Description.Valid = true
 	}
 
 	return orm{{.DomainTitle}}
