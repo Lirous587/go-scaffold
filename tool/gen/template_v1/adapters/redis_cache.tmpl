@@ -12,7 +12,7 @@ type Redis{{.DomainTitle}}Cache struct {
 	client *redis.Client
 }
 
-func NewRedisCache() domain.{{.DomainTitle}}Cache {
+func NewRedis{{.DomainTitle}}Cache() domain.{{.DomainTitle}}Cache {
 	host := os.Getenv("REDIS_HOST")
 	port := os.Getenv("REDIS_PORT")
 	password := os.Getenv("REDIS_PASSWORD")
