@@ -17,7 +17,7 @@ func RegisterV1(r *gin.RouterGroup, handler *handler.HttpHandler) func() {
 		})
 
 		// 测试路由：生成验证码并返回图片+验证答案
-		g.POST("/with-answer", auth.Validate(), handler.GenWithAnswer)
+		g.POST("/with-answer", auth.JWTValidate(), handler.GenWithAnswer)
 	}
 
 	return nil

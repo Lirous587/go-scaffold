@@ -8,11 +8,11 @@ import (
 	"strconv"
 )
 
-type Redis{{.DomainTitle}}Cache struct {
+type {{.DomainTitle}}RedisCache struct {
 	client *redis.Client
 }
 
-func NewRedis{{.DomainTitle}}Cache() domain.{{.DomainTitle}}Cache {
+func New{{.DomainTitle}}RedisCache() domain.{{.DomainTitle}}Cache {
 	host := os.Getenv("REDIS_HOST")
 	port := os.Getenv("REDIS_PORT")
 	password := os.Getenv("REDIS_PASSWORD")
@@ -36,5 +36,5 @@ func NewRedis{{.DomainTitle}}Cache() domain.{{.DomainTitle}}Cache {
 		panic(err)
 	}
 
-	return &Redis{{.DomainTitle}}Cache{client: client}
+	return &{{.DomainTitle}}RedisCache{client: client}
 }

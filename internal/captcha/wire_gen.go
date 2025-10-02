@@ -7,16 +7,16 @@
 package captcha
 
 import (
+	"github.com/gin-gonic/gin"
 	"scaffold/internal/captcha/adapters"
 	"scaffold/internal/captcha/handler"
 	"scaffold/internal/captcha/service"
-	"github.com/gin-gonic/gin"
 )
 
 // Injectors from wire.go:
 
 func InitV1(r *gin.RouterGroup) func() {
-	captchaCache := adapters.NewRedisCache()
+	captchaCache := adapters.NewCaptchaRedisCache()
 	captchaServiceFactor := service.NewCaptchaServiceFactor(captchaCache)
 	httpHandler := handler.NewHttpHandler(captchaServiceFactor)
 	v := RegisterV1(r, httpHandler)
@@ -24,7 +24,7 @@ func InitV1(r *gin.RouterGroup) func() {
 }
 
 func NewVerifyMiddleware() *handler.HttpHandler {
-	captchaCache := adapters.NewRedisCache()
+	captchaCache := adapters.NewCaptchaRedisCache()
 	captchaServiceFactor := service.NewCaptchaServiceFactor(captchaCache)
 	httpHandler := handler.NewHttpHandler(captchaServiceFactor)
 	return httpHandler

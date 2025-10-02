@@ -5,6 +5,6 @@ const (
 )
 
 func GetRedisKey(key string) string {
-	panic("请确保设置项目前缀")
+	// panic("请确保设置项目前缀")
 	return Prefix + key
 }

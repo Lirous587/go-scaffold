@@ -7,17 +7,17 @@
 package user
 
 import (
+	"github.com/gin-gonic/gin"
 	"scaffold/internal/user/adapters"
 	"scaffold/internal/user/handler"
 	"scaffold/internal/user/service"
-	"github.com/gin-gonic/gin"
 )
 
 // Injectors from wire.go:
 
 func InitV1(r *gin.RouterGroup) func() {
-	userRepository := adapters.NewPSQLUserRepository()
-	tokenCache := adapters.NewRedisTokenCache()
+	userRepository := adapters.NewUserPSQLRepository()
+	tokenCache := adapters.NewTokenRedisCache()
 	tokenService := service.NewTokenService(tokenCache, userRepository)
 	userService := service.NewUserService(userRepository, tokenService)
 	httpHandler := handler.NewHttpHandler(userService)

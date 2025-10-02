@@ -14,14 +14,14 @@ import (
 	"scaffold/internal/user/domain"
 )
 
-type PSQLUserRepository struct {
+type UserPSQLRepository struct {
 }
 
-func NewPSQLUserRepository() domain.UserRepository {
-	return &PSQLUserRepository{}
+func NewUserPSQLRepository() domain.UserRepository {
+	return &UserPSQLRepository{}
 }
 
-func (r *PSQLUserRepository) FindByID(id int64) (*domain.User, error) {
+func (r *UserPSQLRepository) FindByID(id int64) (*domain.User, error) {
 	ormUser, err := orm.Users(orm.UserWhere.ID.EQ(id)).OneG()
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -32,7 +32,7 @@ func (r *PSQLUserRepository) FindByID(id int64) (*domain.User, error) {
 	return ormUserToDomain(ormUser), nil
 }
 
-func (r *PSQLUserRepository) FindByEmail(email string) (*domain.User, error) {
+func (r *UserPSQLRepository) FindByEmail(email string) (*domain.User, error) {
 	ormUser, err := orm.Users(orm.UserWhere.Email.EQ(email)).OneG()
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -43,7 +43,7 @@ func (r *PSQLUserRepository) FindByEmail(email string) (*domain.User, error) {
 	return ormUserToDomain(ormUser), nil
 }
 
-func (r *PSQLUserRepository) Create(user *domain.User) (*domain.User, error) {
+func (r *UserPSQLRepository) Create(user *domain.User) (*domain.User, error) {
 	ormUser := domainUserToORM(user)
 
 	if err := ormUser.InsertG(boil.Infer()); err != nil {
@@ -53,7 +53,7 @@ func (r *PSQLUserRepository) Create(user *domain.User) (*domain.User, error) {
 	return ormUserToDomain(ormUser), nil
 }
 
-func (r *PSQLUserRepository) Update(user *domain.User) (*domain.User, error) {
+func (r *UserPSQLRepository) Update(user *domain.User) (*domain.User, error) {
 	ormUser := domainUserToORM(user)
 
 	_, err := ormUser.UpdateG(boil.Infer())
@@ -64,7 +64,7 @@ func (r *PSQLUserRepository) Update(user *domain.User) (*domain.User, error) {
 	return ormUserToDomain(ormUser), nil
 }
 
-func (r *PSQLUserRepository) FindByOAuthID(provider, oauthID string) (*domain.User, error) {
+func (r *UserPSQLRepository) FindByOAuthID(provider, oauthID string) (*domain.User, error) {
 	var ormUser *orm.User
 	var err error
 
@@ -87,7 +87,7 @@ func (r *PSQLUserRepository) FindByOAuthID(provider, oauthID string) (*domain.Us
 	return ormUserToDomain(ormUser), nil
 }
 
-func (r *PSQLUserRepository) UpdateLastLogin(id int64) error {
+func (r *UserPSQLRepository) UpdateLastLogin(id int64) error {
 	ormUser, err := orm.Users(orm.UserWhere.ID.EQ(id)).OneG()
 	if err != nil {
 		return fmt.Errorf("failed to find user: %w", err)
@@ -98,7 +98,7 @@ func (r *PSQLUserRepository) UpdateLastLogin(id int64) error {
 	return err
 }
 
-func (r *PSQLUserRepository) EmailExists(email string) (bool, error) {
+func (r *UserPSQLRepository) EmailExists(email string) (bool, error) {
 	exists, err := orm.Users(orm.UserWhere.Email.EQ(email)).ExistsG()
 	if err != nil {
 		return false, fmt.Errorf("database error: %w", err)

@@ -2,7 +2,7 @@
 
 import (
 	"database/sql"
-    "fmt"
+  "fmt"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 	"github.com/pkg/errors"
@@ -12,14 +12,14 @@ import (
 	"{{.Module}}/internal/common/utils"
 )
 
-type PSQL{{.DomainTitle}}Repository struct {
+type {{.DomainTitle}}PSQLRepository struct {
 }
 
-func NewPSQL{{.DomainTitle}}Repository() domain.{{.DomainTitle}}Repository {
-	return &PSQL{{.DomainTitle}}Repository{}
+func New{{.DomainTitle}}PSQLRepository() domain.{{.DomainTitle}}Repository {
+	return &{{.DomainTitle}}PSQLRepository{}
 }
 
-func (repo *PSQL{{.DomainTitle}}Repository) FindByID(id int64) (*domain.{{.DomainTitle}}, error) {
+func (repo *{{.DomainTitle}}PSQLRepository) FindByID(id int64) (*domain.{{.DomainTitle}}, error) {
 	orm{{.DomainTitle}}, err := orm.Find{{.DomainTitle}}G(id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -30,7 +30,7 @@ func (repo *PSQL{{.DomainTitle}}Repository) FindByID(id int64) (*domain.{{.Domai
 	return orm{{.DomainTitle}}ToDomain(orm{{.DomainTitle}}), nil
 }
 
-func (repo *PSQL{{.DomainTitle}}Repository) Create({{.Domain}} *domain.{{.DomainTitle}}) (*domain.{{.DomainTitle}},error)  {
+func (repo *{{.DomainTitle}}PSQLRepository) Create({{.Domain}} *domain.{{.DomainTitle}}) (*domain.{{.DomainTitle}},error)  {
 	orm{{.DomainTitle}} := domain{{.DomainTitle}}ToORM({{.Domain}})
 
 	if err := orm{{.DomainTitle}}.InsertG(boil.Infer()); err != nil {
@@ -40,7 +40,7 @@ func (repo *PSQL{{.DomainTitle}}Repository) Create({{.Domain}} *domain.{{.Domain
 	return orm{{.DomainTitle}}ToDomain(orm{{.DomainTitle}}), nil
 }
 
-func (repo *PSQL{{.DomainTitle}}Repository) Update({{.Domain}} *domain.{{.DomainTitle}}) (*domain.{{.DomainTitle}},error) {
+func (repo *{{.DomainTitle}}PSQLRepository) Update({{.Domain}} *domain.{{.DomainTitle}}) (*domain.{{.DomainTitle}},error) {
 	orm{{.DomainTitle}} := domain{{.DomainTitle}}ToORM({{.Domain}})
 
 	rows, err := orm{{.DomainTitle}}.UpdateG(boil.Infer())
@@ -55,7 +55,7 @@ func (repo *PSQL{{.DomainTitle}}Repository) Update({{.Domain}} *domain.{{.Domain
 	return orm{{.DomainTitle}}ToDomain(orm{{.DomainTitle}}), nil
 }
 
-func (repo *PSQL{{.DomainTitle}}Repository) Delete(id int64) error {
+func (repo *{{.DomainTitle}}PSQLRepository) Delete(id int64) error {
 	orm{{.DomainTitle}} := orm.{{.DomainTitle}}{
 		ID: id,
 	}
@@ -70,7 +70,7 @@ func (repo *PSQL{{.DomainTitle}}Repository) Delete(id int64) error {
 	return nil
 }
 
-func (repo *PSQL{{.DomainTitle}}Repository) List(query *domain.{{.DomainTitle}}Query) (*domain.{{.DomainTitle}}List, error) {
+func (repo *{{.DomainTitle}}PSQLRepository) List(query *domain.{{.DomainTitle}}Query) (*domain.{{.DomainTitle}}List, error) {
 	var whereMods []qm.QueryMod
 	if query.Keyword != "" {
 		like := "%" + query.Keyword + "%"

@@ -16,7 +16,7 @@ func InitV1(r *gin.RouterGroup) func() {
 		RegisterV1,
 		handler.NewHttpHandler,
 		service.NewCaptchaServiceFactor,
-		adapters.NewRedisCache,
+		adapters.NewCaptchaRedisCache,
 	)
 
 	return nil
@@ -26,7 +26,7 @@ func NewVerifyMiddleware() *handler.HttpHandler {
 	wire.Build(
 		handler.NewHttpHandler,
 		service.NewCaptchaServiceFactor,
-		adapters.NewRedisCache,
+		adapters.NewCaptchaRedisCache,
 	)
 
 	return nil

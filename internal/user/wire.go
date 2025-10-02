@@ -17,8 +17,8 @@ func InitV1(r *gin.RouterGroup) func() {
 		handler.NewHttpHandler,
 		service.NewTokenService,
 		service.NewUserService,
-		adapters.NewPSQLUserRepository,
-		adapters.NewRedisTokenCache,
+		adapters.NewUserPSQLRepository,
+		adapters.NewTokenRedisCache,
 	)
 	return nil
 }

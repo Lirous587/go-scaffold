@@ -18,7 +18,7 @@ func RegisterV1(r *gin.RouterGroup, handler *handler.HttpHandler) func() {
 
 		// 需要token的路由
 		protected := userGroup.Group("")
-		protected.Use(auth.Validate())
+		protected.Use(auth.JWTValidate())
 		{
 			protected.POST("/auth", handler.ValidateAuth)
 			protected.GET("/profile", handler.GetProfile)

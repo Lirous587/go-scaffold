@@ -17,7 +17,7 @@ import (
 // Injectors from wire.go:
 
 func InitV1(r *gin.RouterGroup) func() {
-	{{.Domain}}Repository := adapters.NewPSQL{{.DomainTitle}}Repository()
+	{{.Domain}}Repository := adapters.New{{.DomainTitle}}PSQLRepository()
 	{{.Domain}}Service := service.New{{.DomainTitle}}Service({{.Domain}}Repository)
 	httpHandler := handler.NewHttpHandler({{.Domain}}Service)
 	v := RegisterV1(r, httpHandler)

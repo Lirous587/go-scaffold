@@ -11,7 +11,7 @@ func RegisterV1(r *gin.RouterGroup, handler *handler.HttpHandler) func() {
 	{
 	}
 
-	protect := g.Use(auth.Validate())
+	protect := g.Use(auth.JWTValidate())
 	{
 		// 如果上传文件过大 可能导致连接重置 后端解决方案如下
 		//g.POST("/upload",middlewares.FullRequest() ,auth.Validate(), handler.Upload)

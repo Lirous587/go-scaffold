@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-type RedisCache struct {
+type ImgRedisCache struct {
 	client *redis.Client
 }
 
@@ -40,7 +40,7 @@ func NewImgRedisCache() domain.ImgMsgQueue {
 		panic(err)
 	}
 
-	return &RedisCache{client: client}
+	return &ImgRedisCache{client: client}
 }
 
 const (
@@ -50,13 +50,13 @@ const (
 )
 
 // AddToDeleteQueue 软删除时写入 redis 并设置过期
-func (c *RedisCache) AddToDeleteQueue(imgID int64) error {
+func (c *ImgRedisCache) AddToDeleteQueue(imgID int64) error {
 	key := fmt.Sprintf("%s:%d", utils.GetRedisKey(keyImgDeleteQueueKey), imgID)
 	return c.client.SetEx(context.Background(), key, "", deleteImgExpire).Err()
 }
 
 // ListenDeleteQueue 后台监听 key 过期事件
-func (c *RedisCache) ListenDeleteQueue(onExpire func(imgID int64)) {
+func (c *ImgRedisCache) ListenDeleteQueue(onExpire func(imgID int64)) {
 	pubsub := c.client.PSubscribe(context.Background(), "__keyevent@0__:expired")
 	defer pubsub.Close() // 确保资源释放
 
@@ -74,7 +74,7 @@ func (c *RedisCache) ListenDeleteQueue(onExpire func(imgID int64)) {
 }
 
 // SendDeleteMsg 发送删除消息
-func (c *RedisCache) SendDeleteMsg(imgID int64) error {
+func (c *ImgRedisCache) SendDeleteMsg(imgID int64) error {
 	key := fmt.Sprintf("%s:%d", utils.GetRedisKey(keyImgDeleteQueueKey), imgID)
 
 	// 使用 SETEX 设置过期时间为 1 毫秒，几乎立即过期
@@ -82,7 +82,7 @@ func (c *RedisCache) SendDeleteMsg(imgID int64) error {
 }
 
 // RemoveFromDeleteQueue 从删除队列中移除指定图片ID
-func (c *RedisCache) RemoveFromDeleteQueue(imgID int64) error {
+func (c *ImgRedisCache) RemoveFromDeleteQueue(imgID int64) error {
 	key := fmt.Sprintf("%s:%d", utils.GetRedisKey(keyImgDeleteQueueKey), imgID)
 	return c.client.Del(context.Background(), key).Err()
 }

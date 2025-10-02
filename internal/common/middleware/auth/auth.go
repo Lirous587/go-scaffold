@@ -15,8 +15,8 @@ import (
 var tokenServer domain.TokenService
 
 func init() {
-	tokenCache := adapters.NewRedisTokenCache()
-	userRepo := adapters.NewPSQLUserRepository()
+	tokenCache := adapters.NewTokenRedisCache()
+	userRepo := adapters.NewUserPSQLRepository()
 	tokenServer = service.NewTokenService(tokenCache, userRepo)
 }
 
@@ -39,7 +39,7 @@ func parseTokenFromHeader(c *gin.Context) (string, error) {
 	return strings.TrimPrefix(authHeader, bearerPrefix), nil
 }
 
-func Validate() gin.HandlerFunc {
+func JWTValidate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. 从请求头解析 Token
 		tokenStr, err := parseTokenFromHeader(c)

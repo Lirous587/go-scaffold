@@ -15,11 +15,11 @@ import (
 	"scaffold/internal/user/domain"
 )
 
-type RedisCache struct {
+type TokenRedisCache struct {
 	client *redis.Client
 }
 
-func NewRedisTokenCache() domain.TokenCache {
+func NewTokenRedisCache() domain.TokenCache {
 	host := os.Getenv("REDIS_HOST")
 	port := os.Getenv("REDIS_PORT")
 	password := os.Getenv("REDIS_PASSWORD")
@@ -42,7 +42,7 @@ func NewRedisTokenCache() domain.TokenCache {
 		panic(err)
 	}
 
-	return &RedisCache{client: client}
+	return &TokenRedisCache{client: client}
 }
 
 const (
@@ -50,7 +50,7 @@ const (
 	keyRefreshTokenMap		= "user_refresh_token_map"
 )
 
-func (ch *RedisCache) GenRefreshToken(payload *domain.JwtPayload) (string, error) {
+func (ch *TokenRedisCache) GenRefreshToken(payload *domain.JwtPayload) (string, error) {
 	refreshToken, err := utils.GenRandomHexToken()
 	if err != nil {
 		return "", errors.WithStack(err)
@@ -80,7 +80,7 @@ func (ch *RedisCache) GenRefreshToken(payload *domain.JwtPayload) (string, error
 	return refreshToken, nil
 }
 
-func (ch *RedisCache) ValidateRefreshToken(refreshToken string) (*domain.JwtPayload, error) {
+func (ch *TokenRedisCache) ValidateRefreshToken(refreshToken string) (*domain.JwtPayload, error) {
 	key := utils.GetRedisKey(keyRefreshTokenMap)
 
 	result, err := ch.client.HGet(context.Background(), key, refreshToken).Result()
@@ -100,7 +100,7 @@ func (ch *RedisCache) ValidateRefreshToken(refreshToken string) (*domain.JwtPayl
 	return payload, nil
 }
 
-func (ch *RedisCache) RemoveRefreshToken(refreshToken string) error {
+func (ch *TokenRedisCache) RemoveRefreshToken(refreshToken string) error {
 	key := utils.GetRedisKey(keyRefreshTokenMap)
 
 	if err := ch.client.HDel(context.Background(), key, refreshToken).Err(); err != nil {

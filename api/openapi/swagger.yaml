@@ -52,7 +52,7 @@ definitions:
   handler.CategoryResponse:
     properties:
       created_at:
-        type: string
+        type: integer
       id:
         type: integer
       prefix:
@@ -102,15 +102,13 @@ definitions:
   handler.ImgResponse:
     properties:
       created_at:
-        type: string
-      deleted_at:
-        type: string
+        type: integer
       description:
         type: string
       id:
         type: integer
       updated_at:
-        type: string
+        type: integer
       url:
         type: string
     type: object
@@ -168,7 +166,7 @@ definitions:
       avatar_url:
         type: string
       created_at:
-        type: string
+        type: integer
       email:
         type: string
       email_verified:
@@ -176,9 +174,9 @@ definitions:
       id:
         type: integer
       last_login_at:
-        type: string
+        type: integer
       updated_at:
-        type: string
+        type: integer
       username:
         type: string
     type: object

@@ -1288,7 +1288,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -1363,10 +1363,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
-                },
-                "deleted_at": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "description": {
                     "type": "string"
@@ -1375,7 +1372,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "url": {
                     "type": "string"
@@ -1463,7 +1460,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "email": {
                     "type": "string"
@@ -1475,10 +1472,10 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "last_login_at": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "username": {
                     "type": "string"

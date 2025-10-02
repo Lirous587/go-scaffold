@@ -14,11 +14,11 @@ import (
 	"strconv"
 )
 
-type RedisCaptchaCache struct {
+type CaptchaRedisCache struct {
 	client *redis.Client
 }
 
-func NewRedisCache() domain.CaptchaCache {
+func NewCaptchaRedisCache() domain.CaptchaCache {
 	host := os.Getenv("REDIS_HOST")
 	port := os.Getenv("REDIS_PORT")
 	password := os.Getenv("REDIS_PASSWORD")
@@ -42,7 +42,7 @@ func NewRedisCache() domain.CaptchaCache {
 		panic(err)
 	}
 
-	return &RedisCaptchaCache{client: client}
+	return &CaptchaRedisCache{client: client}
 }
 
 func buildKey(way domain.VerifyWay, id int64) (string, error) {
@@ -50,7 +50,7 @@ func buildKey(way domain.VerifyWay, id int64) (string, error) {
 	return fmt.Sprintf("%s:%d", keyPre, id), nil
 }
 
-func (r *RedisCaptchaCache) Save(way domain.VerifyWay, value string) (int64, error) {
+func (r *CaptchaRedisCache) Save(way domain.VerifyWay, value string) (int64, error) {
 	id, err := uid.Gen()
 	if err != nil {
 		return 0, errors.WithStack(err)
@@ -68,7 +68,7 @@ func (r *RedisCaptchaCache) Save(way domain.VerifyWay, value string) (int64, err
 	return id, nil
 }
 
-func (r *RedisCaptchaCache) Verify(way domain.VerifyWay, id int64, value string) error {
+func (r *CaptchaRedisCache) Verify(way domain.VerifyWay, id int64, value string) error {
 	key, err := buildKey(way, id)
 	if err != nil {
 		return errors.WithStack(err)
@@ -93,6 +93,6 @@ func (r *RedisCaptchaCache) Verify(way domain.VerifyWay, id int64, value string)
 	return nil
 }
 
-func (r *RedisCaptchaCache) Delete(key string) error {
+func (r *CaptchaRedisCache) Delete(key string) error {
 	return r.client.Del(context.Background(), key).Err()
 }

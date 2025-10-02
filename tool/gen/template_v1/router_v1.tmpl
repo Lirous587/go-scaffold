@@ -13,7 +13,7 @@ func RegisterV1(r *gin.RouterGroup, handler *handler.HttpHandler) func() {
 		g.GET("", handler.List)
 	}
 
-    protect := g.Use(auth.Validate())
+    protect := g.Use(auth.JWTValidate())
     {
         protect.POST("", handler.Create)
         protect.DELETE("/:id", handler.Delete)
