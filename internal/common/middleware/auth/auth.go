@@ -3,11 +3,13 @@ package auth
 import (
 	"scaffold/internal/common/reskit/codes"
 	"scaffold/internal/common/reskit/response"
+	"scaffold/internal/common/server"
 	"scaffold/internal/user/adapters"
 	"scaffold/internal/user/domain"
 	"scaffold/internal/user/service"
-	"github.com/pkg/errors"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,8 +23,8 @@ func init() {
 }
 
 const (
-	authHeaderKey	= "Authorization"
-	bearerPrefix	= "Bearer "
+	authHeaderKey = "Authorization"
+	bearerPrefix  = "Bearer "
 )
 
 // 解析 Authorization 头部的 Token
@@ -67,7 +69,7 @@ func JWTValidate() gin.HandlerFunc {
 		}
 
 		// 3. 将用户 相关信息存入上下文
-		c.Set("user_id", payload.UserID)
+		c.Set(server.UserIDKey, payload.UserID)
 
 		c.Next()
 	}

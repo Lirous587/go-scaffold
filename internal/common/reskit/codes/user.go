@@ -10,6 +10,7 @@ var (
 	ErrUnauthorized      = ErrCode{Msg: "未授权访问", Type: ErrorTypeUnauthorized, Code: 1001}
 	ErrUserNotFound      = ErrCode{Msg: "用户不存在", Type: ErrorTypeNotFound, Code: 1002}
 	ErrUserAlreadyExists = ErrCode{Msg: "用户已存在", Type: ErrorTypeAlreadyExists, Code: 1003}
+	ErrUserIDInvalid     = ErrCode{Msg: "用户已存在", Type: ErrorTypeExternal, Code: 1004}
 
 	// 用户信息冲突错误 (1020-1039)
 	ErrEmailAlreadyExists    = ErrCode{Msg: "邮箱已被使用", Type: ErrorTypeAlreadyExists, Code: 1020}
