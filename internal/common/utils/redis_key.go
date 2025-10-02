@@ -1,9 +1,10 @@
 package utils
 
 const (
-	Prefix = "blog-v4:" //项目key前缀
+	Prefix = "your-prefix" //项目key前缀
 )
 
 func GetRedisKey(key string) string {
+	panic("请确保设置项目前缀")
 	return Prefix + key
 }
