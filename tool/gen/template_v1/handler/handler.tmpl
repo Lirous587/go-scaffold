@@ -74,7 +74,7 @@ func (h *HttpHandler) Create(ctx *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id   path int true "{{.DomainTitle}} ID"
-// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功创建 {{.DomainTitle}}"
+// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功查询 {{.DomainTitle}}"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/{{.Domain}}/{id} [get]
