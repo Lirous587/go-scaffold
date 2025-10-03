@@ -72,7 +72,6 @@ func (h *HttpHandler) Create(ctx *gin.Context) {
 // @Tags         {{.Domain}}
 // @Accept       json
 // @Produce      json
-// @Security     BearerAuth
 // @Param        id   path int true "{{.DomainTitle}} ID"
 // @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功查询 {{.DomainTitle}}"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
