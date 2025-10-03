@@ -1,12 +1,17 @@
 package metrics
 
 import (
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"sync"
+	"time"
+
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"net/http"
-	"os"
 )
 
 type PrometheusClient struct {
@@ -43,8 +48,11 @@ func (p *PrometheusClient) ObserveDuration(action, status string, seconds float6
 }
 
 var (
-	path string
-	port string
+	path            string
+	port            string
+	server          *http.Server
+	serverMu        sync.Mutex
+	isServerRunning bool
 )
 
 func init() {
@@ -59,11 +67,52 @@ func init() {
 	}
 }
 
-func StartPrometheusServer() {
-	http.Handle(path, promhttp.Handler())
+func StartPrometheusServer() error {
+	serverMu.Lock()
+	defer serverMu.Unlock()
+
+	// 防止重复启动
+	if isServerRunning {
+		errors.New("Prometheus 服务已经在运行")
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle(path, promhttp.Handler())
+
+	server = &http.Server{
+		Addr:    ":" + port,
+		Handler: mux,
+	}
+
 	go func() {
-		if err := http.ListenAndServe(":"+port, nil); err != nil {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			panic(errors.Wrap(err, "Prometheus 监控服务启动失败"))
 		}
 	}()
+
+	isServerRunning = true
+	return nil
+}
+
+// StopPrometheusServer 优雅关闭 Prometheus 服务
+func StopPrometheusServer() error {
+	serverMu.Lock()
+	defer serverMu.Unlock()
+
+	if !isServerRunning || server == nil {
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		return errors.Wrap(err, "Prometheus 服务关闭失败")
+	}
+
+	log.Println("Prometheus 服务成功关闭")
+
+	isServerRunning = false
+	server = nil
+	return nil
 }

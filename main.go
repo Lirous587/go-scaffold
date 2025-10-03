@@ -68,19 +68,6 @@ func syncWorker(ctx context.Context) {
 
 }
 
-func sync(ctx context.Context, cancel context.CancelFunc) {
-	// 监听系统信号
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-		<-c
-		zap.L().Info("收到退出信号，开始优雅关闭")
-		cancel()
-	}()
-
-	go syncWorker(ctx)
-}
-
 // @title           自定义title
 // @version         1.0
 // @description     自定义描述
@@ -119,8 +106,8 @@ func main() {
 		panic(errors.WithMessage(err, "logger模块初始化失败"))
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	go sync(ctx, cancel)
+	// ctx, cancel := context.WithCancel(context.Background())
+	// defer cancel()
 
 	metricsClient := metrics.NewPrometheusClient()
 	metrics.StartPrometheusServer()

@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-func RunHttpServer(port string, metricsClient metrics.Client, registerRouter func(r *gin.RouterGroup)) {
+func RunHttpServer(port string, metricsClient metrics.Client, registerRouter func(r *gin.RouterGroup), clearFunc ...func()) {
 	if port == "" {
 		panic(errors.New("RunHttpServer中的port无效"))
 	}
@@ -58,8 +58,8 @@ func RunHttpServer(port string, metricsClient metrics.Client, registerRouter fun
 
 	// 创建HTTP服务器
 	server := &http.Server{
-		Addr:		fmt.Sprintf(":%s", port),
-		Handler:	engine,
+		Addr:    fmt.Sprintf(":%s", port),
+		Handler: engine,
 	}
 
 	// 启动服务器
@@ -76,6 +76,11 @@ func RunHttpServer(port string, metricsClient metrics.Client, registerRouter fun
 	log.Printf("接收到信号:%v\n", sig.String())
 
 	log.Println("正在关闭服务器...")
+
+	if len(clearFunc) > 0 {
+		log.Println("正在执行资源清理")
+		clearFunc[0]()
+	}
 
 	// 优雅关闭服务
 	shutdownServer(server)
