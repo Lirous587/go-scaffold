@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"sync"
@@ -109,8 +108,6 @@ func StopPrometheusServer() error {
 	if err := server.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "Prometheus 服务关闭失败")
 	}
-
-	log.Println("Prometheus 服务成功关闭")
 
 	isServerRunning = false
 	server = nil

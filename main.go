@@ -4,12 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/aarondl/sqlboiler/v4/boil"
-	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
-	"github.com/subosito/gotenv"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"log"
 	"os"
 	_ "scaffold/api/openapi"
 	"scaffold/internal/captcha"
@@ -19,6 +14,13 @@ import (
 	"scaffold/internal/common/uid"
 	"scaffold/internal/img"
 	"scaffold/internal/user"
+
+	"github.com/aarondl/sqlboiler/v4/boil"
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	"github.com/subosito/gotenv"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func setGDB() {
@@ -63,6 +65,14 @@ func setGDB() {
 
 func syncWorker(ctx context.Context) {
 
+}
+
+// 关闭http服务清理资源
+func clear() {
+	if err := metrics.StopPrometheusServer(); err != nil {
+		log.Fatalf("Prometheus 服务成功关闭,err:%v", err)
+	}
+	log.Println("Prometheus 服务成功关闭")
 }
 
 // @title           自定义title
@@ -116,5 +126,7 @@ func main() {
 		user.InitV1(r)
 		captcha.InitV1(r)
 		img.InitV1(r)
-	})
+	},
+		clear,
+	)
 }
