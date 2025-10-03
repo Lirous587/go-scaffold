@@ -10,9 +10,7 @@ import (
 	"github.com/subosito/gotenv"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"go.uber.org/zap"
 	"os"
-	"os/signal"
 	_ "scaffold/api/openapi"
 	"scaffold/internal/captcha"
 	"scaffold/internal/common/logger"
@@ -21,7 +19,6 @@ import (
 	"scaffold/internal/common/uid"
 	"scaffold/internal/img"
 	"scaffold/internal/user"
-	"syscall"
 )
 
 func setGDB() {
