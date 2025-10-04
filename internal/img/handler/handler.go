@@ -29,14 +29,17 @@ func NewHttpHandler(service domain.ImgService) *HttpHandler {
 
 func (h *HttpHandler) getID(ctx *gin.Context) (int64, error) {
 	idStr := ctx.Param("id")
+	if idStr == "" {
+		return 0, errors.New("请传递id参数")
+	}
 	idInt, err := strconv.Atoi(idStr)
 	if err != nil {
-		return 0, err
+		return 0, errors.WithStack(err)
 	}
 	if idInt == 0 {
-		return 0, errors.New("无效的id")
+		return 0, errors.WithStack(errors.New("无效的id"))
 	}
-	return int64(idInt), err
+	return int64(idInt), nil
 }
 
 func isImage(file multipart.File) (bool, string, error) {

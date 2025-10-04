@@ -1,9 +1,7 @@
 package handler
 
 import (
-	"net/url"
 	"os"
-	"scaffold/internal/img/domain"
 )
 
 var r2PublicUrlPrefix = ""
@@ -46,52 +44,19 @@ type ImgListResponse struct {
 	List  []*ImgResponse `json:"list"`
 }
 
-func domainImgToResponse(img *domain.Img) *ImgResponse {
-	if img == nil {
-		return nil
-	}
-
-	encodedPath := url.PathEscape(img.Path)
-
-	// 默认访问public
-	resp := &ImgResponse{
-		ID:          img.ID,
-		Url:         r2PublicUrlPrefix + "/" + encodedPath,
-		Description: img.Description,
-		CreatedAt:   img.CreatedAt.Unix(),
-		UpdatedAt:   img.UpdatedAt.Unix(),
-	}
-
-	// 如果是要访问已删除文件
-	if img.IsDelete() {
-		resp.Url = img.Path
-	}
-
-	return resp
+type CategoryResponse struct {
+	ID        int64  `json:"id"`
+	Title     string `json:"title"`
+	Prefix    string `json:"prefix"`
+	CreatedAt int64  `json:"created_at"`
 }
 
-func domainImgsToResponse(imgs []*domain.Img) []*ImgResponse {
-	if len(imgs) == 0 {
-		return nil
-	}
-	list := make([]*ImgResponse, 0, len(imgs))
-
-	for _, img := range imgs {
-		if img != nil {
-			list = append(list, domainImgToResponse(img))
-		}
-	}
-
-	return list
+type CreateCategoryRequest struct {
+	Title  string `json:"title" binding:"required,max=10"`
+	Prefix string `json:"prefix" binding:"required,max=20,slug"`
 }
 
-func domainImgListToResponse(data *domain.ImgList) *ImgListResponse {
-	if data == nil {
-		return nil
-	}
-
-	return &ImgListResponse{
-		List:  domainImgsToResponse(data.List),
-		Total: data.Total,
-	}
+type UpdateCategoryRequest struct {
+	Title  string `json:"title" binding:"max=10"`
+	Prefix string `json:"prefix" binding:"max=20"`
 }
