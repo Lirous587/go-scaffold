@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"net/url"
 	"scaffold/internal/img/domain"
 )
 
@@ -10,19 +9,18 @@ func domainImgToResponse(img *domain.Img) *ImgResponse {
 		return nil
 	}
 
-	encodedPath := url.PathEscape(img.Path)
 
 	// 默认访问public
 	resp := &ImgResponse{
 		ID:          img.ID,
-		Url:         r2PublicUrlPrefix + "/" + encodedPath,
+		Url:         r2PublicUrlPrefix + "/" + img.Path,
 		Description: img.Description,
 		CreatedAt:   img.CreatedAt.Unix(),
 		UpdatedAt:   img.UpdatedAt.Unix(),
 	}
 
 	// 如果是要访问已删除文件
-	if img.IsDelete() {
+	if img.IsDeleted() {
 		resp.Url = img.Path
 	}
 

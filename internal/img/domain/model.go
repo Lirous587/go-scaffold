@@ -11,15 +11,11 @@ type Img struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   time.Time
-	deleted     bool
 }
 
-func (img *Img) SetDeletedStatus(deleted bool) {
-	img.deleted = deleted
-}
-
-func (img *Img) IsDelete() bool {
-	return img.deleted
+func (img *Img) IsDeleted() bool {
+	// deleted_time非零值则为软删除记录
+	return !img.DeletedAt.IsZero()
 }
 
 type ImgQuery struct {

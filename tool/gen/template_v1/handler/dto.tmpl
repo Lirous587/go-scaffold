@@ -14,6 +14,7 @@ type CreateRequest struct {
 }
 
 type UpdateRequest struct {
+    ID          int64   `json:"-" uri:"id" binding:"required"`
     Title       string  `json:"title" binding:"required,max=30"`
     Description string  `json:"description" binding:"max=60"`
 }

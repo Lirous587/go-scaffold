@@ -25,14 +25,9 @@ func domainImgToORM(img *domain.Img) *orm.Img {
 	return ormImg
 }
 
-func ormImgToDomain(ormImg *orm.Img, isDeleted ...bool) *domain.Img {
+func ormImgToDomain(ormImg *orm.Img) *domain.Img {
 	if ormImg == nil {
 		return nil
-	}
-
-	deleted := false
-	if len(isDeleted) > 0 {
-		deleted = isDeleted[0]
 	}
 
 	img := &domain.Img{
@@ -41,8 +36,6 @@ func ormImgToDomain(ormImg *orm.Img, isDeleted ...bool) *domain.Img {
 		CreatedAt: ormImg.CreatedAt,
 		UpdatedAt: ormImg.UpdatedAt,
 	}
-
-	img.SetDeletedStatus(deleted)
 
 	// 处理null项
 	if ormImg.Description.Valid {
@@ -56,14 +49,9 @@ func ormImgToDomain(ormImg *orm.Img, isDeleted ...bool) *domain.Img {
 	return img
 }
 
-func ormImgsToDomain(ormImgs []*orm.Img, isDeleted ...bool) []*domain.Img {
+func ormImgsToDomain(ormImgs []*orm.Img) []*domain.Img {
 	if len(ormImgs) == 0 {
 		return nil
-	}
-
-	deleted := false
-	if len(isDeleted) > 0 {
-		deleted = isDeleted[0]
 	}
 
 	imgs := make([]*domain.Img, 0, len(ormImgs))
@@ -71,8 +59,7 @@ func ormImgsToDomain(ormImgs []*orm.Img, isDeleted ...bool) []*domain.Img {
 		if ormImg == nil {
 			continue
 		}
-		img := ormImgToDomain(ormImg, deleted)
-		imgs = append(imgs, img)
+		imgs = append(imgs, ormImgToDomain(ormImg))
 	}
 
 	return imgs
