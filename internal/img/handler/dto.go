@@ -22,7 +22,7 @@ type ImgResponse struct {
 }
 
 type UploadRequest struct {
-	Path        string `form:"path"`
+	Path        string `form:"path" binding:"omitempty,slug"`
 	Description string `form:"description" binding:"max=60"`
 	CategoryID  int64  `form:"category_id"`
 }
@@ -58,5 +58,5 @@ type CreateCategoryRequest struct {
 
 type UpdateCategoryRequest struct {
 	Title  string `json:"title" binding:"max=10"`
-	Prefix string `json:"prefix" binding:"max=20"`
+	Prefix string `json:"prefix" binding:"max=20,slug"`
 }

@@ -169,6 +169,9 @@ func (s *service) Delete(id int64, hard ...bool) error {
 	if err != nil {
 		return err
 	}
+	if !img.CanDeleted() {
+		return codes.ErrImgIllegalOperation
+	}
 
 	var ifHard bool
 
@@ -210,36 +213,6 @@ func (s *service) Delete(id int64, hard ...bool) error {
 				zap.Error(err),
 			)
 		}
-	}
-
-	return nil
-}
-
-// ClearRecycleBin 删除被软删除的数据
-// 此时删除 deleteBucket对象 数据库记录 消息队列key
-func (s *service) ClearRecycleBin(id int64) error {
-	// 1.先查询图片信息
-	img, err := s.repo.FindByID(id, true)
-	if err != nil {
-		return err
-	}
-
-	// 2.删除 deleteBucket 中的文件
-	if err := s.DeleteFile(img.Path, s.deleteBucket); err != nil {
-		return err
-	}
-
-	// 3.硬删除数据库记录
-	if err := s.repo.Delete(id, true); err != nil {
-		return err
-	}
-
-	// 4.从删除队列中移除（防止定时器重复删除）
-	if err := s.msgQueue.RemoveFromDeleteQueue(id); err != nil {
-		zap.L().Error("清空回收站：移除定时删除任务失败",
-			zap.Int64("imgID", id),
-			zap.Error(err),
-		)
 	}
 
 	return nil
@@ -311,11 +284,49 @@ func (s *service) ListenDeleteQueue() {
 	})
 }
 
+// ClearRecycleBin 删除被软删除的数据
+// 此时删除 deleteBucket对象 数据库记录 消息队列key
+func (s *service) ClearRecycleBin(id int64) error {
+	// 1.先查询图片信息
+	img, err := s.repo.FindByID(id, true)
+	if err != nil {
+		return err
+	}
+
+	if !img.IsDeleted() {
+		return codes.ErrImgIllegalOperation
+	}
+
+	// 2.删除 deleteBucket 中的文件
+	if err := s.DeleteFile(img.Path, s.deleteBucket); err != nil {
+		return err
+	}
+
+	// 3.硬删除数据库记录
+	if err := s.repo.Delete(id, true); err != nil {
+		return err
+	}
+
+	// 4.从删除队列中移除（防止定时器重复删除）
+	if err := s.msgQueue.RemoveFromDeleteQueue(id); err != nil {
+		zap.L().Error("清空回收站：移除定时删除任务失败",
+			zap.Int64("imgID", id),
+			zap.Error(err),
+		)
+	}
+
+	return nil
+}
+
 func (s *service) RestoreFromRecycleBin(id int64) (*domain.Img, error) {
 	// 1.查询已软删除的图片信息
 	img, err := s.repo.FindByID(id, true)
 	if err != nil {
 		return nil, err
+	}
+
+	if !img.IsDeleted() {
+		return nil, codes.ErrImgIllegalOperation
 	}
 
 	// 2.从 deleteBucket 复制回 publicBucket

@@ -18,6 +18,11 @@ func (img *Img) IsDeleted() bool {
 	return !img.DeletedAt.IsZero()
 }
 
+// CanDeleted 状态转换 当前图片是否可以软删除或硬删除
+func (img *Img) CanDeleted() bool {
+	return !img.IsDeleted()
+}
+
 type ImgQuery struct {
 	Keyword    string
 	Page       int
