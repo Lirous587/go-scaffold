@@ -25,9 +25,9 @@ func domain{{.DomainTitle}}sToResponse({{.Domain}}s []*domain.{{.DomainTitle}}) 
 
     ret := make([]*{{.DomainTitle}}Response, 0, len({{.Domain}}s))
 
-    for _, {{.Domain}} := range {{.Domain}}s {
-        if {{.Domain}} != nil {
-            ret = append(ret, domain{{.DomainTitle}}ToResponse({{.Domain}}))
+    for i := range {{.Domain}}s {
+        if {{.Domain}}s[i] != nil {
+            ret = append(ret, domain{{.DomainTitle}}ToResponse({{.Domain}}s[i]))
         }
     }
     return ret
