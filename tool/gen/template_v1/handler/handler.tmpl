@@ -35,14 +35,13 @@ func (h *HttpHandler) getID(ctx *gin.Context) (int64, error) {
 }
 
 // Create godoc
-// @Summary      创建 {{.DomainTitle}}
-// @Description  创建新的 {{.DomainTitle}}
+// @Summary      创建
 // @Tags         {{.Domain}}
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body handler.CreateRequest true "创建 {{.DomainTitle}} 请求"
-// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功创建 {{.DomainTitle}}"
+// @Param        request body handler.CreateRequest true "请求参数"
+// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "请求成功"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/{{.Domain}} [post]
@@ -67,13 +66,12 @@ func (h *HttpHandler) Create(ctx *gin.Context) {
 }
 
 // Read godoc
-// @Summary      读取单条 {{.DomainTitle}}
-// @Description  读取单条 {{.DomainTitle}}
+// @Summary      读取单条数据
 // @Tags         {{.Domain}}
 // @Accept       json
 // @Produce      json
-// @Param        id   path int true "{{.DomainTitle}} ID"
-// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功查询 {{.DomainTitle}}"
+// @Param        id   path int true "id"
+// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "请求成功"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/{{.Domain}}/{id} [get]
@@ -95,15 +93,14 @@ func (h *HttpHandler) Read(ctx *gin.Context) {
 }
 
 // Update godoc
-// @Summary      更新 {{.DomainTitle}}
-// @Description  根据ID更新 {{.DomainTitle}} 信息
+// @Summary      更新
 // @Tags         {{.Domain}}
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id   path int true "{{.DomainTitle}} ID"
-// @Param        request body handler.UpdateRequest true "更新 {{.DomainTitle}} 请求"
-// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "成功更新 {{.DomainTitle}}"
+// @Param        id   path int true "id"
+// @Param        request body handler.UpdateRequest true "请求参数"
+// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "请求成功"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/{{.Domain}}/{id} [put]
@@ -129,14 +126,13 @@ func (h *HttpHandler) Update(ctx *gin.Context) {
 }
 
 // Delete godoc
-// @Summary      删除 {{.DomainTitle}}
-// @Description  根据ID删除 {{.DomainTitle}}
+// @Summary      删除
 // @Tags         {{.Domain}}
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id   path int true "{{.DomainTitle}} ID"
-// @Success      200  {object}  response.successResponse "成功删除 {{.DomainTitle}}"
+// @Param        id   path int true "id"
+// @Success      200  {object}  response.successResponse "请求成功"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/{{.Domain}}/{id} [delete]
@@ -156,15 +152,14 @@ func (h *HttpHandler) Delete(ctx *gin.Context) {
 }
 
 // List godoc
-// @Summary      获取 {{.DomainTitle}} 列表
-// @Description  根据查询参数获取{{.DomainTitle}}列表，返回当前页数据和total数量
+// @Summary      获取列表
 // @Tags         {{.Domain}}
 // @Accept       json
 // @Produce      json
-// @Param        keyword    query     string  false  "关键词搜索"
-// @Param        page       query     int     false  "页码" default(1)
-// @Param        page_size  query     int     false  "每页数量" default(10)
-// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}ListResponse} "{{.DomainTitle}}列表"
+// @Param        keyword    query     string  false  "关键词"
+// @Param        page       query     int     false  "页码"
+// @Param        page_size  query     int     false  "每页数量"
+// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}ListResponse} "请求成功"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/{{.Domain}} [get]
