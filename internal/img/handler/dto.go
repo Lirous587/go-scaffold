@@ -58,6 +58,6 @@ type CreateCategoryRequest struct {
 
 type UpdateCategoryRequest struct {
 	ID     int64  `json:"-" uri:"id" binding:"required"`
-	Title  string `json:"title" binding:"max=10"`
-	Prefix string `json:"prefix" binding:"max=20,slug"`
+	Title  string `json:"title" binding:"required,max=10"`
+	Prefix string `json:"prefix" binding:"required,max=20,slug"`
 }
