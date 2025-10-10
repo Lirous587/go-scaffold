@@ -26,7 +26,6 @@ const docTemplate = `{
     "paths": {
         "/v1/captcha": {
             "post": {
-                "description": "创建新的验证码",
                 "consumes": [
                     "application/json"
                 ],
@@ -52,7 +51,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功创建验证码",
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -112,7 +111,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功创建验证码并返回答案",
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -151,7 +150,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "分页获取图片列表",
                 "consumes": [
                     "application/json"
                 ],
@@ -165,38 +163,38 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "页码（默认1）",
+                        "description": "页码",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "每页数量（默认5，最大50）",
+                        "description": "每页数量",
                         "name": "page_size",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "关键词（可选，最长20字）",
+                        "description": "关键词",
                         "name": "keyword",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "description": "是否查询回收站图片（默认false）",
+                        "description": "是否查询回收站图片",
                         "name": "deleted",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "分类ID（可选）",
+                        "description": "分类id",
                         "name": "category_id",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "查询成功",
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -235,7 +233,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取所有图片分类",
                 "consumes": [
                     "application/json"
                 ],
@@ -248,7 +245,7 @@ const docTemplate = `{
                 "summary": "分类列表",
                 "responses": {
                     "200": {
-                        "description": "查询成功",
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -284,7 +281,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "新建图片分类",
                 "consumes": [
                     "application/json"
                 ],
@@ -297,7 +293,7 @@ const docTemplate = `{
                 "summary": "创建图片分类",
                 "parameters": [
                     {
-                        "description": "创建分类请求",
+                        "description": "请求参数",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -308,7 +304,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "创建成功",
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -347,7 +343,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "修改图片分类信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -361,13 +356,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "分类ID",
+                        "description": "分类id",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "更新分类请求",
+                        "description": "请求参数",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -378,7 +373,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "更新成功",
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -415,7 +410,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "删除指定图片分类",
                 "consumes": [
                     "application/json"
                 ],
@@ -429,7 +423,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "分类ID",
+                        "description": "分类id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -437,7 +431,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "删除成功",
+                        "description": "请求成功",
                         "schema": {
                             "$ref": "#/definitions/response.successResponse"
                         }
@@ -464,7 +458,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "从回收站恢复图片",
                 "consumes": [
                     "application/json"
                 ],
@@ -478,7 +471,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "图片ID",
+                        "description": "id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -486,7 +479,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "恢复成功",
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -523,7 +516,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "彻底删除回收站中的图片",
                 "consumes": [
                     "application/json"
                 ],
@@ -537,7 +529,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "图片ID",
+                        "description": "id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -545,7 +537,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "清空成功",
+                        "description": "请求成功",
                         "schema": {
                             "$ref": "#/definitions/response.successResponse"
                         }
@@ -593,26 +585,26 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "自定义图片路径（可选）",
+                        "description": "自定义图片路径",
                         "name": "path",
                         "in": "formData"
                     },
                     {
                         "type": "string",
-                        "description": "图片描述（可选，最长60字）",
+                        "description": "图片描述",
                         "name": "description",
                         "in": "formData"
                     },
                     {
                         "type": "integer",
-                        "description": "分类ID（可选）",
+                        "description": "分类id",
                         "name": "category_id",
                         "in": "formData"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "上传成功",
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -651,7 +643,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "删除图片（软删除或硬删除）",
                 "consumes": [
                     "application/json"
                 ],
@@ -665,21 +656,21 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "图片ID",
+                        "description": "id",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "boolean",
-                        "description": "是否硬删除（默认false）",
+                        "description": "是否硬删除",
                         "name": "hard",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "删除成功",
+                        "description": "请求成功",
                         "schema": {
                             "$ref": "#/definitions/response.successResponse"
                         }
@@ -706,7 +697,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "校验当前访问令牌是否有效",
                 "consumes": [
                     "application/json"
                 ],
@@ -719,13 +709,13 @@ const docTemplate = `{
                 "summary": "校验令牌",
                 "responses": {
                     "200": {
-                        "description": "令牌有效",
+                        "description": "请求成功",
                         "schema": {
                             "$ref": "#/definitions/response.successResponse"
                         }
                     },
                     "401": {
-                        "description": "令牌无效或过期",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/response.errorResponse"
                         }
@@ -759,7 +749,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "登录成功",
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -798,7 +788,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前登录用户的详细信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -829,7 +818,7 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/response.errorResponse"
                         }
@@ -867,7 +856,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "刷新成功",
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -891,7 +880,7 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "令牌无效或过期",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/response.errorResponse"
                         }

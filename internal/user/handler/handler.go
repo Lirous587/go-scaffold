@@ -30,7 +30,7 @@ func NewHttpHandler(userService domain.UserService) *HttpHandler {
 // @Accept       json
 // @Produce      json
 // @Param        request body handler.GithubAuthRequest true "GitHub 授权码"
-// @Success      200 {object} response.successResponse{data=handler.AuthResponse} "登录成功"
+// @Success      200 {object} response.successResponse{data=handler.AuthResponse} "请求成功"
 // @Failure      400 {object} response.invalidParamsResponse "参数错误"
 // @Failure      500 {object} response.errorResponse "服务器错误"
 // @Router       /v1/user/auth/github [post]
@@ -73,9 +73,9 @@ func (h *HttpHandler) getRefreshToke(ctx *gin.Context) (string, error) {
 // @Accept       json
 // @Produce      json
 // @Param        X-Refresh-Token header string true "refresh_token刷新令牌"
-// @Success      200 {object} response.successResponse{data=handler.RefreshTokenResponse} "刷新成功"
+// @Success      200 {object} response.successResponse{data=handler.RefreshTokenResponse} "请求成功"
 // @Failure      400 {object} response.errorResponse "参数错误"
-// @Failure      401 {object} response.errorResponse "令牌无效或过期"
+// @Failure      401 {object} response.errorResponse
 // @Failure      500 {object} response.errorResponse "服务器错误"
 // @Router       /v1/user/refresh_token [post]
 func (h *HttpHandler) RefreshToken(ctx *gin.Context) {
@@ -188,13 +188,12 @@ func (h *HttpHandler) getUserID(ctx *gin.Context) (int64, error) {
 
 // ValidateAuth godoc
 // @Summary      校验令牌
-// @Description  校验当前访问令牌是否有效
 // @Tags         user
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200 {object} response.successResponse "令牌有效"
-// @Failure      401 {object} response.errorResponse "令牌无效或过期"
+// @Success      200 {object} response.successResponse "请求成功"
+// @Failure      401 {object} response.errorResponse
 // @Router       /v1/user/auth [post]
 func (h *HttpHandler) ValidateAuth(ctx *gin.Context) {
 	response.Success(ctx)
@@ -202,13 +201,12 @@ func (h *HttpHandler) ValidateAuth(ctx *gin.Context) {
 
 // GetProfile godoc
 // @Summary      获取用户信息
-// @Description  获取当前登录用户的详细信息
 // @Tags         user
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Success      200 {object} response.successResponse{data=handler.UserResponse} "获取成功"
-// @Failure      401 {object} response.errorResponse "未授权"
+// @Failure      401 {object} response.errorResponse
 // @Failure      500 {object} response.errorResponse "服务器错误"
 // @Router       /v1/user/profile [get]
 func (h *HttpHandler) GetProfile(ctx *gin.Context) {

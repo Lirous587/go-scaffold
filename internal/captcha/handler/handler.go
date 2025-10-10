@@ -21,16 +21,13 @@ func NewHttpHandler(service *service.CaptchaServiceFactor) *HttpHandler {
 	}
 }
 
-
-
 // Gen godoc
 // @Summary      生成验证码
-// @Description  创建新的验证码
 // @Tags         captcha
 // @Accept       json
 // @Produce      json
-// @Param        request query handler.GenRequest true "创建验证码请求"
-// @Success      200  {object}  response.successResponse{data=handler.CaptchaResponse} "成功创建验证码"
+// @Param        request query handler.GenRequest true "请求参数"
+// @Success      200  {object}  response.successResponse{data=handler.CaptchaResponse} "请求成功"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/captcha [post]
@@ -57,8 +54,8 @@ func (h *HttpHandler) Gen(ctx *gin.Context) {
 // @Tags         captcha
 // @Accept       json
 // @Produce      json
-// @Param        request query handler.GenRequest true "创建验证码请求"
-// @Success      200  {object}  response.successResponse{data=handler.CaptchaAnswerResponse} "成功创建验证码并返回答案"
+// @Param        request query handler.GenRequest true "请求参数"
+// @Success      200  {object}  response.successResponse{data=handler.CaptchaAnswerResponse} "请求成功"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/captcha/with-answer [get]
