@@ -40,19 +40,19 @@ func (repo *{{.DomainTitle}}PSQLRepository) Create({{.Domain}} *domain.{{.Domain
 	return orm{{.DomainTitle}}ToDomain(orm{{.DomainTitle}}), nil
 }
 
-func (repo *{{.DomainTitle}}PSQLRepository) Update({{.Domain}} *domain.{{.DomainTitle}}) (*domain.{{.DomainTitle}},error) {
+func (repo *{{.DomainTitle}}PSQLRepository) Update({{.Domain}} *domain.{{.DomainTitle}}) error {
 	orm{{.DomainTitle}} := domain{{.DomainTitle}}ToORM({{.Domain}})
 
 	rows, err := orm{{.DomainTitle}}.UpdateG(boil.Infer())
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if rows == 0 {
-		return nil, codes.Err{{.DomainTitle}}NotFound
+		return codes.Err{{.DomainTitle}}NotFound
 	}
 
-	return orm{{.DomainTitle}}ToDomain(orm{{.DomainTitle}}), nil
+	return nil
 }
 
 func (repo *{{.DomainTitle}}PSQLRepository) Delete(id int64) error {

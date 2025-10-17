@@ -41,7 +41,7 @@ func (h *HttpHandler) getID(ctx *gin.Context) (int64, error) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        request body handler.CreateRequest true "请求参数"
-// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "请求成功"
+// @Success      200  {object}  response.successResponse "请求成功"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/{{.Domain}} [post]
@@ -52,17 +52,15 @@ func (h *HttpHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-    data, err := h.service.Create(&domain.{{.DomainTitle}}{
+    if err := h.service.Create(&domain.{{.DomainTitle}}{
         Title:    req.Title,
         Description:  req.Description,
-    })
-
-    if err != nil {
+    });err != nil {
         response.Error(ctx, err)
         return
     }
 
-    response.Success(ctx, domain{{.DomainTitle}}ToResponse(data))
+    response.Success(ctx)
 }
 
 // Read godoc
@@ -100,7 +98,7 @@ func (h *HttpHandler) Read(ctx *gin.Context) {
 // @Security     BearerAuth
 // @Param        id   path int true "id"
 // @Param        request body handler.UpdateRequest true "请求参数"
-// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "请求成功"
+// @Success      200  {object}  response.successResponse "请求成功"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/{{.Domain}}/{id} [put]
@@ -111,7 +109,7 @@ func (h *HttpHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-    data, err := h.service.Update(&domain.{{.DomainTitle}}{
+    err := h.service.Update(&domain.{{.DomainTitle}}{
         ID:           req.ID,
         Title:        req.Title,
         Description:  req.Description,
@@ -122,7 +120,7 @@ func (h *HttpHandler) Update(ctx *gin.Context) {
         return
     }
 
-    response.Success(ctx, domain{{.DomainTitle}}ToResponse(data))
+    response.Success(ctx)
 }
 
 // Delete godoc
@@ -157,8 +155,8 @@ func (h *HttpHandler) Delete(ctx *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        keyword    query     string  false  "关键词"
-// @Param        page       query     int     false  "页码"
-// @Param        page_size  query     int     false  "每页数量"
+// @Param        page       query     int     false  "页号"
+// @Param        page_size  query     int     false  "页码"
 // @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}ListResponse} "请求成功"
 // @Failure      400  {object}  response.invalidParamsResponse "参数错误"
 // @Failure      500  {object}  response.errorResponse "服务器错误"

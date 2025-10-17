@@ -14,18 +14,18 @@ func New{{.DomainTitle}}Service(repo domain.{{.DomainTitle}}Repository) domain.{
 	}
 }
 
-func (s *service) Create({{.Domain}} *domain.{{.DomainTitle}}) (*domain.{{.DomainTitle}}, error) {
-	return s.repo.Create({{.Domain}})
+func (s *service) Create({{.Domain}} *domain.{{.DomainTitle}}) error {
+	if _,err := s.repo.Create({{.Domain}});err != nil{
+		return err
+	}
+	return nil
 }
 
 func (s *service) Read(id int64) (*domain.{{.DomainTitle}}, error) {
    return s.repo.FindByID(id)
 }
 
-func (s *service) Update({{.Domain}} *domain.{{.DomainTitle}}) (*domain.{{.DomainTitle}}, error) {
-	if _, err := s.repo.FindByID({{.Domain}}.ID); err != nil {
-		return nil, err
-	}
+func (s *service) Update({{.Domain}} *domain.{{.DomainTitle}}) error {
 	return s.repo.Update({{.Domain}})
 }
 
