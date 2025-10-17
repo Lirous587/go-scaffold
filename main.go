@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -12,7 +11,9 @@ import (
 	"scaffold/internal/common/metrics"
 	"scaffold/internal/common/server"
 	"scaffold/internal/common/uid"
+	"scaffold/internal/common/utils"
 	"scaffold/internal/user"
+	"time"
 
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/gin-gonic/gin"
@@ -23,12 +24,17 @@ import (
 )
 
 func setGDB() {
-	host := os.Getenv("PSQL_HOST")
-	port := os.Getenv("PSQL_PORT")
-	username := os.Getenv("PSQL_USERNAME")
-	password := os.Getenv("PSQL_PASSWORD")
-	dbname := os.Getenv("PSQL_DB_NAME")
-	sslmode := os.Getenv("PSQL_SSL_MODE")
+	host := utils.GetEnv("PSQL_HOST")
+	port := utils.GetEnv("PSQL_PORT")
+	username := utils.GetEnv("PSQL_USERNAME")
+	password := utils.GetEnv("PSQL_PASSWORD")
+	dbname := utils.GetEnv("PSQL_DB_NAME")
+	sslmode := utils.GetEnv("PSQL_SSL_MODE")
+
+	maxOpenConns := utils.GetEnvAsInt("DB_MAX_OPEN_CONNS")
+	maxIdleConns := utils.GetEnvAsInt("DB_MAX_IDLE_CONNS")
+	connMaxLifetime := time.Duration(utils.GetEnvAsInt("DB_CONN_MAX_LIFETIME_MINUTES")) * time.Minute
+	connMaxIdleTime := time.Duration(utils.GetEnvAsInt("DB_CONN_MAX_IDLE_TIME_MINUTES")) * time.Minute
 
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
@@ -40,6 +46,12 @@ func setGDB() {
 		panic(err)
 	}
 
+	// 配置连接池
+	db.SetMaxOpenConns(maxOpenConns)
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetConnMaxLifetime(connMaxLifetime)
+	db.SetConnMaxIdleTime(connMaxIdleTime)
+
 	// 测试连接
 	if err := db.Ping(); err != nil {
 		panic(fmt.Sprintf("无法连接到数据库: %v", err))
@@ -49,7 +61,7 @@ func setGDB() {
 
 	boil.DebugMode = true
 
-	logMode := os.Getenv("LOG_MODE")
+	logMode := utils.GetEnv("LOG_MODE")
 	if logMode != "dev" {
 		if err := os.MkdirAll("./logs", 0755); err != nil {
 			panic(fmt.Sprintf("创建日志目录失败:%v", err))
@@ -60,10 +72,6 @@ func setGDB() {
 		}
 		boil.DebugWriter = fh
 	}
-}
-
-func syncWorker(ctx context.Context) {
-
 }
 
 // 关闭http服务清理资源
@@ -118,7 +126,7 @@ func main() {
 	metricsClient := metrics.NewPrometheusClient()
 	metrics.StartPrometheusServer()
 
-	server.RunHttpServer(os.Getenv("SERVER_PORT"), metricsClient, func(r *gin.RouterGroup) {
+	server.RunHttpServer(utils.GetEnv("SERVER_PORT"), metricsClient, func(r *gin.RouterGroup) {
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler,
 			ginSwagger.PersistAuthorization(true)))
 

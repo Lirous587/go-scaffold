@@ -3,7 +3,7 @@ package metrics
 import (
 	"context"
 	"net/http"
-	"os"
+	"scaffold/internal/common/utils"
 	"sync"
 	"time"
 
@@ -59,11 +59,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	path = os.Getenv("PROMETHEUS_PATH")
-	port = os.Getenv("PROMETHEUS_ADDR")
-	if path == "" || port == "" {
-		panic(errors.New("Prometheus读取环境变量失败"))
-	}
+	path = utils.GetEnv("PROMETHEUS_PATH")
+	port = utils.GetEnv("PROMETHEUS_ADDR")
 }
 
 func StartPrometheusServer() error {

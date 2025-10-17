@@ -2,10 +2,11 @@ package logger
 
 import (
 	"errors"
-	"github.com/joho/godotenv"
 	"os"
-	"strconv"
+	"scaffold/internal/common/utils"
 	"time"
+
+	"github.com/joho/godotenv"
 
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
@@ -23,27 +24,11 @@ type zapConfig struct {
 var config zapConfig
 
 func UpdateConfig() {
-	level := os.Getenv("LOG_LEVEL")
-	fileName := os.Getenv("LOG_FILENAME")
-	maxSizeStr := os.Getenv("LOG_MAX_SIZE")
-	maxSize, err := strconv.Atoi(maxSizeStr)
-	if err != nil {
-		panic(err)
-	}
-	maxAgeStr := os.Getenv("LOG_MAX_AGE")
-	maxAge, err := strconv.Atoi(maxAgeStr)
-	if err != nil {
-		panic(err)
-	}
-	maxBackupsStr := os.Getenv("LOG_MAX_BACKUPS")
-	maxBackups, err := strconv.Atoi(maxBackupsStr)
-	if err != nil {
-		panic(err)
-	}
-
-	if level == "" || fileName == "" || maxSize == 0 || maxAge == 0 || maxBackups == 0 {
-		panic(errors.New("zap配置文件加载失败"))
-	}
+	level := utils.GetEnv("LOG_LEVEL")
+	fileName := utils.GetEnv("LOG_FILENAME")
+	maxSize := utils.GetEnvAsInt("LOG_MAX_SIZE")
+	maxAge := utils.GetEnvAsInt("LOG_MAX_AGE")
+	maxBackups := utils.GetEnvAsInt("LOG_MAX_BACKUPS")
 
 	config = zapConfig{
 		level:      level,

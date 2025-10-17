@@ -2,42 +2,35 @@ package service
 
 import (
 	"scaffold/internal/common/jwt"
+	"scaffold/internal/common/utils"
 	"scaffold/internal/user/domain"
+	"time"
+
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
-	"os"
-	"strconv"
-	"time"
 )
 
 var (
-	secret	string
-	expire	time.Duration
+	secret string
+	expire time.Duration
 )
 
 func init() {
 	_ = godotenv.Load()
-	secret = os.Getenv("JWT_SECRET")
-	expireMinuteStr := os.Getenv("JWT_EXPIRE_MINUTE")
-	if secret == "" || expireMinuteStr == "" {
-		panic("加载环境变量失败")
-	}
-	expireMinute, err := strconv.Atoi(expireMinuteStr)
-	if err != nil {
-		panic(err)
-	}
+	secret = utils.GetEnv("JWT_SECRET")
+	expireMinute := utils.GetEnvAsInt("JWT_EXPIRE_MINUTE")
 	expire = time.Minute * time.Duration(expireMinute)
 }
 
 type tokenService struct {
-	tokenCache	domain.TokenCache
-	userRepo	domain.UserRepository
+	tokenCache domain.TokenCache
+	userRepo   domain.UserRepository
 }
 
 func NewTokenService(tokenCache domain.TokenCache, userRepo domain.UserRepository) domain.TokenService {
 	return &tokenService{
-		tokenCache:	tokenCache,
-		userRepo:	userRepo,
+		tokenCache: tokenCache,
+		userRepo:   userRepo,
 	}
 }
 

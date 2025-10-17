@@ -152,7 +152,7 @@ go run ./tool/gen/gen.go -m mock
 ```
 - 修改入口文件main函数的 `server.RunHttpServer`
 ```go
-server.RunHttpServer(os.Getenv("SERVER_PORT"), metricsClient, func(r *gin.RouterGroup) {
+server.RunHttpServer(utils.GetEnv("SERVER_PORT"), metricsClient, func(r *gin.RouterGroup) {
     // ......
     // 新增
     mock.InitV1(r)

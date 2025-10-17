@@ -1,11 +1,11 @@
 package uid
 
 import (
-	"github.com/sony/sonyflake/v2"
-	"os"
-	"strconv"
+	"scaffold/internal/common/utils"
 	"sync"
 	"time"
+
+	"github.com/sony/sonyflake/v2"
 )
 
 var (
@@ -15,17 +15,13 @@ var (
 
 func Init() {
 	once.Do(func() {
-		startTimeStr := os.Getenv("SONYFLAKE_START_TIME")
+		startTimeStr := utils.GetEnv("SONYFLAKE_START_TIME")
 		startTime, err := time.Parse(time.RFC3339, startTimeStr)
 		if err != nil {
 			panic("Invalid SONYFLAKE_START_TIME format")
 		}
 
-		machineIDStr := os.Getenv("SONYFLAKE_MACHINE_ID")
-		machineID, err := strconv.Atoi(machineIDStr)
-		if err != nil {
-			panic("Invalid SONYFLAKE_MACHINE_ID format")
-		}
+		machineID := utils.GetEnvAsInt("SONYFLAKE_MACHINE_ID")
 
 		sony, err := sonyflake.New(sonyflake.Settings{
 			StartTime: startTime,

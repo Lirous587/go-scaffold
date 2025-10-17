@@ -1,14 +1,15 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
-	"os"
 	"scaffold/internal/captcha/domain"
 	"scaffold/internal/captcha/service"
 	"scaffold/internal/common/reskit/codes"
 	"scaffold/internal/common/reskit/response"
+	"scaffold/internal/common/utils"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 type HttpHandler struct {
@@ -60,7 +61,7 @@ func (h *HttpHandler) Gen(ctx *gin.Context) {
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/captcha/with-answer [get]
 func (h *HttpHandler) GenWithAnswer(ctx *gin.Context) {
-	mode := os.Getenv("SERVER_MODE")
+	mode := utils.GetEnv("SERVER_MODE")
 	if mode != "dev" {
 		response.Error(ctx, codes.ErrAPIForbidden)
 	}

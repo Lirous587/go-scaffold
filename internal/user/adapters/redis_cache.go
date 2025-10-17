@@ -1,11 +1,9 @@
 package adapters
 
 import (
-	"scaffold/internal/common/reskit/codes"
 	"context"
 	"encoding/json"
-	"os"
-	"strconv"
+	"scaffold/internal/common/reskit/codes"
 	"time"
 
 	"github.com/pkg/errors"
@@ -20,21 +18,18 @@ type TokenRedisCache struct {
 }
 
 func NewTokenRedisCache() domain.TokenCache {
-	host := os.Getenv("REDIS_HOST")
-	port := os.Getenv("REDIS_PORT")
-	password := os.Getenv("REDIS_PASSWORD")
-	dbStr := os.Getenv("REDIS_DB")
-	poolSizeStr := os.Getenv("REDIS_POOL_SIZE")
-
-	db, _ := strconv.Atoi(dbStr)
-	poolSize, _ := strconv.Atoi(poolSizeStr)
+	host := utils.GetEnv("REDIS_HOST")
+	port := utils.GetEnv("REDIS_PORT")
+	password := utils.GetEnv("REDIS_PASSWORD")
+	db := utils.GetEnvAsInt("REDIS_DB")
+	poolSize := utils.GetEnvAsInt("REDIS_POOL_SIZE")
 
 	addr := host + ":" + port
 	client := redis.NewClient(&redis.Options{
-		Addr:		addr,
-		DB:		db,
-		Password:	password,
-		PoolSize:	poolSize,
+		Addr:     addr,
+		DB:       db,
+		Password: password,
+		PoolSize: poolSize,
 	})
 
 	// 可选：ping 检查连接
@@ -46,8 +41,8 @@ func NewTokenRedisCache() domain.TokenCache {
 }
 
 const (
-	keyRefreshTokenMapDuration	= 30 * 24 * time.Hour
-	keyRefreshTokenMap		= "user_refresh_token_map"
+	keyRefreshTokenMapDuration = 30 * 24 * time.Hour
+	keyRefreshTokenMap         = "user_refresh_token_map"
 )
 
 func (ch *TokenRedisCache) GenRefreshToken(payload *domain.JwtPayload) (string, error) {

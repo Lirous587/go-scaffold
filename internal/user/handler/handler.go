@@ -112,6 +112,7 @@ func (h *HttpHandler) getGithubUserInfo(code string) (*domain.OAuthUserInfo, err
 	return userInfo, nil
 }
 
+// todo 待优化
 func (h *HttpHandler) getGithubAccessToken(code string) (string, error) {
 	clientID := os.Getenv("GITHUB_CLIENT_ID")
 	clientSecret := os.Getenv("GITHUB_CLIENT_SECRET")

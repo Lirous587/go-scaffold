@@ -1,21 +1,23 @@
 package server
 
 import (
-	"scaffold/internal/common/metrics"
-	"scaffold/internal/common/validator"
 	"context"
 	"fmt"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"scaffold/internal/common/metrics"
+	"scaffold/internal/common/utils"
+	"scaffold/internal/common/validator"
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/pkg/errors"
 )
 
 func RunHttpServer(port string, metricsClient metrics.Client, registerRouter func(r *gin.RouterGroup), clearFunc ...func()) {
@@ -24,10 +26,7 @@ func RunHttpServer(port string, metricsClient metrics.Client, registerRouter fun
 	}
 
 	_ = godotenv.Load()
-	mode := os.Getenv("SERVER_MODE")
-	if mode == "" {
-		panic("读取SERVER_MODE环境变量失败")
-	}
+	mode := utils.GetEnv("SERVER_MODE")
 
 	if mode == "dev" {
 		gin.SetMode(gin.DebugMode)
@@ -105,10 +104,7 @@ func shutdownServer(server *http.Server) {
 
 func setCORS(r *gin.Engine) {
 	corsCfg := cors.DefaultConfig()
-	allowsStr := os.Getenv("SERVER_ALLOW_ORIGINS")
-	if allowsStr == "" {
-		panic(errors.New("httpserver加载SERVER_ALLOW_ORIGINS环境变量失败"))
-	}
+	allowsStr := utils.GetEnv("SERVER_ALLOW_ORIGINS")
 	allows := strings.Split(allowsStr, ",")
 
 	corsCfg.AllowOrigins = allows
