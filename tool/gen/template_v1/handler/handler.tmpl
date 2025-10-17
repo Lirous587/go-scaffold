@@ -63,33 +63,6 @@ func (h *HttpHandler) Create(ctx *gin.Context) {
     response.Success(ctx)
 }
 
-// Read godoc
-// @Summary      读取单条数据
-// @Tags         {{.Domain}}
-// @Accept       json
-// @Produce      json
-// @Param        id   path int true "id"
-// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "请求成功"
-// @Failure      400  {object}  response.invalidParamsResponse "参数错误"
-// @Failure      500  {object}  response.errorResponse "服务器错误"
-// @Router       /v1/{{.Domain}}/{id} [get]
-func (h *HttpHandler) Read(ctx *gin.Context) {
-	id, err := h.getID(ctx)
-	if err != nil {
-		response.InvalidParams(ctx, err)
-		return
-	}
-
-	data, err := h.service.Read(id)
-
-	if err != nil {
-		response.Error(ctx, err)
-		return
-	}
-
-	response.Success(ctx, domain{{.DomainTitle}}ToResponse(data))
-}
-
 // Update godoc
 // @Summary      更新
 // @Tags         {{.Domain}}
@@ -135,18 +108,45 @@ func (h *HttpHandler) Update(ctx *gin.Context) {
 // @Failure      500  {object}  response.errorResponse "服务器错误"
 // @Router       /v1/{{.Domain}}/{id} [delete]
 func (h *HttpHandler) Delete(ctx *gin.Context) {
-    id, err := h.getID(ctx)
-    if err != nil {
-		response.InvalidParams(ctx, err)
-        return
-    }
+    req := new(DeleteRequest)
 
-    if err := h.service.Delete(id); err != nil {
+	if err := bind.BindingRegularAndResponse(ctx,req); err != nil {
+		return
+	}
+
+    if err := h.service.Delete(req.ID); err != nil {
         response.Error(ctx, err)
         return
     }
 
     response.Success(ctx)
+}
+
+// Read godoc
+// @Summary      读取单条数据
+// @Tags         {{.Domain}}
+// @Accept       json
+// @Produce      json
+// @Param        id   path int true "id"
+// @Success      200  {object}  response.successResponse{data=handler.{{.DomainTitle}}Response} "请求成功"
+// @Failure      400  {object}  response.invalidParamsResponse "参数错误"
+// @Failure      500  {object}  response.errorResponse "服务器错误"
+// @Router       /v1/{{.Domain}}/{id} [get]
+func (h *HttpHandler) Read(ctx *gin.Context) {
+    req := new(ReadRequest)
+
+	if err := bind.BindingRegularAndResponse(ctx,req); err != nil {
+		return
+	}
+
+	data, err := h.service.Read(req.ID)
+
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	response.Success(ctx, domain{{.DomainTitle}}ToResponse(data))
 }
 
 // List godoc
