@@ -51,7 +51,6 @@ scaffold/
 │   │    ├── utils/         # utils工具函数
 │   │    └── validator/     # validator管理
 │   └── captcha             # 验证码模块
-│   └── img                 # 图库模块
 │   └── user                # 用户模块
 │   └── ...                 # 其余模块
 ├── logs/                   # 日志文件
