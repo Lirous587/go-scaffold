@@ -24,20 +24,13 @@ type zapConfig struct {
 var config zapConfig
 
 func UpdateConfig() {
-	level := utils.GetEnv("LOG_LEVEL")
-	fileName := utils.GetEnv("LOG_FILENAME")
-	maxSize := utils.GetEnvAsInt("LOG_MAX_SIZE")
-	maxAge := utils.GetEnvAsInt("LOG_MAX_AGE")
-	maxBackups := utils.GetEnvAsInt("LOG_MAX_BACKUPS")
-
 	config = zapConfig{
-		level:      level,
-		fileName:   fileName,
-		maxSize:    maxSize,
-		maxAge:     maxAge,
-		maxBackups: maxBackups,
+		level:      utils.GetEnv("LOG_LEVEL"),
+		fileName:   utils.GetEnv("LOG_FILENAME"),
+		maxSize:    utils.GetEnvAsInt("LOG_MAX_SIZE"),
+		maxAge:     utils.GetEnvAsInt("LOG_MAX_AGE"),
+		maxBackups: utils.GetEnvAsInt("LOG_MAX_BACKUPS"),
 	}
-
 }
 
 func Init() (err error) {

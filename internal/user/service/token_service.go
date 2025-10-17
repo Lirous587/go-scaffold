@@ -6,7 +6,6 @@ import (
 	"scaffold/internal/user/domain"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 )
 
@@ -16,7 +15,6 @@ var (
 )
 
 func init() {
-	_ = godotenv.Load()
 	secret = utils.GetEnv("JWT_SECRET")
 	expireMinute := utils.GetEnvAsInt("JWT_EXPIRE_MINUTE")
 	expire = time.Minute * time.Duration(expireMinute)

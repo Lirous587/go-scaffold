@@ -34,21 +34,14 @@ var (
 )
 
 func init() {
-	if err := UpdateConfig(); err != nil {
-		panic(err)
-	}
-}
-
-func UpdateConfig() error {
 	err := godotenv.Load()
 	if err != nil {
 		panic(err)
 	}
-	port := utils.GetEnvAsInt("EMAIL_PORT")
 
 	config = mailerConfig{
 		Host:     utils.GetEnv("EMAIL_HOST"),
-		Port:     port,
+		Port:     utils.GetEnvAsInt("EMAIL_PORT"),
 		Username: utils.GetEnv("EMAIL_USERNAME"),
 		Password: utils.GetEnv("EMAIL_PASSWORD"),
 		From:     utils.GetEnv("EMAIL_FROM"),
@@ -59,8 +52,6 @@ func UpdateConfig() error {
 	AdminEmail = utils.GetEnv("EMAIL_ADMIN")
 
 	globalDialer = gomail.NewDialer(config.Host, config.Port, config.Username, config.Password)
-
-	return nil
 }
 
 func NewMailer(templatesMap map[string]*template.Template) Mailer {
