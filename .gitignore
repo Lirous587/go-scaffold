@@ -9,3 +9,4 @@ logs
 .env.docker
 !docker/.env
 code_stats.ps1
+main
