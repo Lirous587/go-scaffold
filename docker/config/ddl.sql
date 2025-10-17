@@ -17,27 +17,3 @@ CREATE TABLE public.users
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON public.users (created_at);
 CREATE INDEX IF NOT EXISTS idx_users_nickname ON public.users (nickname);
 CREATE INDEX idx_users_github_id ON public.users (github_id) WHERE github_id IS NOT NULL;
-
--- img_categories
-CREATE TABLE public.img_categories
-(
-    id         bigserial PRIMARY KEY,
-    title      varchar(10)    NOT NULL UNIQUE,
-    prefix     varchar(20)    NOT NULL,
-    created_at timestamptz(6) NOT NULL DEFAULT now()
-);
-
--- img 表
-CREATE TABLE public.imgs
-(
-    id          bigserial PRIMARY KEY,
-    path        varchar(120)   NOT NULL,
-    description varchar(60),
-    created_at  timestamptz(6) NOT NULL DEFAULT now(),
-    updated_at  timestamptz(6) NOT NULL,
-    deleted_at  timestamptz(6),
-    category_id bigint REFERENCES img_categories (id)
-);
-CREATE UNIQUE INDEX idx_img_path ON public.imgs (path);
-CREATE INDEX idx_img_deleted_at ON public.imgs (deleted_at);
-CREATE INDEX idx_img_description_trgm ON public.imgs USING gin (description gin_trgm_ops);

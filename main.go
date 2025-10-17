@@ -12,7 +12,6 @@ import (
 	"scaffold/internal/common/metrics"
 	"scaffold/internal/common/server"
 	"scaffold/internal/common/uid"
-	"scaffold/internal/img"
 	"scaffold/internal/user"
 
 	"github.com/aarondl/sqlboiler/v4/boil"
@@ -125,7 +124,6 @@ func main() {
 
 		user.InitV1(r)
 		captcha.InitV1(r)
-		img.InitV1(r)
 	},
 		clear,
 	)
