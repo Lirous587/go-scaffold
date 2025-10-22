@@ -12,7 +12,9 @@ const (
 	ErrorTypeExternal      ErrorType = "EXTERNAL"
 	ErrorTypeRateLimit     ErrorType = "RATE_LIMIT"
 	ErrorTypeCacheMiss     ErrorType = "CACHE_MISS"
+	ErrorTypeConflict      ErrorType = "CONFLICT"
 )
+
 
 type ErrCode struct {
 	Msg  string

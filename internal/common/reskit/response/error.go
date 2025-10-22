@@ -97,6 +97,8 @@ func mapTypeToHTTPStatus(errorType codes.ErrorType) int {
 		return http.StatusNotFound
 	case codes.ErrorTypeAlreadyExists:
 		return http.StatusConflict
+	case codes.ErrorTypeConflict:
+		return http.StatusConflict
 	case codes.ErrorTypeUnauthorized:
 		return http.StatusUnauthorized
 	case codes.ErrorTypeForbidden:
@@ -105,7 +107,10 @@ func mapTypeToHTTPStatus(errorType codes.ErrorType) int {
 		return http.StatusTooManyRequests
 	case codes.ErrorTypeExternal:
 		return http.StatusBadGateway
-	default:	// ErrorTypeInternal
+	case codes.ErrorTypeCacheMiss:
+		// cache miss 对外通常表现为服务暂不可用
+		return http.StatusServiceUnavailable
+	default: // ErrorTypeInternal
 		return http.StatusInternalServerError
 	}
 }
