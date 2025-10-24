@@ -27,11 +27,6 @@ func NewKeyset[T any](pageSize int, beforeID, afterID int64) *keyset[T] {
 
 // 把 Keyset 参数应用到查询 Mod 上
 func (k *keyset[T]) ApplyKeysetMods(base []qm.QueryMod, IDCol string) []qm.QueryMod {
-	limit := k.PageSize
-	if limit <= 0 {
-		limit = 5
-	}
-
 	// 游标与排序
 	if k.AfterID > 0 {
 		base = append(base, qm.Where(fmt.Sprintf("%s > ?", IDCol), k.AfterID))
@@ -45,7 +40,7 @@ func (k *keyset[T]) ApplyKeysetMods(base []qm.QueryMod, IDCol string) []qm.Query
 	}
 
 	// limit
-	fetchLimit := limit + 1
+	fetchLimit := k.PageSize + 1
 	base = append(base, qm.Limit(fetchLimit))
 
 	return base
@@ -59,12 +54,7 @@ type paginationResult[T any] struct {
 
 // BuildPaginationResult 从查询结果构建 PaginationResult
 func (k *keyset[T]) BuildPaginationResult(domainSlice []*T) *paginationResult[T] {
-	limit := k.PageSize
-	if limit <= 0 {
-		limit = 5
-	}
-
-	hasMore := len(domainSlice) > limit
+	hasMore := len(domainSlice) > k.PageSize
 
 	// 截取
 	if hasMore {
