@@ -9,7 +9,7 @@ import (
 	"{{.Module}}/internal/common/reskit/codes"
 	"{{.Module}}/internal/{{.Domain}}/domain"
 	"{{.Module}}/internal/common/orm"
-	"{{.Module}}/internal/common/utils"
+	"{{.Module}}/internal/common/utils/dbkit"
 )
 
 type {{.DomainTitle}}PSQLRepository struct {
@@ -83,7 +83,7 @@ func (repo *{{.DomainTitle}}PSQLRepository) List(query *domain.{{.DomainTitle}}Q
 	}
 
 	// 2.计算offset
-	offset, err := utils.ComputeOffset(query.Page, query.PageSize)
+	offset, err := dbkit.ComputeOffset(query.Page, query.PageSize)
 	if err != nil {
 		return nil, err
 	}
