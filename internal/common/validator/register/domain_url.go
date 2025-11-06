@@ -24,6 +24,11 @@ func validateDomainURL(fl validator.FieldLevel) bool {
 		return false
 	}
 
+	// 协议验证
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return false
+	}
+
 	return urlPattern.MatchString(u.Host)
 }
 
