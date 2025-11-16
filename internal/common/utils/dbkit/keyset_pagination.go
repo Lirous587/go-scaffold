@@ -12,12 +12,12 @@ import (
 
 type keysetCursor struct {
 	CreatedAt time.Time
-	ID        int64
+	ID        string
 }
 
 type CursorFields interface {
 	GetCreatedAt() time.Time
-	GetID() int64
+	GetID() string
 }
 
 type keyset[T CursorFields] struct {
@@ -29,7 +29,7 @@ type keyset[T CursorFields] struct {
 }
 
 type paginationResult[T any] struct {
-	Items      []*T
+	Items      []T
 	PrevCursor string
 	NextCursor string
 	HasPrev    bool
@@ -79,17 +79,15 @@ func (k keyset[T]) decodeCursor(cursorStr string) *keysetCursor {
 	return &payload
 }
 
-func (k keyset[T]) extractKeysetCursor(item *T) *keysetCursor {
-	if item == nil {
-		return nil
-	}
-
+func (k keyset[T]) extractKeysetCursor(item T) *keysetCursor {
 	return &keysetCursor{
-		CreatedAt: (*item).GetCreatedAt(),
-		ID:        (*item).GetID(),
+		CreatedAt: item.GetCreatedAt(),
+		ID:        item.GetID(),
 	}
 }
 
+// ApplyKeysetMods 附加keyset查询的mods
+// mods建议额外预留4
 func (k keyset[T]) ApplyKeysetMods(base []qm.QueryMod) []qm.QueryMod {
 	var cursor *keysetCursor
 	var order string
@@ -116,7 +114,7 @@ func (k keyset[T]) ApplyKeysetMods(base []qm.QueryMod) []qm.QueryMod {
 	return base
 }
 
-func (k keyset[T]) BuildPaginationResult(domainSlice []*T) *paginationResult[T] {
+func (k keyset[T]) BuildPaginationResult(domainSlice []T) *paginationResult[T] {
 	hasMore := len(domainSlice) > k.PageSize
 
 	// 截取
