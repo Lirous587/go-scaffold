@@ -30,7 +30,7 @@ type ReadRequest struct {
 type ListRequest struct {
     Page     int    `form:"page,default=1" binding:"min=1"`
     PageSize int    `form:"page_size,default=5" binding:"min=5,max=20"`
-    KeyWord  string `form:"keyword" binding:"max=20"`
+    Keyword  string `form:"keyword" binding:"max=20"`
 }
 
 type {{.DomainTitle}}ListResponse struct {

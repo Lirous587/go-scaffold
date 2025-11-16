@@ -169,7 +169,7 @@ func (h *HttpHandler) List(ctx *gin.Context) {
 	}
 
     data, err := h.service.List(&domain.{{.DomainTitle}}Query{
-        Keyword:  req.KeyWord,
+        Keyword:  req.Keyword,
         Page:     req.Page,
         PageSize: req.PageSize,
     })
