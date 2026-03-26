@@ -1,9 +1,10 @@
 package bind
 
 import (
-	"github.com/gin-gonic/gin"
 	"scaffold/internal/common/reskit/response"
 	"scaffold/internal/common/validator"
+
+	"github.com/gin-gonic/gin"
 )
 
 // BindingRegular 绑定请求体中的 JSON、查询参数和 URI 参数到 req
@@ -14,7 +15,6 @@ func BindingRegular[T any](ctx *gin.Context, req *T) error {
 	_ = ctx.ShouldBindUri(req)
 
 	if err := validator.ValidateStruct(req); err != nil {
-		response.InvalidParams(ctx, err)
 		return err
 	}
 
